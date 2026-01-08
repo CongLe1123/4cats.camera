@@ -1,0 +1,83 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-lg: 1.5rem;
+  --radius-md: 1rem;
+  --radius-sm: 0.5rem;
+}
+
+:root {
+  --background: #fff8f9;
+  --foreground: #4a3438;
+  --card: #ffffff;
+  --card-foreground: #4a3438;
+  --popover: #ffffff;
+  --popover-foreground: #4a3438;
+  --primary: #ffb6c1;
+  --primary-foreground: #ffffff;
+  --secondary: #fdf2f4;
+  --secondary-foreground: #d81b60;
+  --muted: #fef2f4;
+  --muted-foreground: #a0848a;
+  --accent: #fff0f3;
+  --accent-foreground: #d81b60;
+  --destructive: #ff4d4d;
+  --destructive-foreground: #ffffff;
+  --border: #ffd1dc;
+  --input: #ffd1dc;
+  --ring: #ffb6c1;
+  --radius: 1rem;
+}
+
+body {
+  background-color: var(--background);
+  background-image: linear-gradient(var(--border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  color: var(--foreground);
+  font-family: "Lexend", "Rounded Mplus 1c", "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  min-height: 100vh;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.sticker {
+  filter: drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.05));
+  transition: transform 0.2s ease;
+}
+
+.sticker:hover {
+  transform: rotate(-2deg) scale(1.05);
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
