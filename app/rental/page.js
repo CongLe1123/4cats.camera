@@ -43,7 +43,7 @@ const cameras = [
     name: "Nikon Z fc",
     price: "$18/day",
     image:
-      "https://images.unsplash.com/photo-1526170315873-3a91b5ef3db9?q=80&w=500&auto=format&fit=crop",
+      "https://images.unsplash.com/photo-1495707902641-75cac588d2e9?q=80&w=500&auto=format&fit=crop",
     category: "Retro",
     tags: ["Style", "Full Frame"],
   },
