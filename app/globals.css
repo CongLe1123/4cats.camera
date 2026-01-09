@@ -69,11 +69,12 @@ h6 {
 
 .sticker {
   filter: drop-shadow(2px 2px 0px rgba(0, 0, 0, 0.05));
-  transition: transform 0.2s ease;
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 .sticker:hover {
-  transform: rotate(-2deg) scale(1.05);
+  transform: translateY(-8px) rotate(-3deg) scale(1.03);
+  filter: drop-shadow(0 20px 25px rgba(0, 0, 0, 0.1));
 }
 
 .glass {

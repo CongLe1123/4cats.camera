@@ -4,7 +4,7 @@
 
 This project is a **Camera Store Website** offering two main services:
 
-1. **Camera Rental**
+1. **Camera Rental & Camera Sale** (Rent or buy available cameras)
 2. **Camera Ordering / Proxy Buying Service**
    (Customers request a camera model, the store purchases it on their behalf, adds a service fee, and ships it.)
 
@@ -16,26 +16,26 @@ Target users include **students, content creators, travelers, beginners, and cas
 
 ## Design & style requirements
 
-- **Visual aesthetic**
+### Visual aesthetic
 
-  - Pastel pink dominant theme
-  - Cute, playful, cozy look
-  - Rounded corners on cards, buttons, and inputs
-  - Soft shadows
-  - Sticker-style icons and camera illustrations
-  - Light grid or tiled background
+- Pastel pink dominant theme
+- Cute, playful, cozy look
+- Rounded corners on cards, buttons, and inputs
+- Soft shadows
+- Sticker-style icons and camera illustrations
+- Light grid or tiled background
 
-- **Typography**
+### Typography
 
-  - Rounded sans-serif fonts
-  - Friendly and simple wording
-  - Playful micro-copy
+- Rounded sans-serif fonts
+- Friendly and simple wording
+- Playful micro-copy
 
-- **Tone**
+### Tone
 
-  - Friendly and trustworthy
-  - Non-technical
-  - Beginner-friendly
+- Friendly and trustworthy
+- Non-technical
+- Beginner-friendly
 
 ---
 
@@ -45,47 +45,70 @@ Target users include **students, content creators, travelers, beginners, and cas
 
 - Hero headline:
 
-  - **“Rent or Order Your Perfect Camera”**
+  - **“Rent, Buy, or Order Your Perfect Camera”**
 
 - Primary CTAs:
 
   - **Rent a Camera**
+  - **Buy a Camera**
   - **Order a Camera**
 
-- Short explanation of both services:
+- Short explanation of services:
 
-  - Rent cameras easily
+  - Rent cameras easily for short-term use
+  - Buy ready-to-use cameras directly from the store
   - Request any camera model and get it shipped
 
 ---
 
-### Camera rental page
+### Camera rental & sale page
+
+This page supports **camera rental** and **direct camera sales**.
 
 - Camera listing cards:
 
   - Image
   - Model name
-  - Daily rental price
-  - “Rent Now” button
+  - Condition (New / Like New / Used)
+  - Rental price (per day)
+  - Sale price (if available)
+  - **Rent Now** button
+  - **Buy Now** button
 
-- Rental process section:
+- Filter options:
+
+  - Rent only / Buy only / Both
+  - Brand
+  - Budget range
+
+- Rent & buy process section:
+
+  **Rental**
 
   1. Choose a camera
   2. Select rental dates
   3. Pay & receive
 
-- Deposit and rental policy displayed clearly
+  **Purchase**
+
+  1. Choose a camera
+  2. Confirm price & condition
+  3. Pay & ship
+
+- Rental deposit and usage policy displayed clearly
+
+- Clear notice when a camera is **sale-only**, **rent-only**, or **both**
 
 ---
 
 ### Camera ordering / proxy buying page
 
-This page allows users to **request the purchase of any camera**.
+This page allows users to **request the purchase of any camera** not currently listed for sale.
 
 - Order request form fields:
 
   - Camera brand
-  - Camera model (or link to product)
+  - Camera model (or product link)
   - Condition (new / used)
   - Budget range
   - Preferred store (optional)
@@ -97,23 +120,33 @@ This page allows users to **request the purchase of any camera**.
 
   - “You tell us the camera you want”
   - “We purchase it for you”
+  - “We handle checking & communication”
   - “We ship it to your address”
-  - “Service fee applied on top of camera price”
 
 - Clear notice:
 
   - Camera price + service fee + shipping cost
-  - Transparent pricing communication before purchase
+  - Transparent pricing confirmation before purchase
 
 ---
 
 ### Pricing & policies
 
-- Rental pricing rules
-- Deposit details
+- Rental pricing rules (daily rate, late fees)
+
+- Deposit details and refund conditions
+
+- Camera sale policy (condition grading, warranty if any)
+
 - Proxy buying service fee explanation
-- Refund and cancellation policies
-- Simple and friendly language (no legal jargon)
+
+- Refund and cancellation policies for:
+
+  - Rentals
+  - Direct purchases
+  - Proxy buying orders
+
+- Simple, friendly language (no legal jargon)
 
 ---
 
@@ -129,12 +162,15 @@ This page allows users to **request the purchase of any camera**.
 ## Dev environment tips
 
 - Use `pnpm create vite@latest <project_name> -- --template react-ts`
+
 - Prefer Tailwind CSS for pastel UI styling
+
 - Build reusable UI components:
 
-  - Product cards
+  - Product cards (rent & sale variants)
   - Forms
   - Buttons
+  - Price tags & condition badges
 
 - Keep spacing, colors, and border radius consistent with the design theme
 
@@ -142,8 +178,9 @@ This page allows users to **request the purchase of any camera**.
 
 ## Testing instructions
 
-- Test rental and order forms thoroughly
+- Test rental, purchase, and order forms thoroughly
 - Validate form submissions and edge cases
+- Ensure clear distinction between rent vs buy flows
 - Ensure mobile-first responsiveness
 - Run before merge:
 
@@ -155,8 +192,11 @@ This page allows users to **request the purchase of any camera**.
 ## PR instructions
 
 - Title format: `[camera-store] <Title>`
+
 - UI changes must follow the pastel/cute style guide
+
 - Avoid sharp edges, dark themes, or aggressive colors
+
 - Always run:
 
   - `pnpm lint`

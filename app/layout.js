@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <Navbar />
         <main className="flex-grow">{children}</main>
-        <footer className="border-t py-12 bg-white/50 backdrop-blur-sm">
+        <footer className="border-t py-4 bg-white/50 backdrop-blur-sm">
           <div className="container mx-auto px-4 text-center">
             <p className="text-muted-foreground text-sm font-medium">
               © 2026 4cats.camera - Your cozy camera companion 🐱📸

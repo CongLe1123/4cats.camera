@@ -7,7 +7,14 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
-import { Camera, Send, ShoppingCart, Truck, CreditCard } from "lucide-react";
+import {
+  Camera,
+  Send,
+  ShoppingCart,
+  Truck,
+  CreditCard,
+  CheckCircle2,
+} from "lucide-react";
 
 export default function OrderCameraPage() {
   return (
@@ -17,7 +24,7 @@ export default function OrderCameraPage() {
           <ShoppingCart className="h-10 w-10 text-primary" />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-4 italic text-primary">
-          Proxy Buying Service
+          Order Camera Service
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
           We hunt down and purchase your dream camera for you. Just tell us what
@@ -129,8 +136,13 @@ export default function OrderCameraPage() {
                   desc: "We buy it from a trusted source on your behalf.",
                 },
                 {
+                  icon: CheckCircle2,
+                  title: "3. We Check",
+                  desc: "We handle the inspection, testing, and communication for you.",
+                },
+                {
                   icon: Truck,
-                  title: "3. We Ship",
+                  title: "4. We Ship",
                   desc: "We ship it safely to your doorstep with tracking.",
                 },
               ].map((step, i) => (

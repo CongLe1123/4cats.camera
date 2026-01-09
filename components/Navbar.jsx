@@ -15,10 +15,11 @@ export function Navbar() {
         <nav className="hidden md:flex items-center gap-6">
           <Link href="/rental" className="text-sm font-medium hover:text-primary transition-colors">Rental</Link>
           <Link href="/order-camera" className="text-sm font-medium hover:text-primary transition-colors">Order Service</Link>
+          <Link href="/pricing" className="text-sm font-medium hover:text-primary transition-colors">Pricing</Link>
           <Link href="/contact" className="text-sm font-medium hover:text-primary transition-colors">Contact</Link>
         </nav>
         <div className="flex items-center gap-4">
-          <Button variant="outline" size="sm" className="hidden sm:flex">Login</Button>
+          {/* <Button variant="outline" size="sm" className="hidden sm:flex">Login</Button> */}
           <Button size="sm">Get Started</Button>
         </div>
       </div>

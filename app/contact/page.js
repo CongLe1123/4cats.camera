@@ -53,7 +53,7 @@ export default function ContactPage() {
             </div>
 
             <div className="mt-12 flex gap-4">
-              <Button variant="secondary" className="rounded-full px-8">
+              <Button variant="secondary" className="rounded-full px-8 sticker">
                 Get Directions
               </Button>
             </div>
@@ -64,10 +64,10 @@ export default function ContactPage() {
 
         {/* Social Cards */}
         <div className="flex flex-col gap-6">
-          <Card className="hover:border-primary transition-colors cursor-pointer group">
+          <Card className="hover:border-primary transition-all cursor-pointer group sticker">
             <CardContent className="p-6 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-3 rounded-2xl sticker shadow-lg">
+                <div className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-3 rounded-2xl shadow-lg">
                   <Instagram className="h-8 w-8 text-white" />
                 </div>
                 <div>
@@ -75,16 +75,16 @@ export default function ContactPage() {
                   <p className="text-sm text-muted-foreground">@4cats.camera</p>
                 </div>
               </div>
-              <Button variant="ghost" className="rounded-full sticker">
+              <Button variant="ghost" className="rounded-full">
                 Follow
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="hover:border-[#0084FF] transition-colors cursor-pointer">
+          <Card className="hover:border-[#0084FF] transition-all cursor-pointer sticker">
             <CardContent className="p-6 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="bg-[#0084FF] p-3 rounded-2xl sticker shadow-lg">
+                <div className="bg-[#0084FF] p-3 rounded-2xl shadow-lg">
                   <MessageCircle className="h-8 w-8 text-white" />
                 </div>
                 <div>
@@ -94,33 +94,16 @@ export default function ContactPage() {
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" className="rounded-full sticker">
+              <Button variant="ghost" className="rounded-full">
                 Open Chat
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="hover:border-[#25D366] transition-colors cursor-pointer">
+          <Card className="hover:border-[#0068FF] transition-all cursor-pointer sticker">
             <CardContent className="p-6 flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="bg-[#25D366] p-3 rounded-2xl sticker shadow-lg">
-                  <Phone className="h-8 w-8 text-white" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-lg">WhatsApp</h3>
-                  <p className="text-sm text-muted-foreground">+123 456 7890</p>
-                </div>
-              </div>
-              <Button variant="ghost" className="rounded-full sticker">
-                Message
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:border-[#0068FF] transition-colors cursor-pointer">
-            <CardContent className="p-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-[#0068FF] p-3 rounded-2xl sticker shadow-lg">
+                <div className="bg-[#0068FF] p-3 rounded-2xl shadow-lg">
                   <span className="text-white font-black text-2xl h-8 w-8 flex items-center justify-center">
                     Z
                   </span>
@@ -132,24 +115,12 @@ export default function ContactPage() {
                   </p>
                 </div>
               </div>
-              <Button variant="ghost" className="rounded-full sticker">
+              <Button variant="ghost" className="rounded-full">
                 Chat
               </Button>
             </CardContent>
           </Card>
         </div>
-      </div>
-
-      <div className="text-center bg-secondary/20 p-12 rounded-[2rem] border border-primary/10">
-        <h3 className="text-2xl font-bold mb-4 italic text-secondary-foreground">
-          Prefer a form?
-        </h3>
-        <p className="text-muted-foreground mb-8 max-w-md mx-auto">
-          Send us a message and our team will get back to you within 24 hours.
-        </p>
-        <Button size="lg" className="rounded-full px-12 h-14">
-          Open Contact Form
-        </Button>
       </div>
     </div>
   );

@@ -16,7 +16,7 @@ export default function Home() {
             </span>
           </div>
           <h1 className="text-4xl md:text-7xl font-bold mb-6 tracking-tight">
-            Rent or Order Your <br />
+            Rent, Buy, or Order Your <br />
             <span className="text-primary italic">Perfect</span> Camera
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
@@ -30,6 +30,14 @@ export default function Home() {
               asChild
             >
               <Link href="/rental">Rent a Camera</Link>
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full sm:w-auto text-lg px-10 h-14 sticker"
+              asChild
+            >
+              <Link href="/rental?filter=buy">Buy a Camera</Link>
             </Button>
             <Button
               variant="outline"
@@ -56,12 +64,12 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {[
             {
-              title: "Simple & Friendly",
-              desc: "No technical jargon. We explain cameras in plain English so you can start shooting right away.",
+              title: "Rent & Buy",
+              desc: "Rent for short-term fun or buy your own ready-to-use camera directly from our store.",
               icon: Sparkles,
             },
             {
-              title: "Proxy Buying Service",
+              title: "Order Camera Service",
               desc: "Request any camera model! We find it, purchase it, and ship it directly to your doorstep.",
               icon: CheckCircle2,
             },
@@ -73,10 +81,10 @@ export default function Home() {
           ].map((item, i) => (
             <Card
               key={i}
-              className="border-none shadow-none bg-primary/5 hover:bg-primary/10 transition-colors"
+              className="border-none shadow-none bg-primary/20 hover:bg-primary/30 transition-all sticker"
             >
               <CardContent className="pt-8">
-                <div className="bg-white w-12 h-12 rounded-xl flex items-center justify-center mb-4 sticker">
+                <div className="bg-white w-12 h-12 rounded-xl flex items-center justify-center mb-4">
                   <item.icon className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-xl font-bold mb-2">{item.title}</h3>
@@ -102,9 +110,10 @@ export default function Home() {
             <Button
               variant="secondary"
               size="lg"
-              className="rounded-full px-12 h-14 text-lg"
+              className="rounded-full px-12 h-14 text-lg sticker"
+              asChild
             >
-              Check out our catalog
+              <Link href="/rental">Check out our catalog</Link>
             </Button>
           </div>
           {/* Subtle decoration */}
