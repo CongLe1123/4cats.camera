@@ -24,56 +24,56 @@ export default function OrderCameraPage() {
           <ShoppingCart className="h-10 w-10 text-primary" />
         </div>
         <h1 className="text-4xl md:text-5xl font-bold mb-4 italic text-primary">
-          Order Camera Service
+          Dịch vụ đặt hàng máy ảnh
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          We hunt down and purchase your dream camera for you. Just tell us what
-          you want, and we'll handle the rest!
+          Chúng mình sẽ giúp bạn săn tìm và mua chiếc máy ảnh trong mơ. Chỉ cần
+          cho 4cats biết bạn cần gì, chúng mình sẽ lo liệu phần còn lại!
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
         {/* Form Section */}
         <div className="lg:col-span-2">
-          <Card className="shadow-xl border-primary/10">
+          <Card className="shadow-xl border-primary/10 sticker-static">
             <CardHeader>
-              <CardTitle>Order Request Form</CardTitle>
+              <CardTitle>Yêu cầu đặt hàng</CardTitle>
               <CardDescription>
-                Provide as many details as possible so we can find exactly what
-                you're looking for.
+                Hãy cung cấp chi tiết nhất có thể để chúng mình tìm đúng chiếc
+                máy bạn cần nhé.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-bold">Camera Brand</label>
-                  <Input placeholder="e.g. Fujifilm, Canon, Sony" />
+                  <label className="text-sm font-bold">Hãng máy ảnh</label>
+                  <Input placeholder="VD: Fujifilm, Canon, Sony..." />
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold">
-                    Model Name or Link
+                    Tên Model hoặc Link sản phẩm
                   </label>
-                  <Input placeholder="e.g. X100V or eBay link" />
+                  <Input placeholder="VD: Fujifilm X100V hoặc link eBay..." />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold">
-                    Condition Preference
+                    Tình trạng mong muốn
                   </label>
                   <div className="flex flex-wrap gap-2 ">
                     <Button
                       variant="outline"
                       className="flex-1 border-primary bg-primary/5"
                     >
-                      New
+                      Mới 100%
                     </Button>
                     <Button variant="outline" className="flex-1">
-                      Used / Like New
+                      Like New / Đã qua sử dụng
                     </Button>
                     <Button variant="outline" className="flex-1">
-                      Doesn't matter
+                      Tình trạng nào cũng được
                     </Button>
                   </div>
                 </div>
@@ -81,37 +81,37 @@ export default function OrderCameraPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-bold">
-                  Preferred Store (Optional)
+                  Cửa hàng ưu tiên (Nếu có)
                 </label>
-                <Input placeholder="e.g. BH Photo, Amazon, local shop" />
+                <Input placeholder="VD: eBay, Amazon, Map Camera Nhật..." />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold">Shipping Address</label>
-                <Input placeholder="Street, City, Country, Zip Code" />
+                <label className="text-sm font-bold">Địa chỉ nhận hàng</label>
+                <Input placeholder="Số nhà, Tên đường, Quận/Huyện, Tỉnh/Thành phố..." />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-bold">
-                    Contact Email / Phone
+                    Số điện thoại / Email liên hệ
                   </label>
-                  <Input placeholder="How should we reach you?" />
+                  <Input placeholder="4cats nên liên hệ với bạn qua đâu?" />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold">Special Requests</label>
-                  <Input placeholder="Anything else we should know?" />
+                  <label className="text-sm font-bold">Yêu cầu đặc biệt</label>
+                  <Input placeholder="Ví dụ: Cần máy gấp trước ngày..." />
                 </div>
               </div>
 
               <Button size="lg" className="w-full h-14 text-lg sticker">
-                Submit Order Request
+                Gửi yêu cầu đặt hàng
                 <Send className="ml-2 h-5 w-5" />
               </Button>
 
               <p className="text-xs text-center text-muted-foreground italic">
-                * We will contact you with a final price (Item + Service Fee +
-                Shipping) before proceeding with the purchase.
+                * 4cats sẽ liên hệ lại với bạn để báo giá cuối cùng (Giá máy +
+                Phí dịch vụ + Phí vận chuyển) trước khi tiến hành mua hàng.
               </p>
             </CardContent>
           </Card>
@@ -119,31 +119,31 @@ export default function OrderCameraPage() {
 
         {/* Info Section */}
         <div className="space-y-6">
-          <div className="bg-white/50 backdrop-blur p-8 rounded-[2rem] border border-primary/20 shadow-sm">
+          <div className="bg-white/50 backdrop-blur p-8 rounded-[2rem] border border-primary/20 shadow-sm sticker">
             <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              How it works
+              Quy trình đặt hàng
             </h3>
             <div className="space-y-8">
               {[
                 {
                   icon: Send,
-                  title: "1. You Request",
-                  desc: "Tell us the exact camera you want (or ask for a recommendation).",
+                  title: "1. Bạn yêu cầu",
+                  desc: "Cho 4cats biết chiếc máy ảnh bạn muốn (hoặc nhờ chúng mình tư vấn).",
                 },
                 {
                   icon: ShoppingCart,
-                  title: "2. We Purchase",
-                  desc: "We buy it from a trusted source on your behalf.",
+                  title: "2. Chúng mình mua",
+                  desc: "4cats sẽ tìm mua từ các nguồn uy tín nhất tại nước ngoài (Nhật, Mỹ...).",
                 },
                 {
                   icon: CheckCircle2,
-                  title: "3. We Check",
-                  desc: "We handle the inspection, testing, and communication for you.",
+                  title: "3. Chúng mình kiểm tra",
+                  desc: "Máy về tay 4cats sẽ được test kỹ ngoại hình và chức năng trước khi giao cho bạn.",
                 },
                 {
                   icon: Truck,
-                  title: "4. We Ship",
-                  desc: "We ship it safely to your doorstep with tracking.",
+                  title: "4. Giao đến bạn",
+                  desc: "Máy được đóng gói cẩn thận và giao tận cửa nhà bạn kèm bảo hành.",
                 },
               ].map((step, i) => (
                 <div key={i} className="flex gap-4">
@@ -161,21 +161,21 @@ export default function OrderCameraPage() {
             </div>
           </div>
 
-          <Card className="bg-primary text-primary-foreground p-8 rounded-[2rem] border-none shadow-lg shadow-primary/20">
+          <Card className="bg-primary text-primary-foreground p-8 rounded-[2rem] border-none shadow-lg shadow-primary/20 sticker">
             <h3 className="text-2xl font-bold mb-4 italic flex items-center gap-2">
               <CreditCard className="h-6 w-6" />
-              Pricing Notice
+              Lưu ý về giá
             </h3>
             <div className="space-y-4 text-sm opacity-90">
-              <p>Your total price will be:</p>
+              <p>Giá cuối cùng của bạn bao gồm:</p>
               <ul className="space-y-2 list-disc list-inside">
-                <li>Official Camera Price</li>
-                <li>Small Service Fee</li>
-                <li>Shipping Costs</li>
+                <li>Giá máy niêm yết tại web/store</li>
+                <li>Phí dịch vụ săn máy</li>
+                <li>Phí vận chuyển quốc tế & nội địa</li>
               </ul>
               <hr className="border-white/20" />
               <p className="font-bold">
-                Transparent communication every step of the way!
+                Chúng mình luôn minh bạch giá cả trong từng chặng đường!
               </p>
             </div>
           </Card>

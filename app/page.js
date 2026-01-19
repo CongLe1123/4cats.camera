@@ -1,111 +1,140 @@
+"use client";
 import { Button } from "../components/ui/button";
-import { Card, CardContent } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Badge } from "../components/ui/badge";
 import { Camera, Heart, Sparkles, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
+import { BannerCarousel } from "../components/BannerCarousel";
 
 export default function Home() {
   return (
     <div className="flex flex-col gap-12 pb-20">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 px-4 md:py-32">
-        <div className="container mx-auto text-center relative z-10">
-          <div className="inline-flex items-center gap-2 bg-white/80 border px-4 py-2 rounded-full mb-6 glass sticker">
-            <Sparkles className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium">
-              Over 1,000+ happy photographers
-            </span>
-          </div>
-          <h1 className="text-4xl md:text-7xl font-bold mb-6 tracking-tight">
-            Rent, Buy, or Order Your <br />
-            <span className="text-primary italic">Perfect</span> Camera
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            Cozy camera rental and proxy buying service. Rent easily or tell us
-            what you want and we'll get it shipped to you!
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button
-              size="lg"
-              className="w-full sm:w-auto text-lg px-10 h-14 shadow-lg shadow-primary/20 sticker"
-              asChild
-            >
-              <Link href="/rental">Rent a Camera</Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto text-lg px-10 h-14 sticker"
-              asChild
-            >
-              <Link href="/rental?filter=buy">Buy a Camera</Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full sm:w-auto text-lg px-10 h-14 sticker"
-              asChild
-            >
-              <Link href="/order-camera">Order a Camera</Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Floating elements/stickers (conceptual) */}
-        <div className="hidden lg:block absolute top-1/4 left-10 p-4 bg-white rounded-2xl sticker shadow-sm rotate-[-10deg]">
-          <Camera className="h-12 w-12 text-primary/60" />
-        </div>
-        <div className="hidden lg:block absolute bottom-1/4 right-10 p-4 bg-white rounded-2xl sticker shadow-sm rotate-[10deg]">
-          <Heart className="h-12 w-12 text-primary/60" />
-        </div>
+      {/* Banner Carousel Section - Replaces Hero */}
+      <section className="container mx-auto px-4 py-8">
+        <BannerCarousel />
       </section>
 
-      {/* Features/Why Us */}
+      {/* Hot Trend Section - Updated to match Shop Page Style */}
       <section className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex items-center justify-between mb-8">
+          <h2 className="text-3xl font-bold">Dòng máy Hot / Trend 🔥</h2>
+          <Link
+            href="/shop"
+            className="text-primary font-medium hover:underline"
+          >
+            Xem tất cả
+          </Link>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
             {
-              title: "Rent & Buy",
-              desc: "Rent for short-term fun or buy your own ready-to-use camera directly from our store.",
-              icon: Sparkles,
+              name: "Fujifilm Series X",
+              image:
+                "https://images.unsplash.com/photo-1510127034890-ba27508e9f1c?q=80&w=800&auto=format&fit=crop",
+              brand: "Fujifilm",
+              condition: "Hot Trend",
+              features: ["Film Simulation", "Retro Design"],
+              desc: "Dòng máy Mirrorless được yêu thích nhất với thiết kế hoài cổ.",
+              cta: "Xem Series X",
+              link: "/shop?brand=Fujifilm&series=X-Series",
             },
             {
-              title: "Order Camera Service",
-              desc: "Request any camera model! We find it, purchase it, and ship it directly to your doorstep.",
-              icon: CheckCircle2,
+              id: 3,
+              name: "Sony ZV Series",
+              image:
+                "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?q=80&w=800&auto=format&fit=crop",
+              brand: "Sony",
+              condition: "Best Vlog",
+              features: ["4K Video", "Fast AF"],
+              desc: "Lựa chọn hàng đầu cho Vlogger và Content Creator.",
+              cta: "Xem Sony ZV",
+              link: "/shop?brand=Sony&series=ZV",
             },
             {
-              title: "Beginner Ready",
-              desc: "Custom sets that come with filters, batteries, and SD cards. Just hit the shutter!",
-              icon: Camera,
+              id: 2,
+              name: "Canon R Series",
+              image:
+                "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?q=80&w=800&auto=format&fit=crop",
+              brand: "Canon",
+              condition: "Best Seller",
+              features: ["Skin Tone", "Easy to use"],
+              desc: "Màu da nịnh mắt, dễ sử dụng cho người mới bắt đầu.",
+              cta: "Xem Canon R",
+              link: "/shop?brand=Canon&series=EOS R",
             },
           ].map((item, i) => (
             <Card
               key={i}
-              className="border-none shadow-none bg-primary/20 hover:bg-primary/30 transition-all sticker"
+              className="overflow-hidden flex flex-col group h-full border-none shadow-lg hover:shadow-xl transition-all"
             >
-              <CardContent className="pt-8">
-                <div className="bg-white w-12 h-12 rounded-xl flex items-center justify-center mb-4">
-                  <item.icon className="h-6 w-6 text-primary" />
+              <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                />
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  <Badge
+                    variant="secondary"
+                    className="glass border-none px-3 py-1 text-[10px] uppercase font-bold"
+                  >
+                    {item.brand}
+                  </Badge>
+                  <Badge
+                    variant="outline"
+                    className="bg-white/90 border-none px-3 py-1 text-[10px] uppercase font-bold text-primary"
+                  >
+                    {item.condition}
+                  </Badge>
                 </div>
-                <h3 className="text-xl font-bold mb-2">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed">
+              </div>
+              <CardHeader className="p-5">
+                <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                  {item.name}
+                </CardTitle>
+                <CardDescription className="flex flex-wrap gap-2 mt-1">
+                  {item.features.map((tag) => (
+                    <span
+                      key={tag}
+                      className="text-[10px] uppercase font-bold text-muted-foreground/70 bg-secondary/50 px-2 py-0.5 rounded-sm"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-5 pb-4 flex-grow">
+                <p className="text-muted-foreground leading-relaxed text-sm">
                   {item.desc}
                 </p>
               </CardContent>
+              <CardFooter className="p-5 pt-0">
+                <Button className="w-full sticker h-10" asChild>
+                  <Link href={item.link}>{item.cta}</Link>
+                </Button>
+              </CardFooter>
             </Card>
           ))}
         </div>
       </section>
 
-      {/* CTA section with Grid background */}
+      {/* CTA section */}
       <section className="container mx-auto px-4 py-20">
         <div className="bg-primary text-primary-foreground rounded-[2rem] p-8 md:p-16 text-center shadow-2xl relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Ready to start your journey?
+              Sẵn sàng ghi lại khoảnh khắc?
             </h2>
             <p className="text-primary-foreground/80 mb-10 text-lg md:text-xl max-w-xl mx-auto">
-              Join our community of student and traveler photographers today.
+              Hãy để 4cats.camera cùng bạn bắt đầu hành trình nhiếp ảnh đầy thú
+              vị.
             </p>
             <Button
               variant="secondary"
@@ -113,10 +142,9 @@ export default function Home() {
               className="rounded-full px-12 h-14 text-lg sticker"
               asChild
             >
-              <Link href="/rental">Check out our catalog</Link>
+              <Link href="/shop">Xem danh sách máy ngay</Link>
             </Button>
           </div>
-          {/* Subtle decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
         </div>

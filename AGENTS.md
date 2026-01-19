@@ -1,205 +1,303 @@
 # AGENTS.md
 
-## Project overview
+## Tổng quan dự án
 
-This project is a **Camera Store Website** offering two main services:
+Dự án là một **Website Cửa Hàng Máy Ảnh** chuyên **bán máy ảnh**.
 
-1. **Camera Rental & Camera Sale** (Rent or buy available cameras)
-2. **Camera Ordering / Proxy Buying Service**
-   (Customers request a camera model, the store purchases it on their behalf, adds a service fee, and ships it.)
+Website sử dụng **Supabase làm backend** (database, authentication, storage, admin).
 
-The website must visually follow a **cute, pastel, Instagram-style aesthetic** inspired by the provided reference image.
+Phong cách giao diện theo hướng **dễ thương – pastel – Instagram style**.
 
-Target users include **students, content creators, travelers, beginners, and casual photographers**.
+Đối tượng người dùng:
+
+- Sinh viên
+- Content creator
+- Người đi du lịch
+- Người mới bắt đầu
+- Người chụp ảnh casual
 
 ---
 
-## Design & style requirements
+## Yêu cầu thiết kế & phong cách
 
-### Visual aesthetic
+### Giao diện
 
-- Pastel pink dominant theme
-- Cute, playful, cozy look
-- Rounded corners on cards, buttons, and inputs
-- Soft shadows
-- Sticker-style icons and camera illustrations
-- Light grid or tiled background
+- Tông **hồng pastel** chủ đạo
+- Cảm giác dễ thương, ấm áp, thân thiện
+- Bo góc tròn cho card, button, input
+- Shadow mềm
+- Icon dạng sticker, minh họa máy ảnh
+- Background dạng lưới nhẹ hoặc tiled
 
 ### Typography
 
-- Rounded sans-serif fonts
-- Friendly and simple wording
-- Playful micro-copy
+- Font sans-serif bo tròn
+- Câu chữ đơn giản, dễ hiểu
+- Micro-copy thân thiện
 
-### Tone
+### Tone nội dung
 
-- Friendly and trustworthy
-- Non-technical
-- Beginner-friendly
-
----
-
-## Website structure & pages
-
-### Homepage
-
-- Hero headline:
-
-  - **“Rent, Buy, or Order Your Perfect Camera”**
-
-- Primary CTAs:
-
-  - **Rent a Camera**
-  - **Buy a Camera**
-  - **Order a Camera**
-
-- Short explanation of services:
-
-  - Rent cameras easily for short-term use
-  - Buy ready-to-use cameras directly from the store
-  - Request any camera model and get it shipped
+- Thân thiện
+- Đáng tin cậy
+- Dễ hiểu cho người mới
+- Tránh thuật ngữ kỹ thuật phức tạp
 
 ---
 
-### Camera rental & sale page
-
-This page supports **camera rental** and **direct camera sales**.
-
-- Camera listing cards:
-
-  - Image
-  - Model name
-  - Condition (New / Like New / Used)
-  - Rental price (per day)
-  - Sale price (if available)
-  - **Rent Now** button
-  - **Buy Now** button
-
-- Filter options:
-
-  - Rent only / Buy only / Both
-  - Brand
-  - Budget range
-
-- Rent & buy process section:
-
-  **Rental**
-
-  1. Choose a camera
-  2. Select rental dates
-  3. Pay & receive
-
-  **Purchase**
-
-  1. Choose a camera
-  2. Confirm price & condition
-  3. Pay & ship
-
-- Rental deposit and usage policy displayed clearly
-
-- Clear notice when a camera is **sale-only**, **rent-only**, or **both**
+## Cấu trúc website & các trang
 
 ---
 
-### Camera ordering / proxy buying page
+## Navbar
 
-This page allows users to **request the purchase of any camera** not currently listed for sale.
+Các mục chính trên thanh điều hướng:
 
-- Order request form fields:
-
-  - Camera brand
-  - Camera model (or product link)
-  - Condition (new / used)
-  - Budget range
-  - Preferred store (optional)
-  - Shipping address
-  - Contact information
-  - Notes or special requests
-
-- Explanation section:
-
-  - “You tell us the camera you want”
-  - “We purchase it for you”
-  - “We handle checking & communication”
-  - “We ship it to your address”
-
-- Clear notice:
-
-  - Camera price + service fee + shipping cost
-  - Transparent pricing confirmation before purchase
+- **Hệ thống cửa hàng**
+- **Gọi mua hàng**
+- **Chính sách bảo hành**
+- **Chính sách mua hàng**
 
 ---
 
-### Pricing & policies
+## Trang chủ
 
-- Rental pricing rules (daily rate, late fees)
+### Nội dung chính
 
-- Deposit details and refund conditions
+- **Banner quảng cáo**
+- **Khu vực khuyến mãi**
+- **Tin hot**
+- **Dòng máy hot / trend**
 
-- Camera sale policy (condition grading, warranty if any)
+### CTA chính
 
-- Proxy buying service fee explanation
+- Mua máy
+- Xem sản phẩm hot
 
-- Refund and cancellation policies for:
-
-  - Rentals
-  - Direct purchases
-  - Proxy buying orders
-
-- Simple, friendly language (no legal jargon)
+> Nội dung trang chủ được quản lý động từ admin (Supabase).
 
 ---
 
-### Contact page
+## Trang mua máy
 
-- Social-media-first layout
-- Instagram-style cards
-- Chat buttons (Messenger / WhatsApp / Zalo)
-- Friendly call-to-action text
+Trang này dùng để **xem và mua máy ảnh**.
 
----
-
-## Dev environment tips
-
-- Use `pnpm create vite@latest <project_name> -- --template react-ts`
-
-- Prefer Tailwind CSS for pastel UI styling
-
-- Build reusable UI components:
-
-  - Product cards (rent & sale variants)
-  - Forms
-  - Buttons
-  - Price tags & condition badges
-
-- Keep spacing, colors, and border radius consistent with the design theme
+Tất cả dữ liệu máy ảnh được quản lý từ **Supabase**.
 
 ---
 
-## Testing instructions
+### Card sản phẩm
 
-- Test rental, purchase, and order forms thoroughly
-- Validate form submissions and edge cases
-- Ensure clear distinction between rent vs buy flows
-- Ensure mobile-first responsiveness
-- Run before merge:
-
-  - `pnpm lint`
-  - `pnpm test`
+- Hình ảnh máy
+- Tên model
+- Hãng
+- Độ mới
+- Màu sắc
+- Giá bán
+- Trạng thái còn hàng
+- Nút **Mua ngay**
 
 ---
 
-## PR instructions
+### Bộ lọc sản phẩm
 
-- Title format: `[camera-store] <Title>`
+- Hãng (có thể bao gồm nhiều dòng)
+- Giá
+- Màu sắc
+- **Tính năng**
+  (admin có thể thêm mới hoặc dùng danh sách có sẵn)
+- **Độ mới**
+  (admin có thể thêm mới hoặc dùng danh sách có sẵn)
 
-- UI changes must follow the pastel/cute style guide
+---
 
-- Avoid sharp edges, dark themes, or aggressive colors
+### Trang chi tiết sản phẩm
 
-- Always run:
+Mỗi sản phẩm có trang chi tiết riêng.
 
-  - `pnpm lint`
-  - `pnpm test`
+#### Mô tả chi tiết
 
-- Include screenshots for UI changes when possible
+- Nội dung mô tả
+- Có thể gắn **ảnh**
+- Có thể gắn **video**
+
+#### Các option lựa chọn
+
+- **Màu sắc**
+- **Độ mới**:
+
+  - Mới
+  - Like new
+  - Trầy xước ít (mới 95%)
+  - Trầy xước vừa (mới 90%)
+  - Cũ (cấn xước nhiều)
+
+#### Hiển thị giá & tồn kho
+
+- Nếu option **còn hàng** → hiển thị giá bán
+- Nếu **hết hàng**:
+
+  - Hiển thị text **“Liên hệ”**
+  - Icon pop-up dẫn sang:
+
+    - Instagram
+    - Zalo
+    - Facebook
+
+---
+
+## Trang chính sách
+
+- Chính sách mua hàng
+- Chính sách bảo hành
+- Điều kiện đổi trả (nếu có)
+
+Ngôn ngữ đơn giản, dễ hiểu, không dùng thuật ngữ pháp lý.
+
+---
+
+## Trang liên hệ
+
+- Layout ưu tiên mạng xã hội
+- Card style Instagram
+- Nút chat:
+
+  - Messenger
+  - WhatsApp
+  - Zalo
+
+- CTA thân thiện
+
+---
+
+## Trang Admin
+
+### Phân quyền
+
+- Đăng nhập bằng **Supabase Auth**
+- Chỉ admin truy cập
+
+---
+
+### Chức năng admin
+
+#### Quản lý nội dung trang chủ
+
+Admin có thể chỉnh sửa trực tiếp:
+
+- Banner quảng cáo
+
+  - Hình ảnh
+  - Video (nếu có)
+  - Text / slogan
+  - Link điều hướng
+
+- Khuyến mãi
+
+  - Tiêu đề
+  - Mô tả
+  - Thời gian áp dụng
+
+- Tin hot
+
+  - Tiêu đề
+  - Nội dung ngắn
+  - Ảnh
+
+- Dòng máy hot / trend
+
+  - Chọn từ danh sách sản phẩm
+  - Sắp xếp thứ tự
+
+Nội dung có thể:
+
+- Bật / tắt hiển thị
+- Sắp xếp thứ tự
+- Hẹn thời gian hiển thị
+
+---
+
+#### Quản lý sản phẩm
+
+- Thêm / sửa / ẩn máy ảnh
+- Upload ảnh & video (Supabase Storage)
+- Thiết lập:
+
+  - Giá bán
+  - Màu sắc
+  - Độ mới
+  - Tính năng
+  - Tồn kho
+  - Trạng thái hiển thị
+
+---
+
+#### Thông báo mua hàng
+
+- Nhận thông báo khi có người mua
+- Gửi email thông báo đến:
+  **[fourcatscamera@gmail.com](mailto:fourcatscamera@gmail.com)**
+
+---
+
+## Dev environment
+
+- Khởi tạo:
+
+  ```bash
+  pnpm create vite@latest <project_name> -- --template react-ts
+  ```
+
+- Tailwind CSS cho UI pastel
+
+- Supabase cho:
+
+  - Database
+  - Auth
+  - Storage
+
+- Component tái sử dụng:
+
+  - Product card
+  - Filter
+  - Form
+  - Badge trạng thái
+
+---
+
+## Testing
+
+- Test:
+
+  - Luồng mua hàng
+  - Bộ lọc
+  - Option hết hàng
+  - Thông báo admin
+
+- Mobile-first
+- Trước khi merge:
+
+  ```bash
+  pnpm lint
+  pnpm test
+  ```
+
+---
+
+## PR rules
+
+- Title:
+
+  ```
+  [camera-store] <Title>
+  ```
+
+- UI phải đúng pastel / cute
+- Không dùng màu gắt, theme tối
+- Luôn chạy:
+
+  ```bash
+  pnpm lint
+  pnpm test
+  ```
+
+- Có screenshot khi thay đổi UI

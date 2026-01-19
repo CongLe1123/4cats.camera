@@ -6,28 +6,30 @@ export default function ContactPage() {
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <div className="text-center mb-16">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4">Say Hello! 🐱✨</h1>
+        <h1 className="text-4xl md:text-5xl font-bold mb-4">
+          Liên hệ với 4cats! 🐱✨
+        </h1>
         <p className="text-muted-foreground text-lg">
-          We're here to help you with your camera journey.
+          Chúng mình luôn sẵn sàng hỗ trợ bạn trên hành trình nhiếp ảnh.
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-        <Card className="p-8 border-none bg-primary text-primary-foreground shadow-2xl overflow-hidden relative">
+        <Card className="p-8 border-none bg-primary text-primary-foreground shadow-2xl overflow-hidden relative sticker">
           <div className="relative z-10 h-full flex flex-col justify-between">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Our Studio</h2>
+              <h2 className="text-3xl font-bold mb-6">Thông tin</h2>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="bg-white/20 p-2 rounded-xl mt-1">
                     <MapPin className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold">Visit Us</h4>
+                    <h4 className="font-bold">Địa chỉ</h4>
                     <p className="opacity-80">
-                      123 Pastel Lane, Creative District
+                      123 Đường Pastel, Quận Cute
                       <br />
-                      Camera City, 56789
+                      TP. Hồ Chí Minh
                     </p>
                   </div>
                 </div>
@@ -36,8 +38,8 @@ export default function ContactPage() {
                     <Phone className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold">Call Us</h4>
-                    <p className="opacity-80">+1 (555) PASTEL-CAM</p>
+                    <h4 className="font-bold">Hotline</h4>
+                    <p className="opacity-80">09xx-xxx-xxx</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -45,8 +47,8 @@ export default function ContactPage() {
                     <Mail className="h-6 w-6" />
                   </div>
                   <div>
-                    <h4 className="font-bold">Email Us</h4>
-                    <p className="opacity-80">hello@4cats.camera</p>
+                    <h4 className="font-bold">Email</h4>
+                    <p className="opacity-80">fourcatscamera@gmail.com</p>
                   </div>
                 </div>
               </div>
@@ -54,11 +56,10 @@ export default function ContactPage() {
 
             <div className="mt-12 flex gap-4">
               <Button variant="secondary" className="rounded-full px-8 sticker">
-                Get Directions
+                Xem bản đồ
               </Button>
             </div>
           </div>
-          {/* Subtle decoration */}
           <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-32 -mt-32"></div>
         </Card>
 
@@ -76,7 +77,7 @@ export default function ContactPage() {
                 </div>
               </div>
               <Button variant="ghost" className="rounded-full">
-                Follow
+                Theo dõi
               </Button>
             </CardContent>
           </Card>
@@ -90,12 +91,12 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-bold text-lg">Messenger</h3>
                   <p className="text-sm text-muted-foreground">
-                    Chat with us instantly
+                    Chat với chúng mình ngay
                   </p>
                 </div>
               </div>
               <Button variant="ghost" className="rounded-full">
-                Open Chat
+                Mở Chat
               </Button>
             </CardContent>
           </Card>
@@ -111,12 +112,12 @@ export default function ContactPage() {
                 <div>
                   <h3 className="font-bold text-lg">Zalo</h3>
                   <p className="text-sm text-muted-foreground">
-                    Admin: 0123 456 789
+                    Admin: 09xx xxx xxx
                   </p>
                 </div>
               </div>
               <Button variant="ghost" className="rounded-full">
-                Chat
+                Chat trực tiếp
               </Button>
             </CardContent>
           </Card>

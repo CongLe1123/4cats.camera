@@ -2,14 +2,14 @@ import "./globals.css";
 import { Navbar } from "../components/Navbar";
 
 export const metadata = {
-  title: "4cats.camera | Rent & Find Your Perfect Camera",
+  title: "4cats.camera | Cửa hàng máy ảnh nhỏ xinh 🐱📸",
   description:
-    "Beginner-friendly camera rental and buying assistance for creators and travelers.",
+    "Chuyên cung cấp máy ảnh chất lượng, dịch vụ order máy ảnh uy tín cho người mới và creator.",
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -25,13 +25,14 @@ export default function RootLayout({ children }) {
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
         <Navbar />
         <main className="flex-grow">{children}</main>
-        <footer className="border-t py-4 bg-white/50 backdrop-blur-sm">
+        <footer className="border-t py-6 bg-white/50 backdrop-blur-sm">
           <div className="container mx-auto px-4 text-center">
             <p className="text-muted-foreground text-sm font-medium">
-              © 2026 4cats.camera - Your cozy camera companion 🐱📸
+              © 2026 4cats.camera - Người bạn đồng hành cùng đam mê nhiếp ảnh
+              🐱📸
             </p>
             <p className="text-muted-foreground/60 text-xs mt-1">
-              Made with love for beginners and creators.
+              Được thiết kế với tình yêu dành cho người mới bắt đầu.
             </p>
           </div>
         </footer>
