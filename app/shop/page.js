@@ -36,6 +36,15 @@ const brands = [
   "Olympus",
 ];
 
+const categories = [
+  "All",
+  "Compact",
+  "Mirrorless",
+  "DSLR",
+  "Lens",
+  "Accessories",
+];
+
 const seriesByBrand = {
   All: [],
   Fujifilm: ["X-Series", "GFX", "FinePix"],
@@ -60,11 +69,23 @@ const specialtyOptions = [
 
 function ShopContent() {
   const searchParams = useSearchParams();
-  const initialBrand = searchParams.get("brand") || "All";
+  const initialBrandRaw = searchParams.get("brand");
+  const initialBrand =
+    brands.find((b) => b.toLowerCase() === initialBrandRaw?.toLowerCase()) ||
+    "All";
+
   const initialSeries = searchParams.get("series") || "All";
+
+  const initialCategoryRaw = searchParams.get("category");
+  const initialCategory =
+    categories.find(
+      (c) => c.toLowerCase() === initialCategoryRaw?.toLowerCase(),
+    ) || "All";
 
   const [filterBrand, setFilterBrand] = useState(initialBrand);
   const [filterSeries, setFilterSeries] = useState(initialSeries);
+  const [filterCategory, setFilterCategory] = useState(initialCategory);
+  const [sortOrder, setSortOrder] = useState("default");
   const [filterCondition, setFilterCondition] = useState("All");
   const [filterColor, setFilterColor] = useState("All");
   const [filterSpecialty, setFilterSpecialty] = useState("All");
@@ -84,7 +105,9 @@ function ShopContent() {
   };
 
   const filteredCameras = cameras.filter((camera) => {
-    // 1. Basic Filters (Brand, Series, Search, Specialty)
+    // 1. Basic Filters (Category, Brand, Series, Search, Specialty)
+    if (filterCategory !== "All" && camera.category !== filterCategory)
+      return false;
     if (filterBrand !== "All" && camera.brand !== filterBrand) return false;
     if (filterSeries !== "All" && camera.series !== filterSeries) return false;
     if (
@@ -123,6 +146,19 @@ function ShopContent() {
     }
 
     return true;
+  });
+
+  const sortedCameras = [...filteredCameras].sort((a, b) => {
+    if (sortOrder === "default") return 0;
+    const priceA = getDisplayPrice(a);
+    const priceB = getDisplayPrice(b);
+
+    // Push items without price to the bottom
+    if (priceA === null && priceB !== null) return 1;
+    if (priceA !== null && priceB === null) return -1;
+    if (priceA === null && priceB === null) return 0;
+
+    return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
   });
 
   const availableSeries =
@@ -225,7 +261,7 @@ function ShopContent() {
           </div>
 
           {/* Bottom Row: Filters */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 w-full">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 w-full">
             <div className="space-y-2">
               <Label className="font-bold ml-1">Hãng</Label>
               <Select
@@ -249,7 +285,7 @@ function ShopContent() {
             </div>
 
             <div className="space-y-2">
-              <Label className="font-bold ml-1">Dòng máy (Series)</Label>
+              <Label className="font-bold ml-1">Dòng máy</Label>
               <Select
                 value={filterSeries}
                 onValueChange={setFilterSeries}
@@ -263,6 +299,22 @@ function ShopContent() {
                   {availableSeries.map((s) => (
                     <SelectItem key={s} value={s}>
                       {s}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="font-bold ml-1">Loại máy</Label>
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="rounded-xl border-primary/20">
+                  <SelectValue placeholder="Chọn loại" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {c === "All" ? "Tất cả" : c}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -303,7 +355,7 @@ function ShopContent() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="font-bold ml-1">Tính năng đặc biệt</Label>
+              <Label className="font-bold ml-1">Tính năng</Label>
               <Select
                 value={filterSpecialty}
                 onValueChange={setFilterSpecialty}
@@ -324,10 +376,32 @@ function ShopContent() {
         </div>
       </div>
 
+      {/* Results Header & Sort */}
+      {sortedCameras.length > 0 && (
+        <div className="flex items-center justify-between mb-6">
+          <p className="font-bold text-muted-foreground">
+            {sortedCameras.length} kết quả tìm thấy
+          </p>
+          <div className="flex items-center gap-2">
+            <Label className="font-bold whitespace-nowrap">Sắp xếp:</Label>
+            <Select value={sortOrder} onValueChange={setSortOrder}>
+              <SelectTrigger className="w-[180px] rounded-xl border-primary/20">
+                <SelectValue placeholder="Sắp xếp" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">Mặc định</SelectItem>
+                <SelectItem value="asc">Giá thấp đến cao</SelectItem>
+                <SelectItem value="desc">Giá cao đến thấp</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      )}
+
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mb-20 animate-in fade-in duration-500">
-        {filteredCameras.length > 0 ? (
-          filteredCameras.map((camera) => (
+        {sortedCameras.length > 0 ? (
+          sortedCameras.map((camera) => (
             <Card
               key={camera.id}
               className="overflow-hidden flex flex-col group h-full border-none shadow-lg hover:shadow-xl transition-all"
@@ -413,6 +487,8 @@ function ShopContent() {
             <Button
               variant="link"
               onClick={() => {
+                setSortOrder("default");
+                setFilterCategory("All");
                 setFilterBrand("All");
                 setFilterSeries("All");
                 setFilterCondition("All");

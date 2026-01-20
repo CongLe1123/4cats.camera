@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "../../components/ui/button";
 import {
   Card,
@@ -8,122 +9,29 @@ import {
 } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import {
-  Camera,
   Send,
   ShoppingCart,
   Truck,
   CreditCard,
   CheckCircle2,
+  Ticket,
+  Gift,
+  Sparkles,
 } from "lucide-react";
+import { BannerCarousel } from "../../components/BannerCarousel";
 
 export default function OrderCameraPage() {
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl">
-      <div className="text-center mb-16">
-        <div className="bg-primary/10 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6 sticker">
-          <ShoppingCart className="h-10 w-10 text-primary" />
-        </div>
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 italic text-primary">
-          Dịch vụ đặt hàng máy ảnh
-        </h1>
-        <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          Chúng mình sẽ giúp bạn săn tìm và mua chiếc máy ảnh trong mơ. Chỉ cần
-          cho 4cats biết bạn cần gì, chúng mình sẽ lo liệu phần còn lại!
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-        {/* Form Section */}
-        <div className="lg:col-span-2">
-          <Card className="shadow-xl border-primary/10 sticker-static">
-            <CardHeader>
-              <CardTitle>Yêu cầu đặt hàng</CardTitle>
-              <CardDescription>
-                Hãy cung cấp chi tiết nhất có thể để chúng mình tìm đúng chiếc
-                máy bạn cần nhé.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold">Hãng máy ảnh</label>
-                  <Input placeholder="VD: Fujifilm, Canon, Sony..." />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold">
-                    Tên Model hoặc Link sản phẩm
-                  </label>
-                  <Input placeholder="VD: Fujifilm X100V hoặc link eBay..." />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold">
-                    Tình trạng mong muốn
-                  </label>
-                  <div className="flex flex-wrap gap-2 ">
-                    <Button
-                      variant="outline"
-                      className="flex-1 border-primary bg-primary/5"
-                    >
-                      Mới 100%
-                    </Button>
-                    <Button variant="outline" className="flex-1">
-                      Like New / Đã qua sử dụng
-                    </Button>
-                    <Button variant="outline" className="flex-1">
-                      Tình trạng nào cũng được
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold">
-                  Cửa hàng ưu tiên (Nếu có)
-                </label>
-                <Input placeholder="VD: eBay, Amazon, Map Camera Nhật..." />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-bold">Địa chỉ nhận hàng</label>
-                <Input placeholder="Số nhà, Tên đường, Quận/Huyện, Tỉnh/Thành phố..." />
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold">
-                    Số điện thoại / Email liên hệ
-                  </label>
-                  <Input placeholder="4cats nên liên hệ với bạn qua đâu?" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold">Yêu cầu đặc biệt</label>
-                  <Input placeholder="Ví dụ: Cần máy gấp trước ngày..." />
-                </div>
-              </div>
-
-              <Button size="lg" className="w-full h-14 text-lg sticker">
-                Gửi yêu cầu đặt hàng
-                <Send className="ml-2 h-5 w-5" />
-              </Button>
-
-              <p className="text-xs text-center text-muted-foreground italic">
-                * 4cats sẽ liên hệ lại với bạn để báo giá cuối cùng (Giá máy +
-                Phí dịch vụ + Phí vận chuyển) trước khi tiến hành mua hàng.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Info Section */}
-        <div className="space-y-6">
-          <div className="bg-white/50 backdrop-blur p-8 rounded-[2rem] border border-primary/20 shadow-sm sticker">
-            <h3 className="text-2xl font-bold mb-6 flex items-center gap-2">
-              Quy trình đặt hàng
-            </h3>
-            <div className="space-y-8">
+    <div className="container mx-auto px-4 py-12 max-w-6xl">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start text-left">
+        {/* LEFT COLUMN */}
+        <div className="space-y-12">
+          {/* Chính sách order */}
+          <section>
+            <h1 className="text-4xl font-bold mb-8 italic text-primary">
+              Chính sách order
+            </h1>
+            <div className="space-y-6">
               {[
                 {
                   icon: Send,
@@ -146,21 +54,81 @@ export default function OrderCameraPage() {
                   desc: "Máy được đóng gói cẩn thận và giao tận cửa nhà bạn kèm bảo hành.",
                 },
               ].map((step, i) => (
-                <div key={i} className="flex gap-4">
+                <div
+                  key={i}
+                  className="flex gap-4 p-4 rounded-2xl bg-white/50 border border-primary/10 hover:bg-white/80 transition-all"
+                >
                   <div className="bg-primary/20 p-3 rounded-2xl h-fit">
-                    <step.icon className="h-5 w-5 text-primary" />
+                    <step.icon className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <h4 className="font-bold">{step.title}</h4>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <h4 className="font-bold text-lg">{step.title}</h4>
+                    <p className="text-muted-foreground leading-relaxed">
                       {step.desc}
                     </p>
                   </div>
                 </div>
               ))}
             </div>
-          </div>
+          </section>
 
+          {/* Form */}
+          <section>
+            <h2 className="text-3xl font-bold mb-6 italic text-primary">
+              Nhập thông tin
+            </h2>
+            <Card className="shadow-xl border-primary/10 sticker-static bg-white">
+              <CardContent className="space-y-6 pt-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold">Họ và tên</label>
+                  <Input
+                    placeholder="Tên của bạn..."
+                    className="bg-secondary/20 border-primary/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold">
+                    Số điện thoại / Zalo
+                  </label>
+                  <Input
+                    placeholder="Số điện thoại để liên hệ..."
+                    className="bg-secondary/20 border-primary/20"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-bold">
+                    Tên Model hoặc Link sản phẩm
+                  </label>
+                  <Input
+                    placeholder="VD: Fujifilm X100V hoặc link eBay..."
+                    className="bg-secondary/20 border-primary/20"
+                  />
+                </div>
+
+                <Button size="lg" className="w-full h-14 text-lg sticker mt-4">
+                  Gửi yêu cầu đặt hàng
+                  <Send className="ml-2 h-5 w-5" />
+                </Button>
+              </CardContent>
+            </Card>
+          </section>
+        </div>
+
+        {/* RIGHT COLUMN */}
+        <div className="space-y-8 sticky top-4">
+          {/* Quảng cáo */}
+          <section>
+            <h2 className="text-3xl font-bold mb-6 italic text-primary text-right">
+              Góc ưu đãi
+            </h2>
+            <div className="rounded-[2rem] overflow-hidden shadow-lg border border-primary/20">
+              <BannerCarousel />
+            </div>
+          </section>
+
+          {/* Giá cả */}
           <Card className="bg-primary text-primary-foreground p-8 rounded-[2rem] border-none shadow-lg shadow-primary/20 sticker">
             <h3 className="text-2xl font-bold mb-4 italic flex items-center gap-2">
               <CreditCard className="h-6 w-6" />
