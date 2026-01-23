@@ -61,19 +61,21 @@ export function BannerCarousel() {
       >
         {banners.map((banner) => (
           <div key={banner.id} className="w-full flex-shrink-0 relative h-full">
-            <div className="absolute inset-0 bg-black/40 z-10" /> {/* Overlay */}
-            <img 
-               src={banner.image} 
-               alt={banner.title} 
-               className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center text-white px-4">
-                <h2 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-md">{banner.title}</h2>
-                <p className="text-lg md:text-xl mb-8 max-w-2xl drop-shadow-sm">{banner.subtitle}</p>
-                <Button size="lg" className="rounded-full px-8 text-lg sticker hover:scale-105 transition-transform" asChild>
-                    <Link href={banner.link}>{banner.cta}</Link>
-                </Button>
-            </div>
+            <Link href={banner.link} className="block w-full h-full relative">
+                <div className="absolute inset-0 bg-black/40 z-10" /> {/* Overlay */}
+                <img 
+                   src={banner.image} 
+                   alt={banner.title} 
+                   className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 z-20 flex flex-col items-center justify-center text-center text-white px-4">
+                    <h2 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-md">{banner.title}</h2>
+                    <p className="text-lg md:text-xl mb-8 max-w-2xl drop-shadow-sm">{banner.subtitle}</p>
+                    <Button size="lg" className="rounded-full px-8 text-lg sticker hover:scale-105 transition-transform" asChild>
+                        <span>{banner.cta}</span>
+                    </Button>
+                </div>
+            </Link>
           </div>
         ))}
       </div>
