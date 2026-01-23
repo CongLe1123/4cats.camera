@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+
 
 const brands = [
   {
@@ -61,37 +61,30 @@ const brands = [
 
 export function BrandList() {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {brands.map((brand, i) => (
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {brands.slice(0, 6).map((brand, i) => (
         <Link
           key={i}
           href={brand.href}
-          className={`relative overflow-hidden rounded-[2rem] h-48 bg-gradient-to-br ${brand.gradient} group transition-all duration-300 hover:shadow-lg hover:scale-[1.02] flex items-center p-6 border border-white/50`}
+          className={`relative overflow-hidden rounded-2xl h-32 bg-gradient-to-br ${brand.gradient} group transition-all duration-300 hover:shadow-lg hover:scale-[1.05] flex items-center justify-center p-4 border border-white/50 text-center`}
         >
           {/* Text Content */}
-          <div className="z-10 flex flex-col items-start gap-1">
-            <h3 className={`text-4xl font-black uppercase tracking-tighter drop-shadow-sm ${brand.text} style={{ fontFamily: 'var(--font-heading)' }}`}>
+          <div className="z-10 flex flex-col items-center gap-1">
+            <h3 
+              className={`text-xl font-black uppercase tracking-tighter drop-shadow-sm ${brand.text}`}
+              style={{ fontFamily: 'var(--font-heading)' }}
+            >
               {brand.name}
             </h3>
-            <p className={`text-sm font-bold tracking-[0.2em] uppercase opacity-60 ${brand.text}`}>
+            {/* 
+            <p className={`text-[10px] font-bold tracking-[0.2em] uppercase opacity-60 ${brand.text}`}>
               {brand.subtitle}
-            </p>
-            <div className={`mt-4 w-10 h-10 rounded-full bg-white/50 backdrop-blur-sm flex items-center justify-center ${brand.text} opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0`}>
-              <ArrowRight className="w-5 h-5" />
-            </div>
+            </p> 
+            */}
           </div>
 
-          {/* Image */}
-          <div className={`absolute right-[-20px] top-1/2 -translate-y-1/2 w-48 h-48 transition-transform duration-500 ease-out group-hover:scale-110 ${brand.rotate}`}>
-             <img 
-               src={brand.image} 
-               alt={brand.name}
-               className="w-full h-full object-contain drop-shadow-2xl mix-blend-multiply opacity-90 group-hover:opacity-100" 
-             />
-          </div>
-          
           {/* Decorative shine */}
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/20 blur-3xl rounded-full -mr-10 -mt-10" />
+          <div className="absolute top-0 right-0 w-24 h-24 bg-white/20 blur-2xl rounded-full -mr-10 -mt-10" />
         </Link>
       ))}
     </div>

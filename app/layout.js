@@ -1,5 +1,6 @@
 import "./globals.css";
 import { Navbar } from "../components/Navbar";
+import { FloatingContact } from "../components/FloatingContact";
 
 export const metadata = {
   title: "4cats.camera | Cửa hàng máy ảnh nhỏ xinh 🐱📸",
@@ -215,6 +216,7 @@ export default function RootLayout({ children }) {
             </div>
           </div>
         </footer>
+        <FloatingContact />
       </body>
     </html>
   );

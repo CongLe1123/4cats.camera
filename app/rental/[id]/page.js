@@ -18,6 +18,7 @@ import {
   Phone,
   MapPin,
   Send,
+  CalendarDays,
 } from "lucide-react";
 import {
   Dialog,
@@ -34,7 +35,7 @@ import { cameras } from "../../../lib/data";
 // This would normally come from an API/Database based on params.id
 const getCameraById = (id) => cameras.find((c) => c.id === parseInt(id));
 
-export default function ProductDetailPage({ params }) {
+export default function RentalDetailPage({ params }) {
   const resolvedParams =
     params && typeof params.then === "function" ? use(params) : params;
   const id = resolvedParams?.id;
@@ -45,9 +46,8 @@ export default function ProductDetailPage({ params }) {
   };
 
   const [activeImage, setActiveImage] = useState(0);
-  const [selectedCondition, setSelectedCondition] = useState(
-    camera?.availableConditions?.[0],
-  );
+  // Default to first rental option
+  const [selectedDuration, setSelectedDuration] = useState(camera?.rental?.[0]);
   const [selectedColor, setSelectedColor] = useState(
     camera?.availableColors?.[0],
   );
@@ -55,9 +55,8 @@ export default function ProductDetailPage({ params }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const activeVariant = camera?.variants.find(
-    (v) => v.condition === selectedCondition && v.color === selectedColor,
-  );
+  // Check if camera is generally available (has any stock variants)
+  const isAvailable = camera?.variants.some((v) => v.inStock);
 
   const handleOrderSubmit = (e) => {
     e.preventDefault();
@@ -90,7 +89,7 @@ export default function ProductDetailPage({ params }) {
       <div className="container mx-auto px-4 py-20 text-center">
         <h1 className="text-2xl font-bold">Không tìm thấy sản phẩm :(</h1>
         <Button asChild className="mt-4">
-          <Link href="/shop">Quay lại cửa hàng</Link>
+          <Link href="/rental">Quay lại danh sách</Link>
         </Button>
       </div>
     );
@@ -99,11 +98,11 @@ export default function ProductDetailPage({ params }) {
   return (
     <div className="container mx-auto px-4 py-12 max-w-6xl">
       <Link
-        href="/shop"
+        href="/rental"
         className="inline-flex items-center text-muted-foreground hover:text-primary mb-8"
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Quay lại danh sách
+        Quay lại danh sách thuê
       </Link>
 
       {/* Main Product Layout */}
@@ -144,6 +143,10 @@ export default function ProductDetailPage({ params }) {
                 </button>
               </>
             )}
+
+            <Badge className="absolute top-4 left-4 bg-primary text-white shadow-lg">
+              Cho thuê
+            </Badge>
           </div>
 
           {/* Angle Selectors (Thumbnails) */}
@@ -182,7 +185,7 @@ export default function ProductDetailPage({ params }) {
                 variant="outline"
                 className="text-green-600 border-green-200"
               >
-                Còn hàng
+                Sẵn sàng cho thuê
               </Badge>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold">{camera.name}</h1>
@@ -197,31 +200,35 @@ export default function ProductDetailPage({ params }) {
               ))}
             </div>
             <div className="text-4xl font-black text-primary pt-2">
-              {activeVariant?.inStock
-                ? formatPrice(activeVariant.price)
-                : "Liên hệ để biết giá"}
+              {selectedDuration?.price
+                ? formatPrice(selectedDuration.price)
+                : "Liên hệ"}
+              <span className="text-lg text-muted-foreground font-medium ml-2">
+                / {selectedDuration?.duration || "kỳ"}
+              </span>
             </div>
           </div>
 
           <Card className="bg-secondary/15 border-none rounded-[2rem] shadow-sm">
             <CardContent className="p-8 space-y-8">
-              {/* Condition Selector */}
+              {/* Duration Selector */}
               <div className="space-y-4">
-                <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em]">
-                  Chọn tình trạng máy (Condition)
+                <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em] flex items-center gap-2">
+                  <CalendarDays className="w-3 h-3" />
+                  Chọn thời gian thuê (Duration)
                 </span>
                 <div className="flex flex-wrap gap-3">
-                  {camera.availableConditions.map((cond) => (
+                  {camera.rental?.map((opt) => (
                     <button
-                      key={cond}
-                      onClick={() => setSelectedCondition(cond)}
+                      key={opt.duration}
+                      onClick={() => setSelectedDuration(opt)}
                       className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all border-2 ${
-                        selectedCondition === cond
+                        selectedDuration?.duration === opt.duration
                           ? "border-primary bg-primary text-white shadow-xl shadow-primary/20 scale-105"
                           : "border-primary/5 bg-white hover:border-primary/20 hover:bg-primary/5 shadow-sm"
                       }`}
                     >
-                      {cond}
+                      {opt.duration}
                     </button>
                   ))}
                 </div>
@@ -256,9 +263,9 @@ export default function ProductDetailPage({ params }) {
               <div className="pt-4 border-t border-primary/10">
                 <div className="flex justify-between items-center py-1">
                   <span className="text-muted-foreground/80 text-xs font-bold uppercase tracking-widest">
-                    Bảo hành
+                    Thủ tục
                   </span>
-                  <span className="font-black text-lg">6 Tháng</span>
+                  <span className="font-black text-lg">Nhanh gọn (CCCD)</span>
                 </div>
               </div>
             </CardContent>
@@ -275,7 +282,7 @@ export default function ProductDetailPage({ params }) {
                   size="lg"
                   className="w-full h-16 text-xl sticker shadow-2xl shadow-primary/30 font-black uppercase tracking-wider"
                 >
-                  {activeVariant?.inStock ? "Mua ngay" : "Liên hệ ngay"}
+                  {isAvailable ? "Thuê ngay" : "Tạm hết máy"}
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
@@ -285,27 +292,27 @@ export default function ProductDetailPage({ params }) {
                       <CheckCircle2 className="w-12 h-12 text-green-500" />
                     </div>
                     <DialogTitle className="text-3xl font-black text-primary mb-2">
-                      Đặt hàng thành công!
+                      Gửi yêu cầu thành công!
                     </DialogTitle>
                     <DialogDescription className="text-lg font-medium text-muted-foreground">
-                      Cửa hàng đã nhận được thông tin của bạn. <br />
-                      Chúng mình sẽ gọi lại cho bạn sớm nhé! 💖
+                      Cửa hàng đã nhận được yêu cầu thuê máy của bạn. <br />
+                      Chúng mình sẽ gọi lại để xác nhận sớm nhé! 💖
                     </DialogDescription>
                   </div>
-                ) : activeVariant?.inStock ? (
+                ) : isAvailable ? (
                   <div className="p-8">
                     <DialogHeader className="mb-8">
                       <DialogTitle className="text-3xl font-black flex items-center gap-3">
                         <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center">
                           <Send className="w-6 h-6 text-primary" />
                         </div>
-                        Thông tin đặt hàng
+                        Thông tin thuê máy
                       </DialogTitle>
                       <DialogDescription className="text-base">
-                        Bạn đang đặt mua **{camera.name}**
+                        Bạn đang đăng ký thuê **{camera.name}**
                         <br />
                         <span className="text-primary font-bold">
-                          ({selectedCondition} - {selectedColor})
+                          ({selectedDuration?.duration} - {selectedColor})
                         </span>
                       </DialogDescription>
                     </DialogHeader>
@@ -351,7 +358,7 @@ export default function ProductDetailPage({ params }) {
                             className="flex items-center gap-2 font-bold"
                           >
                             <MapPin className="w-4 h-4 text-primary" /> Địa chỉ
-                            giao nhận
+                            nhận máy
                           </Label>
                           <Input
                             id="address"
@@ -365,18 +372,18 @@ export default function ProductDetailPage({ params }) {
                       <div className="bg-secondary/30 p-4 rounded-2xl border border-primary/10">
                         <div className="flex justify-between items-center text-sm mb-2">
                           <span className="text-muted-foreground text-sm">
-                            Sản phẩm:
+                            Giá thuê ({selectedDuration?.duration}):
                           </span>
                           <span className="font-bold">
-                            {formatPrice(activeVariant?.price)}
+                            {formatPrice(selectedDuration?.price)}
                           </span>
                         </div>
                         <div className="flex justify-between items-center text-sm pt-2 border-t border-primary/5">
                           <span className="text-muted-foreground text-sm">
-                            Vận chuyển:
+                            Cọc:
                           </span>
-                          <span className="text-green-600 font-bold uppercase text-[10px]">
-                            Freeship ✨
+                          <span className="text-primary font-bold text-[10px]">
+                            Thỏa thuận/Giấy tờ
                           </span>
                         </div>
                       </div>
@@ -392,7 +399,7 @@ export default function ProductDetailPage({ params }) {
                             Đang xử lý...
                           </div>
                         ) : (
-                          "Hoàn tất đặt hàng"
+                          "Gửi yêu cầu thuê"
                         )}
                       </Button>
                     </form>
@@ -407,7 +414,7 @@ export default function ProductDetailPage({ params }) {
                         Liên hệ với chúng mình
                       </DialogTitle>
                       <DialogDescription className="text-base pt-2">
-                        Hãy liên hệ với chúng mình để biết giá nhé! ✨
+                        Hãy liên hệ với chúng mình để biết thêm chi tiết nhé! ✨
                       </DialogDescription>
                     </DialogHeader>
 
@@ -483,7 +490,7 @@ export default function ProductDetailPage({ params }) {
             </Dialog>
 
             <p className="text-xs text-center text-muted-foreground pt-4">
-              * Freeship toàn quốc cho đơn hàng trên 10tr
+              * Giảm 10% khi thuê dài hạn (trên 1 tuần)
             </p>
           </div>
         </div>
@@ -493,10 +500,11 @@ export default function ProductDetailPage({ params }) {
       <div className="flex justify-end max-w-6xl mx-auto mb-20">
         <div className="w-full lg:w-1/2 flex gap-6 pt-4 border-t border-primary/10">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CheckCircle2 className="w-4 h-4 text-green-500" /> 100% Chính hãng
+            <CheckCircle2 className="w-4 h-4 text-green-500" /> Thiết bị hoạt
+            động hoàn hảo
           </div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Truck className="w-4 h-4 text-blue-500" /> Ship COD toàn quốc
+            <ShieldCheck className="w-4 h-4 text-blue-500" /> Vệ sinh sạch sẽ
           </div>
         </div>
       </div>
