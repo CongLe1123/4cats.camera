@@ -48,12 +48,14 @@
 
 body {
   background-color: var(--background);
-  background-image: linear-gradient(var(--border) 1px, transparent 1px),
+  background-image:
+    linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
   background-size: 40px 40px;
   color: var(--foreground);
-  font-family: "Lexend", "Rounded Mplus 1c", "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+  font-family:
+    "Lexend", "Rounded Mplus 1c", "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
   min-height: 100vh;
 }
 
@@ -90,4 +92,38 @@ h6 {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+@keyframes phone-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  10% {
+    transform: rotate(15deg);
+  }
+  20% {
+    transform: rotate(-15deg);
+  }
+  30% {
+    transform: rotate(10deg);
+  }
+  40% {
+    transform: rotate(-10deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+  60% {
+    transform: rotate(-5deg);
+  }
+  70% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-phone-ring {
+  animation: phone-ring 1.5s infinite;
 }

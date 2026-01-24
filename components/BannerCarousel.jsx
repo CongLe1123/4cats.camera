@@ -34,13 +34,27 @@ export function BannerCarousel({ banners = [] }) {
       >
         {banners.map((banner) => (
           <div key={banner.id} className="w-full flex-shrink-0 relative h-full">
-            <Link href={banner.link || '#'} className="block w-full h-full relative cursor-pointer">
-                {/* Image only - Overlay removed as requested */}
+            <Link href={banner.link || '#'} className="block w-full h-full relative cursor-pointer group/slide">
                 <img 
                    src={banner.image} 
-                   alt="Banner" 
-                   className="w-full h-full object-cover"
+                   alt={banner.title || "Banner"} 
+                   className="w-full h-full object-cover transition-transform duration-700 group-hover/slide:scale-105"
                 />
+                <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center p-8 md:p-16">
+                  <div className="transform transition-all duration-700 translate-y-0 opacity-100 max-w-4xl mx-auto">
+                    <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight drop-shadow-lg">
+                      {banner.title}
+                    </h2>
+                    <p className="text-lg md:text-xl text-white/90 mb-8 font-medium drop-shadow-md mx-auto leading-relaxed">
+                      {banner.description}
+                    </p>
+                    {banner.cta_text && (
+                      <span className="inline-flex items-center justify-center bg-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:brightness-110 transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
+                        {banner.cta_text}
+                      </span>
+                    )}
+                  </div>
+                </div>
             </Link>
           </div>
         ))}
@@ -51,24 +65,24 @@ export function BannerCarousel({ banners = [] }) {
         <>
           <button 
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/20 hover:bg-white/40 p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 hover:bg-white/30 p-2 rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 border border-white/20"
           >
             <ChevronLeft className="text-white w-8 h-8" />
           </button>
            <button 
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/20 hover:bg-white/40 p-2 rounded-full backdrop-blur-sm transition-all opacity-0 group-hover:opacity-100"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 bg-white/10 hover:bg-white/30 p-2 rounded-full backdrop-blur-md transition-all opacity-0 group-hover:opacity-100 border border-white/20"
           >
             <ChevronRight className="text-white w-8 h-8" />
           </button>
 
           {/* Indicators */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-2">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex gap-3">
             {banners.map((_, idx) => (
                 <button 
                     key={idx}
                     onClick={() => setCurrent(idx)}
-                    className={`w-3 h-3 rounded-full transition-all ${current === idx ? "bg-primary scale-125 shadow-md border border-white/50" : "bg-white/50 hover:bg-white/80"}`}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${current === idx ? "bg-primary scale-125 shadow-lg ring-2 ring-primary/50" : "bg-white/50 hover:bg-white/80"}`}
                 />
             ))}
           </div>

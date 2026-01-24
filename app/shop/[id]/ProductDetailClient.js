@@ -30,6 +30,8 @@ import {
 import { Label } from "../../../components/ui/label";
 import { Input } from "../../../components/ui/input";
 
+import { supabase } from "../../../lib/supabase";
+
 export default function ProductDetailClient({ camera }) {
   const formatPrice = (value) => {
     return new Intl.NumberFormat("vi-VN").format(value) + "đ";
@@ -51,20 +53,33 @@ export default function ProductDetailClient({ camera }) {
     (v) => v.condition === selectedCondition && v.color === selectedColor,
   );
 
-  const handleOrderSubmit = (e) => {
+  const handleOrderSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
+    const formData = new FormData(e.target);
+    const orderData = {
+      customer_name: formData.get("name") || "",
+      customer_contact: formData.get("phone") || "",
+      customer_message: `Purchase: ${camera.name} | Condition: ${selectedCondition} | Color: ${selectedColor} | Address: ${formData.get("address")}`,
+      camera_id: camera.id,
+      type: "BUY",
+      status: "NEW",
+    };
+
+    const { error } = await supabase.from("orders").insert([orderData]);
+
+    if (error) {
+      console.error(error);
+      alert("Failed to submit order. Please try again.");
+    } else {
       setIsSuccess(true);
-      // Reset after 3 seconds
       setTimeout(() => {
         setIsSuccess(false);
         setIsOrderDialogOpen(false);
       }, 3000);
-    }, 1500);
+    }
+    setIsSubmitting(false);
   };
 
   const nextImage = () => {
