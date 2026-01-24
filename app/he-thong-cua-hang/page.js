@@ -24,19 +24,19 @@ export default function StoreSystem() {
           </div>
           <CardHeader>
             <CardTitle className="text-2xl font-bold italic text-primary">
-              4cats - Chi nhánh Sài Gòn
+              4cats - Chi nhánh Cầu Giấy
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-3 items-start">
               <MapPin className="h-5 w-5 text-primary shrink-0" />
               <p className="text-muted-foreground">
-                123 Đường Pastel, Phường 4, Quận Cute, TP. Hồ Chí Minh
+                Số 6A2, ngõ 158 Nguyễn Khánh Toàn, Quan Hoa, Cầu Giấy, Hà Nội
               </p>
             </div>
             <div className="flex gap-3 items-center">
               <Phone className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">09xx-xxx-xxx</p>
+              <p className="text-muted-foreground">039 824 9856</p>
             </div>
             <div className="flex gap-3 items-center">
               <Clock className="h-5 w-5 text-primary shrink-0" />
@@ -52,23 +52,23 @@ export default function StoreSystem() {
           </div>
           <CardHeader>
             <CardTitle className="text-2xl font-bold italic text-primary">
-              4cats - Chi nhánh Hà Nội
+              4cats - Chi nhánh Thanh Xuân
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex gap-3 items-start">
               <MapPin className="h-5 w-5 text-primary shrink-0" />
               <p className="text-muted-foreground">
-                456 Phố Vintage, Quận Hoàn Kiếm, Hà Nội
+                Số 51 Nguyễn Trãi, Ngã tư Sở, Thanh Xuân, Hà Nội
               </p>
             </div>
             <div className="flex gap-3 items-center">
               <Phone className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">08xx-xxx-xxx</p>
+              <p className="text-muted-foreground">093 235 68 69</p>
             </div>
             <div className="flex gap-3 items-center">
               <Clock className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">09:00 - 20:30 (Hàng ngày)</p>
+              <p className="text-muted-foreground">09:00 - 21:00 (Hàng ngày)</p>
             </div>
           </CardContent>
         </Card>
@@ -79,7 +79,7 @@ export default function StoreSystem() {
           Theo dõi chúng mình trên Instagram để cập nhật máy mới mỗi ngày!
         </h2>
         <a
-          href="https://instagram.com/4cats.camera"
+          href="https://www.instagram.com/4cats.camera/"
           target="_blank"
           className="inline-flex items-center gap-2 bg-white px-8 py-3 rounded-full text-primary font-bold shadow-lg hover:scale-105 transition-all"
         >

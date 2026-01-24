@@ -26,11 +26,15 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-bold">Địa chỉ</h4>
-                    <p className="opacity-80">
-                      123 Đường Pastel, Quận Cute
-                      <br />
-                      TP. Hồ Chí Minh
-                    </p>
+                    <div className="opacity-80 text-sm space-y-2">
+                      <p>
+                        CS1: Số 6A2, ngõ 158 Nguyễn Khánh Toàn, Quan Hoa, Cầu
+                        Giấy, Hà Nội
+                      </p>
+                      <p>
+                        CS2: Số 51 Nguyễn Trãi, Ngã tư Sở, Thanh Xuân, Hà Nội
+                      </p>
+                    </div>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -39,7 +43,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-bold">Hotline</h4>
-                    <p className="opacity-80">09xx-xxx-xxx</p>
+                    <p className="opacity-80">039 824 9856 - 093 235 68 69</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-4">
@@ -65,62 +69,82 @@ export default function ContactPage() {
 
         {/* Social Cards */}
         <div className="flex flex-col gap-6">
-          <Card className="hover:border-primary transition-all cursor-pointer group sticker">
-            <CardContent className="p-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-3 rounded-2xl shadow-lg">
-                  <Instagram className="h-8 w-8 text-white" />
+          <a
+            href="https://www.instagram.com/4cats.camera/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Card className="hover:border-primary transition-all cursor-pointer group sticker">
+              <CardContent className="p-6 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-3 rounded-2xl shadow-lg">
+                    <Instagram className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Instagram</h3>
+                    <p className="text-sm text-muted-foreground">
+                      @4cats.camera
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg">Instagram</h3>
-                  <p className="text-sm text-muted-foreground">@4cats.camera</p>
-                </div>
-              </div>
-              <Button variant="ghost" className="rounded-full">
-                Theo dõi
-              </Button>
-            </CardContent>
-          </Card>
+                <Button variant="ghost" className="rounded-full">
+                  Theo dõi
+                </Button>
+              </CardContent>
+            </Card>
+          </a>
 
-          <Card className="hover:border-[#0084FF] transition-all cursor-pointer sticker">
-            <CardContent className="p-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-[#0084FF] p-3 rounded-2xl shadow-lg">
-                  <MessageCircle className="h-8 w-8 text-white" />
+          <a
+            href="https://www.facebook.com/profile.php?id=100093056073018"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Card className="hover:border-[#0084FF] transition-all cursor-pointer sticker">
+              <CardContent className="p-6 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-[#0084FF] p-3 rounded-2xl shadow-lg">
+                    <MessageCircle className="h-8 w-8 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Messenger/Facebook</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Chat với chúng mình ngay
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg">Messenger</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Chat với chúng mình ngay
-                  </p>
-                </div>
-              </div>
-              <Button variant="ghost" className="rounded-full">
-                Mở Chat
-              </Button>
-            </CardContent>
-          </Card>
+                <Button variant="ghost" className="rounded-full">
+                  Mở Chat
+                </Button>
+              </CardContent>
+            </Card>
+          </a>
 
-          <Card className="hover:border-[#0068FF] transition-all cursor-pointer sticker">
-            <CardContent className="p-6 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="bg-[#0068FF] p-3 rounded-2xl shadow-lg">
-                  <span className="text-white font-black text-2xl h-8 w-8 flex items-center justify-center">
-                    Z
-                  </span>
+          <a
+            href="https://zalo.me/0398249856"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <Card className="hover:border-[#0068FF] transition-all cursor-pointer sticker">
+              <CardContent className="p-6 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="bg-[#0068FF] p-3 rounded-2xl shadow-lg">
+                    <span className="text-white font-black text-2xl h-8 w-8 flex items-center justify-center">
+                      Z
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">Zalo</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Admin: 039 824 9856
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-bold text-lg">Zalo</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Admin: 09xx xxx xxx
-                  </p>
-                </div>
-              </div>
-              <Button variant="ghost" className="rounded-full">
-                Chat trực tiếp
-              </Button>
-            </CardContent>
-          </Card>
+                <Button variant="ghost" className="rounded-full">
+                  Chat trực tiếp
+                </Button>
+              </CardContent>
+            </Card>
+          </a>
         </div>
       </div>
     </div>

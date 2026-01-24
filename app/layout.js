@@ -41,7 +41,9 @@ export default function RootLayout({ children }) {
                 </p>
                 <div className="flex gap-4">
                   <a
-                    href="#"
+                    href="https://www.facebook.com/profile.php?id=100093056073018"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                   >
                     <svg
@@ -60,7 +62,9 @@ export default function RootLayout({ children }) {
                     </svg>
                   </a>
                   <a
-                    href="https://instagram.com/4cats.camera"
+                    href="https://www.instagram.com/4cats.camera/"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all"
                   >
                     <svg
@@ -89,17 +93,18 @@ export default function RootLayout({ children }) {
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <div>
                     <strong className="text-foreground block mb-1">
-                      Chi nhánh Sài Gòn
+                      Cơ sở 1 - Cầu Giấy
                     </strong>
-                    <p>123 Đường Pastel, Phường 4, Quận Cute, TP.HCM</p>
-                    <p className="mt-1">Hotline: 09xx-xxx-xxx</p>
+                    <p>
+                      Số 6A2, ngõ 158 Nguyễn Khánh Toàn, Quan Hoa, Cầu Giấy, Hà
+                      Nội
+                    </p>
                   </div>
                   <div>
                     <strong className="text-foreground block mb-1">
-                      Chi nhánh Hà Nội
+                      Cơ sở 2 - Thanh Xuân
                     </strong>
-                    <p>456 Phố Vintage, Quận Hoàn Kiếm, Hà Nội</p>
-                    <p className="mt-1">Hotline: 08xx-xxx-xxx</p>
+                    <p>Số 51 Nguyễn Trãi, Ngã tư Sở, Thanh Xuân, Hà Nội</p>
                   </div>
                 </div>
               </div>
@@ -163,9 +168,9 @@ export default function RootLayout({ children }) {
                       <rect width="20" height="16" x="2" y="4" rx="2" />
                       <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                     </svg>
-                    <span>hello@4cats.camera</span>
+                    <span>fourcatscamera@gmail.com</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                  <li className="flex items-start gap-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="16"
@@ -176,11 +181,24 @@ export default function RootLayout({ children }) {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="text-primary"
+                      className="text-primary mt-1"
                     >
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                     </svg>
-                    <span>09xx-xxx-xxx (Zalo/Imess)</span>
+                    <div className="flex flex-col">
+                      <a
+                        href="tel:0398249856"
+                        className="hover:text-primary transition-colors"
+                      >
+                        039 824 9856
+                      </a>
+                      <a
+                        href="tel:0932356869"
+                        className="hover:text-primary transition-colors"
+                      >
+                        093 235 68 69
+                      </a>
+                    </div>
                   </li>
                   <li className="flex items-center gap-2">
                     <svg

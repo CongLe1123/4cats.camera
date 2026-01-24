@@ -11,19 +11,19 @@ export function FloatingContact() {
       name: "Instagram",
       icon: <Instagram className="w-6 h-6" />,
       color: "bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500",
-      href: "https://instagram.com/4cats.camera",
+      href: "https://www.instagram.com/4cats.camera/",
     },
     {
       name: "Facebook",
       icon: <Facebook className="w-6 h-6" />,
       color: "bg-gradient-to-tr from-blue-600 to-blue-700",
-      href: "https://www.facebook.com/4cats.camera",
+      href: "https://www.facebook.com/profile.php?id=100093056073018",
     },
     {
-      name: "Zalo",
+      name: "Zalo/Phone",
       icon: <span className="font-bold text-xs">Zalo</span>, // Fallback since no precise Zalo icon in Lucide
       color: "bg-blue-600",
-      href: "https://zalo.me/09xxxxxxxx", // Placeholder
+      href: "https://zalo.me/0398249856",
     },
   ];
 
