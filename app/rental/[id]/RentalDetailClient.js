@@ -418,7 +418,8 @@ export default function RentalDetailClient({ camera }) {
                     <div className="space-y-4 pt-6">
                       {/* Instagram */}
                       <Link
-                        href="#"
+                        href="https://www.instagram.com/4cats.camera/"
+                        target="_blank"
                         className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
                       >
                         <div className="flex items-center gap-4">
@@ -437,9 +438,10 @@ export default function RentalDetailClient({ camera }) {
                         </div>
                       </Link>
 
-                      {/* Messenger */}
+                      {/* Facebook */}
                       <Link
-                        href="#"
+                        href="https://www.facebook.com/profile.php?id=100093056073018"
+                        target="_blank"
                         className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
                       >
                         <div className="flex items-center gap-4">
@@ -447,20 +449,21 @@ export default function RentalDetailClient({ camera }) {
                             <Facebook className="w-8 h-8 text-white" />
                           </div>
                           <div>
-                            <div className="font-bold text-lg">Messenger</div>
+                            <div className="font-bold text-lg">Facebook</div>
                             <div className="text-muted-foreground text-sm">
-                              Chat với chúng mình ngay
+                              Fanpage 4cats.camera
                             </div>
                           </div>
                         </div>
                         <div className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors pr-2">
-                          Mở Chat
+                          Nhắn tin
                         </div>
                       </Link>
 
                       {/* Zalo */}
                       <Link
-                        href="#"
+                        href="https://zalo.me/0398249856"
+                        target="_blank"
                         className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
                       >
                         <div className="flex items-center gap-4">
@@ -472,7 +475,7 @@ export default function RentalDetailClient({ camera }) {
                           <div>
                             <div className="font-bold text-lg">Zalo</div>
                             <div className="text-muted-foreground text-sm">
-                              Admin: 09xx xxx xxx
+                              Admin: 039.824.9856
                             </div>
                           </div>
                         </div>
