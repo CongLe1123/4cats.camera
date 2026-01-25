@@ -139,8 +139,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
     return sortOrder === "asc" ? priceA - priceB : priceB - priceA;
   });
 
-  const availableSeries =
-    filterBrand !== "All" ? seriesByBrand[filterBrand] || [] : [];
+  const availableSeries = seriesByBrand[filterBrand] || [];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -273,11 +272,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
 
                 <div className="space-y-2">
                   <Label className="font-bold ml-1">Dòng máy</Label>
-                  <Select
-                    value={filterSeries}
-                    onValueChange={setFilterSeries}
-                    disabled={filterBrand === "All"}
-                  >
+                  <Select value={filterSeries} onValueChange={setFilterSeries}>
                     <SelectTrigger className="rounded-xl border-primary/20">
                       <SelectValue placeholder="Chọn dòng máy" />
                     </SelectTrigger>

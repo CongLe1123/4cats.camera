@@ -14,6 +14,7 @@ import {
   User,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
+import { Toaster, toast } from "sonner";
 
 export default function AdminLayout({ children }) {
   const [session, setSession] = useState(null);
@@ -21,6 +22,7 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
 
   useEffect(() => {
+    // 1. Auth Check (Existing)
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (!session) router.push("/login");
@@ -28,13 +30,75 @@ export default function AdminLayout({ children }) {
     });
 
     const {
-      data: { subscription },
+      data: { subscription: authListener },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) router.push("/login");
     });
 
-    return () => subscription.unsubscribe();
+    // 2. Request Notification Permission
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    // 3. Realtime Order Listener (Updated Config)
+    const channel = supabase
+      .channel("admin-global-listener")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "orders" },
+        (payload) => {
+          console.log("🔔 Layout Realtime Event:", payload);
+          if (payload.eventType === "INSERT") {
+            const newOrder = payload.new;
+
+            // Custom Alert Sound (Data URI)
+            const audio = new Audio(
+              "data:audio/wav;base64,UklGRl9vT1dAVEfmtAAAAABAAABwAAAAAgAAABAAAAABAAgAZGF0YTNvT1cAAAAAAACAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIAAAIA=",
+            );
+            audio.volume = 0.5;
+            audio.play().catch((e) => console.error("Audio play failed", e));
+
+            // Browser Push Notification
+            if (Notification.permission === "granted") {
+              new Notification(
+                `Đơn hàng mới: ${newOrder.type === "RENT" ? "Thuê" : "Mua"}! 🔔`,
+                {
+                  body: `${newOrder.customer_name} - ${newOrder.customer_contact}`,
+                  icon: "/favicon.ico",
+                },
+              );
+            }
+
+            // In-App Toast
+            toast.success(
+              `Đơn hàng mới: ${newOrder.type === "RENT" ? "Thuê" : "Mua"}!`,
+              {
+                description: `${newOrder.customer_name} - ${newOrder.customer_contact}`,
+                action: {
+                  label: "Xem",
+                  onClick: () => router.push(`/admin/orders`),
+                },
+                duration: 10000,
+              },
+            );
+          }
+        },
+      )
+      .subscribe((status) => {
+        console.log("🔔 Admin Layout Subscription Status:", status);
+        if (status === "SUBSCRIBED") {
+          toast.info("Đã kết nối hệ thống thông báo đơn hàng", {
+            duration: 2000,
+            icon: "📡",
+          });
+        }
+      });
+
+    return () => {
+      authListener.unsubscribe();
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const handleLogout = async () => {
@@ -122,6 +186,7 @@ export default function AdminLayout({ children }) {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto p-8">{children}</main>
+      <Toaster />
     </div>
   );
 }

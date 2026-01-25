@@ -99,13 +99,29 @@ export function CreatableSelect({
                 </>
             )}
 
-            {!exactMatch && search && onCreate && (
+            {/* Always show Create option if enabled and no exact match exists */}
+            {!exactMatch && onCreate && (
                 <>
                     <CommandSeparator />
                     <CommandGroup>
-                        <CommandItem onSelect={handleCreate} className="cursor-pointer text-primary font-bold">
+                        <CommandItem
+                             key="create-new-action"
+                             value="create-new-action-special-value" // unique value
+                             onSelect={async () => {
+                                let name = search.trim();
+                                if (!name) {
+                                  name = window.prompt(`Enter new ${createLabel || "item"} name:`);
+                                }
+                                if (name) {
+                                  await onCreate(name);
+                                  setSearch("");
+                                  setOpen(false);
+                                }
+                             }}
+                             className="cursor-pointer text-primary font-bold"
+                        >
                             <Plus className="mr-2 h-4 w-4" />
-                            {createLabel} "{search}"
+                            {search ? `${createLabel} "${search}"` : "Create new..."}
                         </CommandItem>
                     </CommandGroup>
                 </>

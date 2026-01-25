@@ -82,13 +82,18 @@ export default function RentalDetailClient({ camera }) {
     setIsSubmitting(false);
   };
 
+  // Combine main image with gallery images
+  const displayImages = camera
+    ? [...(camera.image ? [camera.image] : []), ...(camera.images || [])]
+    : [];
+
   const nextImage = () => {
-    setActiveImage((prev) => (prev + 1) % (camera?.images?.length || 1));
+    setActiveImage((prev) => (prev + 1) % (displayImages.length || 1));
   };
 
   const prevImage = () => {
     setActiveImage((prev) =>
-      prev === 0 ? (camera?.images?.length || 1) - 1 : prev - 1,
+      prev === 0 ? (displayImages.length || 1) - 1 : prev - 1,
     );
   };
 
@@ -117,26 +122,25 @@ export default function RentalDetailClient({ camera }) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-12">
         {/* Left Column: Visuals (Main Image + Thumbnails) */}
         <div className="space-y-6">
-          <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden bg-muted border-2 border-transparent hover:border-primary/20 transition-all group">
+          <div className="relative aspect-4/3 rounded-4xl overflow-hidden bg-muted border-2 border-transparent hover:border-primary/20 transition-all group">
             {/* Sliding Image Container */}
             <div
               className="flex h-full transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${activeImage * 100}%)` }}
             >
-              {camera.images &&
-                camera.images.map((img, idx) => (
-                  <div key={idx} className="w-full h-full flex-shrink-0">
-                    <img
-                      src={img}
-                      alt={`${camera.name} - View ${idx + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
+              {displayImages.map((img, idx) => (
+                <div key={idx} className="w-full h-full shrink-0">
+                  <img
+                    src={img}
+                    alt={`${camera.name} - View ${idx + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ))}
             </div>
 
             {/* Carousel Navigation */}
-            {camera.images && camera.images.length > 1 && (
+            {displayImages.length > 1 && (
               <>
                 <button
                   onClick={prevImage}
@@ -161,25 +165,24 @@ export default function RentalDetailClient({ camera }) {
           {/* Angle Selectors (Thumbnails) */}
           <div className="flex justify-center">
             <div className="flex gap-4 p-2 bg-secondary/30 rounded-full border border-primary/5">
-              {camera.images &&
-                camera.images.map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveImage(idx)}
-                    className={`relative w-14 h-14 rounded-full overflow-hidden border-2 transition-all p-0.5 hover:scale-110 active:scale-95 ${
-                      activeImage === idx
-                        ? "border-primary bg-primary/20 ring-4 ring-primary/10"
-                        : "border-transparent bg-white/50 shadow-sm"
-                    }`}
-                    title={`View Angle ${idx + 1}`}
-                  >
-                    <img
-                      src={img}
-                      alt={`Angle ${idx + 1}`}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-                  </button>
-                ))}
+              {displayImages.map((img, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setActiveImage(idx)}
+                  className={`relative w-14 h-14 rounded-full overflow-hidden border-2 transition-all p-0.5 hover:scale-110 active:scale-95 ${
+                    activeImage === idx
+                      ? "border-primary bg-primary/20 ring-4 ring-primary/10"
+                      : "border-transparent bg-white/50 shadow-sm"
+                  }`}
+                  title={`View Angle ${idx + 1}`}
+                >
+                  <img
+                    src={img}
+                    alt={`Angle ${idx + 1}`}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </button>
+              ))}
             </div>
           </div>
         </div>
@@ -220,7 +223,7 @@ export default function RentalDetailClient({ camera }) {
             </div>
           </div>
 
-          <Card className="bg-secondary/15 border-none rounded-[2rem] shadow-sm">
+          <Card className="bg-secondary/15 border-none rounded-4xl shadow-sm">
             <CardContent className="p-8 space-y-8">
               {/* Duration Selector */}
               <div className="space-y-4">
@@ -438,7 +441,7 @@ export default function RentalDetailClient({ camera }) {
                         className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
                       >
                         <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center shadow-lg shadow-pink-500/20">
+                          <div className="w-14 h-14 rounded-2xl bg-linear-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center shadow-lg shadow-pink-500/20">
                             <Instagram className="w-8 h-8 text-white" />
                           </div>
                           <div>

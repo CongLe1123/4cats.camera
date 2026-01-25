@@ -11,7 +11,7 @@ export function LayoutWrapper({ children }) {
   return (
     <>
       {!isAdminOrLogin && <Navbar />}
-      <main className={`flex-grow ${!isAdminOrLogin ? "pt-20" : ""}`}>{children}</main>
+      <main className={`grow ${!isAdminOrLogin ? "pt-20" : ""}`}>{children}</main>
       {!isAdminOrLogin && (
         <footer className="bg-white/50 backdrop-blur-sm border-t py-4 mt-auto">
           <div className="container mx-auto px-4">

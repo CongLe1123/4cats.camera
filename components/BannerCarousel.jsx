@@ -26,14 +26,14 @@ export function BannerCarousel({ banners = [] }) {
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="relative w-full h-[300px] md:h-[500px] overflow-hidden rounded-[2rem] group shadow-lg">
+    <div className="relative w-full h-[300px] md:h-[500px] overflow-hidden rounded-4xl group shadow-lg">
       {/* Slides */}
       <div 
         className="flex transition-transform duration-700 ease-in-out h-full" 
         style={{ transform: `translateX(-${current * 100}%)` }}
       >
         {banners.map((banner) => (
-          <div key={banner.id} className="w-full flex-shrink-0 relative h-full">
+          <div key={banner.id} className="w-full shrink-0 relative h-full">
             <Link href={banner.link || '#'} className="block w-full h-full relative cursor-pointer group/slide">
                 <img 
                    src={banner.image} 
@@ -42,14 +42,18 @@ export function BannerCarousel({ banners = [] }) {
                 />
                 <div className="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center p-8 md:p-16">
                   <div className="transform transition-all duration-700 translate-y-0 opacity-100 max-w-4xl mx-auto">
-                    <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight drop-shadow-lg">
-                      {banner.title}
-                    </h2>
-                    <p className="text-lg md:text-xl text-white/90 mb-8 font-medium drop-shadow-md mx-auto leading-relaxed">
-                      {banner.description}
-                    </p>
+                    {banner.title && (
+                      <h2 className="text-4xl md:text-6xl font-extrabold text-white mb-4 tracking-tight drop-shadow-lg">
+                        {banner.title}
+                      </h2>
+                    )}
+                    {banner.description && (
+                      <p className="text-lg md:text-xl text-white/90 mb-8 font-medium drop-shadow-md mx-auto leading-relaxed">
+                        {banner.description}
+                      </p>
+                    )}
                     {banner.cta_text && (
-                      <span className="inline-flex items-center justify-center bg-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:brightness-110 transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
+                      <span className="opacity-0 translate-y-4 group-hover/slide:opacity-100 group-hover/slide:translate-y-0 duration-500 inline-flex items-center justify-center bg-primary text-white px-10 py-4 rounded-full font-bold text-lg hover:brightness-110 transition-all shadow-lg hover:scale-105 active:scale-95 cursor-pointer">
                         {banner.cta_text}
                       </span>
                     )}
