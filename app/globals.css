@@ -62,7 +62,9 @@ body {
 @font-face {
   font-family: 'Genty';
   src: url('/fonts/Genty.woff2') format('woff2'),
-       url('/fonts/Genty.woff') format('woff');
+       url('/fonts/Genty.woff') format('woff'),
+       url('/fonts/Genty.otf') format('opentype'),
+       url('/fonts/Genty.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;

@@ -57,7 +57,7 @@ export function BrandList() {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 animate-pulse">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 animate-pulse">
         {[...Array(6)].map((_, i) => (
           <div key={i} className="h-32 bg-secondary/50 rounded-2xl" />
         ))}
@@ -66,7 +66,7 @@ export function BrandList() {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
       {brands.map((brand, i) => {
         const normalizeName = brand.name.toLowerCase();
         const style =
@@ -79,29 +79,34 @@ export function BrandList() {
             <Link
               key={brand.id || i}
               href={`/shop?brand=${brand.name}`}
-              className="group relative h-48 rounded-3xl overflow-hidden bg-linear-to-br from-pink-100 to-purple-100 border border-white/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+              className="group relative h-48 rounded-3xl overflow-hidden border border-white/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
             >
-              {/* Left Content (Text) */}
-              <div className="absolute inset-y-0 left-0 w-1/2 p-6 flex flex-col justify-center z-10">
-                <h3 className="text-4xl font-black italic uppercase tracking-tighter text-rose-400 opacity-90 drop-shadow-sm group-hover:scale-110 transition-transform origin-left duration-300" style={{ fontFamily: "var(--font-heading)" }}>
+              {/* Background Image */}
+              <div className="absolute inset-0 z-0">
+                <img 
+                  src={brand.image} 
+                  alt=""
+                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                {/* Subtle overlay for contrast */}
+                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors" />
+              </div>
+
+              {/* Content Overlay */}
+              <div className="absolute inset-0 p-6 flex flex-col justify-center z-10 bg-linear-to-r from-black/30 via-black/10 to-transparent">
+                <h3 
+                  className="text-4xl font-black italic uppercase tracking-tighter text-white font-genty"
+                  style={{ 
+                    WebkitTextStroke: "1.5px #ffb6c1",
+                    paintOrder: "stroke fill"
+                  }}
+                >
                   {brand.name}
                 </h3>
-                <p className="text-rose-300 font-black tracking-[0.2em] text-sm mt-1">
+                <p className="text-white font-black tracking-[0.2em] text-sm mt-1 drop-shadow-md">
                   DIGITAL
                 </p>
               </div>
-
-              {/* Right Content (Brand Card Image) */}
-              <div className="absolute inset-y-0 right-0 w-2/3 flex items-center justify-end pr-2 overflow-hidden">
-                <img 
-                  src={brand.image} 
-                  alt={brand.name}
-                  className="w-full h-full object-contain object-right drop-shadow-2xl group-hover:scale-110 group-hover:rotate-3 transition-all duration-500"
-                />
-              </div>
-
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/40 blur-3xl rounded-full -mr-16 -mt-16 opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
           );
         }
