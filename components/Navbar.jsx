@@ -49,7 +49,7 @@ export function Navbar() {
   return (
     <header 
       className={cn(
-        "fixed top-0 left-0 right-0 z-[100] w-full border-b transition-all",
+        "fixed top-0 left-0 right-0 z-100 w-full border-b transition-all",
         isDropdownOpen || isMobileMenuOpen 
           ? "bg-background border-primary/20" 
           : "bg-background/95 backdrop-blur-md border-primary/20 shadow-sm"
@@ -58,11 +58,11 @@ export function Navbar() {
       <div className="container mx-auto px-4 h-20 flex items-center justify-between relative">
         {/* Left Section: Logo */}
         <Link href="/" className="flex items-center gap-2 group z-50 relative">
-          <div className="bg-primary p-2.5 rounded-2xl shadow-lg shadow-primary/20 group-hover:rotate-12 transition-transform">
-            <Camera className="h-6 w-6 text-primary-foreground" />
+          <div className="group-hover:rotate-12 transition-transform overflow-hidden flex items-center justify-center w-14 h-14">
+            <img src="/vercel.svg" alt="4cats" className="h-10 w-10 object-contain" />
           </div>
-          <span className="hidden sm:block font-black text-2xl tracking-tight text-primary">
-            4cats
+          <span className="hidden sm:block font-black text-2xl tracking-tight text-primary font-genty">
+            4CatsCamera
           </span>
         </Link>
 
@@ -191,7 +191,7 @@ export function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="w-full flex items-center justify-center gap-2 bg-primary text-primary-foreground py-4 rounded-2xl font-bold uppercase tracking-widest shadow-lg shadow-primary/20"
              >
-                <Camera className="h-5 w-5" />
+                <img src="/vercel.svg" alt="" className="h-6 w-6 object-contain" />
                 Mua máy ngay
              </Link>
         </div>

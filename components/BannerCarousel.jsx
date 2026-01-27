@@ -7,6 +7,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 export function BannerCarousel({ banners = [] }) {
   const [current, setCurrent] = useState(0);
 
+  const [isPaused, setIsPaused] = useState(false);
+
   const nextSlide = () => {
     setCurrent((prev) => (prev === banners.length - 1 ? 0 : prev + 1));
   };
@@ -16,17 +18,21 @@ export function BannerCarousel({ banners = [] }) {
   };
 
   useEffect(() => {
-    if (banners.length === 0) return;
+    if (banners.length === 0 || isPaused) return;
     const interval = setInterval(() => {
         nextSlide();
-    }, 5000); // Auto scroll every 5 seconds
+    }, 2000); // Auto scroll every 2 seconds
     return () => clearInterval(interval);
-  }, [banners.length]);
+  }, [banners.length, isPaused]);
 
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="relative w-full h-[300px] md:h-[500px] overflow-hidden rounded-4xl group shadow-lg">
+    <div 
+      className="relative w-full h-[300px] md:h-[500px] overflow-hidden rounded-4xl group shadow-lg"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
       {/* Slides */}
       <div 
         className="flex transition-transform duration-700 ease-in-out h-full" 

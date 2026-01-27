@@ -8,6 +8,12 @@ export function FloatingContact() {
 
   const contactOptions = [
     {
+      name: "Gọi Hotline",
+      icon: <Phone className="w-5 h-5" />,
+      color: "bg-secondary-foreground",
+      href: "tel:0398249856",
+    },
+    {
       name: "Instagram",
       icon: <Instagram className="w-6 h-6" />,
       color: "bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500",
@@ -20,8 +26,8 @@ export function FloatingContact() {
       href: "https://www.facebook.com/profile.php?id=100093056073018",
     },
     {
-      name: "Zalo/Phone",
-      icon: <span className="font-bold text-xs">Zalo</span>, // Fallback since no precise Zalo icon in Lucide
+      name: "Zalo Chat",
+      icon: <span className="font-bold text-xs">Zalo</span>,
       color: "bg-blue-600",
       href: "https://zalo.me/0398249856",
     },
@@ -29,38 +35,25 @@ export function FloatingContact() {
 
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse items-end gap-3">
-      {/* Hotline Button (Always Visible) */}
-      <a
-        href="tel:0398249856"
-        className="relative w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 group"
-      >
-         {/* Sound waves (Ping animation) */}
-        <span className="absolute inline-flex h-full w-full rounded-full bg-secondary-foreground opacity-75 animate-ping"></span>
-        
-        {/* Main Icon Button */}
-        <span className="relative inline-flex rounded-full h-14 w-14 bg-secondary-foreground items-center justify-center shadow-xl animate-phone-ring">
-             <Phone className="w-7 h-7" />
-        </span>
-
-        {/* Label */}
-        <span className="absolute right-16 py-2 px-4 bg-white text-secondary-foreground text-sm font-bold rounded-full shadow-lg whitespace-nowrap border border-secondary-foreground/20">
-          Hotline: 039 824 9856
-        </span>
-      </a>
-
-      {/* Main Toggle Button */}
+      {/* Combined Hotline & Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center text-white transition-all duration-300 transform hover:scale-105 active:scale-95 z-10 ${
-          isOpen ? "bg-slate-800 rotate-90" : "bg-primary"
-        }`}
-        aria-label="Contact Menu"
+        className="relative w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 group focus:outline-none"
       >
-        {isOpen ? (
-          <X className="w-6 h-6" />
-        ) : (
-          <MessageSquareText className="w-7 h-7" />
-        )}
+         {/* Sound waves (Ping animation) */}
+        {!isOpen && <span className="absolute inline-flex h-full w-full rounded-full bg-secondary-foreground opacity-30 animate-ping"></span>}
+        
+        {/* Main Icon Button */}
+        <span className={`relative inline-flex rounded-full h-14 w-14 items-center justify-center shadow-xl transition-all duration-300 ${isOpen ? "bg-slate-800 rotate-90" : "bg-secondary-foreground text-white animate-phone-ring"}`}>
+            {isOpen ? <X className="w-6 h-6" /> : <Phone className="w-7 h-7" />}
+        </span>
+
+        {/* Label (Visible only when closed)
+        {!isOpen && (
+          <span className="absolute right-16 py-2 px-4 bg-white text-secondary-foreground text-sm font-bold rounded-full shadow-lg whitespace-nowrap border border-secondary-foreground/20 pointer-events-none">
+            Hotline: 039 824 9856
+          </span>
+        )} */}
       </button>
 
       {/* Menu Items */}

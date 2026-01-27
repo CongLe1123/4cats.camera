@@ -1,13 +1,17 @@
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { MessageCircle, Instagram, Mail, MapPin, Phone } from "lucide-react";
+import { getStoreSettings } from "../../lib/fetchCameras";
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const settings = await getStoreSettings();
+  const mainPhone = settings.contact_phones?.[0] || "039 824 9856";
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-4xl">
       <div className="text-center mb-16">
         <h1 className="text-4xl md:text-5xl font-bold mb-4">
-          Liên hệ với 4cats! 🐱✨
+          Liên hệ với {settings.brand_name?.replace(" 📸", "") || "4cats"}! 🐱✨
         </h1>
         <p className="text-muted-foreground text-lg">
           Chúng mình luôn sẵn sàng hỗ trợ bạn trên hành trình nhiếp ảnh.
@@ -27,13 +31,9 @@ export default function ContactPage() {
                   <div>
                     <h4 className="font-bold">Địa chỉ</h4>
                     <div className="opacity-80 text-sm space-y-2">
-                      <p>
-                        CS1: Số 6A2, ngõ 158 Nguyễn Khánh Toàn, Quan Hoa, Cầu
-                        Giấy, Hà Nội
-                      </p>
-                      <p>
-                        CS2: Số 51 Nguyễn Trãi, Ngã tư Sở, Thanh Xuân, Hà Nội
-                      </p>
+                      {settings.locations?.map((loc, idx) => (
+                        <p key={idx}>{`CS${idx + 1}: ${loc.address}`}</p>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -43,18 +43,22 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="font-bold">Hotline</h4>
-                    <p className="opacity-80">039 824 9856 - 093 235 68 69</p>
+                    <p className="opacity-80">
+                      {settings.contact_phones?.join(" - ")}
+                    </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-4">
-                  <div className="bg-white/20 p-2 rounded-xl mt-1">
-                    <Mail className="h-6 w-6" />
+                {settings.contact_email && (
+                  <div className="flex items-start gap-4">
+                    <div className="bg-white/20 p-2 rounded-xl mt-1">
+                      <Mail className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold">Email</h4>
+                      <p className="opacity-80">{settings.contact_email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h4 className="font-bold">Email</h4>
-                    <p className="opacity-80">fourcatscamera@gmail.com</p>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -69,58 +73,66 @@ export default function ContactPage() {
 
         {/* Social Cards */}
         <div className="flex flex-col gap-6">
-          <a
-            href="https://www.instagram.com/4cats.camera/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Card className="hover:border-primary transition-all cursor-pointer group sticker">
-              <CardContent className="p-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-3 rounded-2xl shadow-lg">
-                    <Instagram className="h-8 w-8 text-white" />
+          {settings.instagram_url && (
+            <a
+              href={settings.instagram_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Card className="hover:border-primary transition-all cursor-pointer group sticker">
+                <CardContent className="p-6 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-linear-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-3 rounded-2xl shadow-lg">
+                      <Instagram className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Instagram</h3>
+                      <p className="text-sm text-muted-foreground">
+                        @
+                        {settings.instagram_url
+                          .split("/")
+                          .filter(Boolean)
+                          .pop()}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Instagram</h3>
-                    <p className="text-sm text-muted-foreground">
-                      @4cats.camera
-                    </p>
+                  <Button variant="ghost" className="rounded-full">
+                    Theo dõi
+                  </Button>
+                </CardContent>
+              </Card>
+            </a>
+          )}
+
+          {settings.facebook_url && (
+            <a
+              href={settings.facebook_url}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Card className="hover:border-[#0084FF] transition-all cursor-pointer sticker">
+                <CardContent className="p-6 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[#0084FF] p-3 rounded-2xl shadow-lg">
+                      <MessageCircle className="h-8 w-8 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-lg">Messenger/Facebook</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Chat với chúng mình ngay
+                      </p>
+                    </div>
                   </div>
-                </div>
-                <Button variant="ghost" className="rounded-full">
-                  Theo dõi
-                </Button>
-              </CardContent>
-            </Card>
-          </a>
+                  <Button variant="ghost" className="rounded-full">
+                    Mở Chat
+                  </Button>
+                </CardContent>
+              </Card>
+            </a>
+          )}
 
           <a
-            href="https://www.facebook.com/profile.php?id=100093056073018"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Card className="hover:border-[#0084FF] transition-all cursor-pointer sticker">
-              <CardContent className="p-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-[#0084FF] p-3 rounded-2xl shadow-lg">
-                    <MessageCircle className="h-8 w-8 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Messenger/Facebook</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Chat với chúng mình ngay
-                    </p>
-                  </div>
-                </div>
-                <Button variant="ghost" className="rounded-full">
-                  Mở Chat
-                </Button>
-              </CardContent>
-            </Card>
-          </a>
-
-          <a
-            href="https://zalo.me/0398249856"
+            href={`https://zalo.me/${mainPhone.replace(/\s/g, "")}`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -135,7 +147,7 @@ export default function ContactPage() {
                   <div>
                     <h3 className="font-bold text-lg">Zalo</h3>
                     <p className="text-sm text-muted-foreground">
-                      Admin: 039 824 9856
+                      Admin: {mainPhone}
                     </p>
                   </div>
                 </div>

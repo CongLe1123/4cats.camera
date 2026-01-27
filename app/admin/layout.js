@@ -12,6 +12,8 @@ import {
   Home,
   LogOut,
   User,
+  Settings,
+  Tag,
 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Toaster, toast } from "sonner";
@@ -125,7 +127,14 @@ export default function AdminLayout({ children }) {
             href="/"
             className="flex items-center gap-2 font-black text-2xl text-primary"
           >
-            <span>4cats.</span>
+            <div className="flex items-center justify-center w-12 h-12">
+              <img
+                src="/vercel.svg"
+                alt=""
+                className="h-9 w-9 object-contain"
+              />
+            </div>
+            <span className="font-genty">4CatsCamera</span>
           </Link>
           <p className="text-xs text-muted-foreground mt-1">Admin Dashboard</p>
         </div>
@@ -158,6 +167,20 @@ export default function AdminLayout({ children }) {
           >
             <Image className="w-4 h-4" />
             Banners
+          </Link>
+          <Link
+            href="/admin/lookups"
+            className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+          >
+            <Tag className="w-4 h-4" />
+            Danh mục
+          </Link>
+          <Link
+            href="/admin/settings"
+            className="flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-xl hover:bg-primary/10 hover:text-primary transition-colors"
+          >
+            <Settings className="w-4 h-4" />
+            Cấu hình
           </Link>
         </nav>
 

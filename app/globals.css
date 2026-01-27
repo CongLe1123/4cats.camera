@@ -59,6 +59,19 @@ body {
   min-height: 100vh;
 }
 
+@font-face {
+  font-family: 'Genty';
+  src: url('/fonts/Genty.woff2') format('woff2'),
+       url('/fonts/Genty.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.font-genty {
+  font-family: 'Genty', cursive;
+}
+
 h1,
 h2,
 h3,

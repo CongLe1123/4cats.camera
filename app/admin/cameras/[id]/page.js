@@ -99,6 +99,7 @@ export default function EditCameraPage({ params }) {
     series_id: "",
     images: [],
     content: [],
+    rental: [],
   });
 
   const [imageFile, setImageFile] = useState(null);
@@ -245,6 +246,28 @@ export default function EditCameraPage({ params }) {
     }
   };
 
+  const handleAddRentalOption = () => {
+    setFormData((prev) => ({
+      ...prev,
+      rental: [...(prev.rental || []), { duration: "", price: "" }],
+    }));
+  };
+
+  const handleRemoveRentalOption = (index) => {
+    setFormData((prev) => ({
+      ...prev,
+      rental: prev.rental.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleRentalChange = (index, field, value) => {
+    setFormData((prev) => {
+      const newRental = [...(prev.rental || [])];
+      newRental[index] = { ...newRental[index], [field]: value };
+      return { ...prev, rental: newRental };
+    });
+  };
+
   // New Variant State
   const [isVariantOpen, setIsVariantOpen] = useState(false);
   const [newVariant, setNewVariant] = useState({
@@ -323,11 +346,11 @@ export default function EditCameraPage({ params }) {
         category_id: camData.category_id?.toString() || "",
         series_id: camData.series_id?.toString() || "",
         images: camData.images || [],
-        images: camData.images || [],
         content: (camData.content || []).map((c) => ({
           ...c,
           id: c.id || `loaded-${Math.random().toString(36).substr(2, 9)}`,
         })),
+        rental: camData.rental || [],
       });
     }
 
@@ -551,6 +574,7 @@ export default function EditCameraPage({ params }) {
       category_id: formData.category_id || null,
       series_id: formData.series_id || null,
       content: finalContent,
+      rental: formData.rental || [],
     };
 
     let error;
@@ -1057,6 +1081,69 @@ export default function EditCameraPage({ params }) {
             {formData.content?.length === 0 && (
               <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">
                 No content blocks yet. Add one to tell the product story!
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Rental Pricing */}
+        <div className="border-t pt-6 mt-6">
+          <div className="flex justify-between items-center mb-4">
+            <Label className="text-lg font-bold">Rental Options</Label>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleAddRentalOption}
+            >
+              <Plus className="w-4 h-4 mr-2" /> Add Rental Option
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            {formData.rental && formData.rental.length > 0 ? (
+              formData.rental.map((option, idx) => (
+                <div
+                  key={idx}
+                  className="flex gap-4 items-end bg-muted/20 p-4 rounded-xl relative group border"
+                >
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-xs">
+                      Duration (e.g. 1 Ngày, 1 Tuần)
+                    </Label>
+                    <Input
+                      placeholder="1 Ngày"
+                      value={option.duration}
+                      onChange={(e) =>
+                        handleRentalChange(idx, "duration", e.target.value)
+                      }
+                    />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-xs">Price (VND)</Label>
+                    <Input
+                      type="number"
+                      placeholder="350000"
+                      value={option.price}
+                      onChange={(e) =>
+                        handleRentalChange(idx, "price", e.target.value)
+                      }
+                    />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive hover:bg-destructive/10"
+                    onClick={() => handleRemoveRentalOption(idx)}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-xl">
+                No rental options set. Add options to enable rental status for
+                this camera.
               </div>
             )}
           </div>

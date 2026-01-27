@@ -233,7 +233,7 @@ export default function ProductDetailClient({ camera }) {
             <CardContent className="p-8 space-y-8">
               {/* Condition Selector */}
               <div className="space-y-4">
-                <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em]">
+                <span className="text-xs font-black text-foreground/80 uppercase tracking-[0.2em]">
                   Chọn tình trạng máy (Condition)
                 </span>
                 <div className="flex flex-wrap gap-3">
@@ -245,7 +245,7 @@ export default function ProductDetailClient({ camera }) {
                         className={`px-6 py-2.5 rounded-2xl text-sm font-bold transition-all border-2 ${
                           selectedCondition === cond
                             ? "border-primary bg-primary text-white shadow-xl shadow-primary/20 scale-105"
-                            : "border-primary/5 bg-white hover:border-primary/20 hover:bg-primary/5 shadow-sm"
+                            : "border-primary/20 bg-white hover:border-primary/40 hover:bg-primary/5 shadow-sm"
                         }`}
                       >
                         {cond}
@@ -256,7 +256,7 @@ export default function ProductDetailClient({ camera }) {
 
               {/* Color Selector */}
               <div className="space-y-4">
-                <span className="text-[10px] font-black text-muted-foreground/60 uppercase tracking-[0.2em]">
+                <span className="text-xs font-black text-foreground/80 uppercase tracking-[0.2em]">
                   Chọn màu sắc (Color)
                 </span>
                 <div className="flex flex-wrap gap-3">
@@ -268,7 +268,7 @@ export default function ProductDetailClient({ camera }) {
                         className={`flex items-center gap-2 px-6 py-2.5 rounded-2xl text-sm font-bold transition-all border-2 ${
                           selectedColor === color
                             ? "border-primary bg-primary text-white shadow-xl shadow-primary/20 scale-105"
-                            : "border-primary/5 bg-white hover:border-primary/20 hover:bg-primary/5 shadow-sm"
+                            : "border-primary/20 bg-white hover:border-primary/40 hover:bg-primary/5 shadow-sm"
                         }`}
                       >
                         <div

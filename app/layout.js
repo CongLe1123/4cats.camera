@@ -1,5 +1,6 @@
 import "./globals.css";
 import { LayoutWrapper } from "../components/LayoutWrapper";
+import { getStoreSettings } from "../lib/fetchCameras";
 
 export const metadata = {
   title: "4cats.camera | Cửa hàng máy ảnh nhỏ xinh 🐱📸",
@@ -7,7 +8,9 @@ export const metadata = {
     "Chuyên cung cấp máy ảnh chất lượng, dịch vụ order máy ảnh uy tín cho người mới và creator.",
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  const storeSettings = await getStoreSettings();
+
   return (
     <html lang="vi">
       <head>
@@ -23,7 +26,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="antialiased min-h-screen flex flex-col overflow-x-hidden">
-        <LayoutWrapper>{children}</LayoutWrapper>
+        <LayoutWrapper storeSettings={storeSettings}>{children}</LayoutWrapper>
       </body>
     </html>
   );

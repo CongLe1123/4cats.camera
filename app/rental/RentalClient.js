@@ -158,7 +158,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
         {/* Left Column: Filters & Grid */}
         <div className="flex-1 w-full order-2 lg:order-1">
           {/* Filters & Search */}
-          <div className="bg-white p-6 rounded-[2rem] shadow-sm border mb-8">
+          <div className="bg-white p-6 rounded-4xl shadow-sm border mb-8">
             <div className="flex flex-col gap-6">
               {/* Row 1: Search */}
               <div className="w-full space-y-2">
@@ -391,7 +391,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
                   key={camera.id}
                   className="overflow-hidden flex flex-col group h-full border-none shadow-lg hover:shadow-xl transition-all"
                 >
-                  <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+                  <div className="aspect-4/3 relative overflow-hidden bg-muted">
                     <img
                       src={camera.image}
                       alt={camera.name}
@@ -436,7 +436,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
                         ))}
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="px-5 pb-4 flex-grow flex items-end">
+                  <CardContent className="px-5 pb-4 grow flex items-end">
                     <div className="w-full flex items-baseline justify-between">
                       <span className="text-sm font-medium text-muted-foreground italic">
                         Giá thuê từ
@@ -491,7 +491,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
         </div>
 
         {/* Right Column: Policy Sidebar */}
-        <div className="w-full lg:w-[450px] order-1 lg:order-2 space-y-8 flex-shrink-0">
+        <div className="w-full lg:w-[450px] order-1 lg:order-2 space-y-8 shrink-0">
           <div className="lg:sticky lg:top-24 bg-white p-6 rounded-[2.5rem] shadow-xl border border-primary/10">
             <div className="text-center mb-6">
               <Badge

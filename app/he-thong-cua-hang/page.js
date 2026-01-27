@@ -5,8 +5,11 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { MapPin, Phone, Clock, Instagram } from "lucide-react";
+import { getStoreSettings } from "../../lib/fetchCameras";
 
-export default function StoreSystem() {
+export default async function StoreSystem() {
+  const settings = await getStoreSettings();
+
   return (
     <div className="container mx-auto px-4 py-20 max-w-4xl">
       <h1 className="text-4xl font-bold mb-4 text-center italic text-primary">
@@ -17,75 +20,78 @@ export default function StoreSystem() {
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Store 1 */}
-        <Card className="border-none bg-white shadow-xl sticker overflow-hidden">
-          <div className="h-48 bg-primary/20 flex items-center justify-center">
-            <MapPin className="h-16 w-16 text-primary" />
-          </div>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold italic text-primary">
-              4cats - Chi nhánh Cầu Giấy
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-3 items-start">
-              <MapPin className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">
-                Số 6A2, ngõ 158 Nguyễn Khánh Toàn, Quan Hoa, Cầu Giấy, Hà Nội
-              </p>
+        {settings.locations?.map((loc, index) => (
+          <Card
+            key={index}
+            className="border-none bg-white shadow-xl sticker overflow-hidden"
+          >
+            <div className="h-48 bg-primary/20 flex items-center justify-center">
+              <MapPin className="h-16 w-16 text-primary" />
             </div>
-            <div className="flex gap-3 items-center">
-              <Phone className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">039 824 9856</p>
-            </div>
-            <div className="flex gap-3 items-center">
-              <Clock className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">09:00 - 21:00 (Hàng ngày)</p>
-            </div>
-          </CardContent>
-        </Card>
+            <CardHeader>
+              <CardTitle className="text-2xl font-bold italic text-primary">
+                {loc.name || `4cats - Chi nhánh ${index + 1}`}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex gap-3 items-start">
+                <MapPin className="h-5 w-5 text-primary shrink-0" />
+                <p className="text-muted-foreground">{loc.address}</p>
+              </div>
 
-        {/* Store 2 */}
-        <Card className="border-none bg-white shadow-xl sticker overflow-hidden">
-          <div className="h-48 bg-primary/20 flex items-center justify-center">
-            <MapPin className="h-16 w-16 text-primary" />
-          </div>
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold italic text-primary">
-              4cats - Chi nhánh Thanh Xuân
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex gap-3 items-start">
-              <MapPin className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">
-                Số 51 Nguyễn Trãi, Ngã tư Sở, Thanh Xuân, Hà Nội
-              </p>
-            </div>
-            <div className="flex gap-3 items-center">
-              <Phone className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">093 235 68 69</p>
-            </div>
-            <div className="flex gap-3 items-center">
-              <Clock className="h-5 w-5 text-primary shrink-0" />
-              <p className="text-muted-foreground">09:00 - 21:00 (Hàng ngày)</p>
-            </div>
-          </CardContent>
-        </Card>
+              {/* Show corresponding phone if available, otherwise show all */}
+              <div className="flex gap-3 items-center">
+                <Phone className="h-5 w-5 text-primary shrink-0" />
+                <div className="flex flex-col">
+                  {settings.contact_phones &&
+                  settings.contact_phones.length > index ? (
+                    <a
+                      href={`tel:${settings.contact_phones[index].replace(/\s/g, "")}`}
+                      className="text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      {settings.contact_phones[index]}
+                    </a>
+                  ) : (
+                    settings.contact_phones?.map((p, idx) => (
+                      <a
+                        key={idx}
+                        href={`tel:${p.replace(/\s/g, "")}`}
+                        className="text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {p}
+                      </a>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              <div className="flex gap-3 items-center">
+                <Clock className="h-5 w-5 text-primary shrink-0" />
+                <p className="text-muted-foreground">
+                  {settings.opening_hours || "09:00 - 21:00 (Hàng ngày)"}
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      <div className="mt-16 bg-secondary/30 p-8 rounded-[2rem] text-center sticker">
+      <div className="mt-16 bg-secondary/30 p-8 rounded-4xl text-center sticker">
         <h2 className="text-2xl font-bold mb-4 italic">
           Theo dõi chúng mình trên Instagram để cập nhật máy mới mỗi ngày!
         </h2>
-        <a
-          href="https://www.instagram.com/4cats.camera/"
-          target="_blank"
-          className="inline-flex items-center gap-2 bg-white px-8 py-3 rounded-full text-primary font-bold shadow-lg hover:scale-105 transition-all"
-        >
-          <Instagram className="h-5 w-5" />
-          @4cats.camera
-        </a>
+        {settings.instagram_url && (
+          <a
+            href={settings.instagram_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-white px-8 py-3 rounded-full text-primary font-bold shadow-lg hover:scale-105 transition-all"
+          >
+            <Instagram className="h-5 w-5" />@
+            {settings.instagram_url.split("/").filter(Boolean).pop() ||
+              "4cats.camera"}
+          </a>
+        )}
       </div>
     </div>
   );
