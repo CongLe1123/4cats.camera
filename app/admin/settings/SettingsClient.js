@@ -24,6 +24,7 @@ import {
   Mail,
   Clock,
   Copyright,
+  Share2,
 } from "lucide-react";
 
 export default function SettingsClient({ initialSettings }) {
@@ -76,7 +77,20 @@ export default function SettingsClient({ initialSettings }) {
   const addSupportLink = () => {
     setSettings({
       ...settings,
-      support_links: [...settings.support_links, { label: "", href: "#" }],
+      support_links: [
+        ...settings.support_links,
+        { label: "", href: "#", is_social: false },
+      ],
+    });
+  };
+
+  const addSocialLink = () => {
+    setSettings({
+      ...settings,
+      support_links: [
+        ...settings.support_links,
+        { label: "", href: "#", is_social: true, platform: "Facebook" },
+      ],
     });
   };
 
@@ -351,7 +365,7 @@ export default function SettingsClient({ initialSettings }) {
                   hàng
                 </CardTitle>
                 <CardDescription>
-                  Các liên kết chính sách và hướng dẫn
+                  Các liên kết chính sách và hướng dẫn (Footer)
                 </CardDescription>
               </div>
               <Button
@@ -365,43 +379,137 @@ export default function SettingsClient({ initialSettings }) {
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {settings.support_links?.map((link, idx) => (
-                <div
-                  key={idx}
-                  className="p-4 rounded-xl border border-blue-100 bg-blue-50/20 space-y-3 relative group"
-                >
-                  <button
-                    onClick={() => removeSupportLink(idx)}
-                    className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+              {settings.support_links?.map((link, idx) => {
+                if (link.is_social) return null;
+                return (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl border border-blue-100 bg-blue-50/20 space-y-3 relative group"
                   >
-                    <Trash2 className="w-3 h-3" />
-                  </button>
-                  <div className="space-y-1">
-                    <Label className="text-[10px] font-bold text-blue-400">
-                      NHÃN (LABEL)
-                    </Label>
-                    <Input
-                      value={link.label}
-                      onChange={(e) =>
-                        updateSupportLink(idx, "label", e.target.value)
-                      }
-                      className="h-8 rounded-lg border-blue-100 text-xs"
-                    />
+                    <button
+                      onClick={() => removeSupportLink(idx)}
+                      className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white shadow-sm flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </button>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-bold text-blue-400">
+                        NHÃN (LABEL)
+                      </Label>
+                      <Input
+                        value={link.label}
+                        onChange={(e) =>
+                          updateSupportLink(idx, "label", e.target.value)
+                        }
+                        className="h-8 rounded-lg border-blue-100 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-bold text-blue-400">
+                        ĐƯỜNG DẪN (HREF)
+                      </Label>
+                      <Input
+                        value={link.href}
+                        onChange={(e) =>
+                          updateSupportLink(idx, "href", e.target.value)
+                        }
+                        className="h-8 rounded-lg border-blue-100 text-xs"
+                      />
+                    </div>
                   </div>
-                  <div className="space-y-1">
-                    <Label className="text-[10px] font-bold text-blue-400">
-                      ĐƯỜNG DẪN (HREF)
-                    </Label>
-                    <Input
-                      value={link.href}
-                      onChange={(e) =>
-                        updateSupportLink(idx, "href", e.target.value)
-                      }
-                      className="h-8 rounded-lg border-blue-100 text-xs"
-                    />
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Social Links */}
+        <Card className="rounded-4xl border-none shadow-xl bg-white/50 backdrop-blur-sm overflow-hidden lg:col-span-2">
+          <CardHeader className="bg-pink-50/50 pb-6 border-b">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Share2 className="w-5 h-5 text-pink-600" /> Mạng xã hội &
+                  Liên hệ
+                </CardTitle>
+                <CardDescription>
+                  Các kênh liên kết trên trang Liên hệ (IG, Zalo, TikTok...)
+                </CardDescription>
+              </div>
+              <Button
+                onClick={addSocialLink}
+                size="sm"
+                className="bg-pink-600 hover:bg-pink-700 text-white rounded-full"
+              >
+                <Plus className="w-4 h-4 mr-1" /> Thêm kênh
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {settings.support_links?.map((link, idx) => {
+                if (!link.is_social) return null;
+                return (
+                  <div
+                    key={idx}
+                    className="p-5 rounded-2xl border-2 border-pink-100 bg-pink-50/20 space-y-4 relative group"
+                  >
+                    <button
+                      onClick={() => removeSupportLink(idx)}
+                      className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <Label className="text-[10px] font-bold text-pink-400">
+                          NỀN TẢNG
+                        </Label>
+                        <select
+                          value={link.platform || "Facebook"}
+                          onChange={(e) =>
+                            updateSupportLink(idx, "platform", e.target.value)
+                          }
+                          className="w-full h-9 px-3 rounded-xl border border-pink-200 bg-white text-xs focus:outline-none focus:ring-2 focus:ring-pink-500/50"
+                        >
+                          <option value="Facebook">Facebook</option>
+                          <option value="Instagram">Instagram</option>
+                          <option value="Zalo">Zalo</option>
+                          <option value="TikTok">TikTok</option>
+                          <option value="Threads">Threads</option>
+                          <option value="Other">Khác</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <Label className="text-[10px] font-bold text-pink-400">
+                          TÊN HIỂN THỊ
+                        </Label>
+                        <Input
+                          value={link.label}
+                          onChange={(e) =>
+                            updateSupportLink(idx, "label", e.target.value)
+                          }
+                          className="h-9 rounded-xl border-pink-200 text-xs"
+                          placeholder="VD: @4cats.camera"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label className="text-[10px] font-bold text-pink-400">
+                        LINK / URL
+                      </Label>
+                      <Input
+                        value={link.href}
+                        onChange={(e) =>
+                          updateSupportLink(idx, "href", e.target.value)
+                        }
+                        className="h-9 rounded-xl border-pink-200 text-xs"
+                        placeholder="https://..."
+                      />
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </CardContent>
         </Card>

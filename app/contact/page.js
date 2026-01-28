@@ -73,90 +73,75 @@ export default async function ContactPage() {
 
         {/* Social Cards */}
         <div className="flex flex-col gap-6">
-          {settings.instagram_url && (
-            <a
-              href={settings.instagram_url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Card className="hover:border-primary transition-all cursor-pointer group sticker">
-                <CardContent className="p-6 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-linear-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-3 rounded-2xl shadow-lg">
-                      <Instagram className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">Instagram</h3>
-                      <p className="text-sm text-muted-foreground">
-                        @
-                        {settings.instagram_url
-                          .split("/")
-                          .filter(Boolean)
-                          .pop()}
-                      </p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" className="rounded-full">
-                    Theo dõi
-                  </Button>
-                </CardContent>
-              </Card>
-            </a>
-          )}
+          {settings.support_links
+            ?.filter((l) => l.is_social)
+            .map((link, idx) => {
+              const platform = link.platform || "Other";
+              const isZalo = platform === "Zalo";
+              const isIG = platform === "Instagram";
+              const isFB = platform === "Facebook";
+              const isTikTok = platform === "TikTok";
 
-          {settings.facebook_url && (
-            <a
-              href={settings.facebook_url}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Card className="hover:border-[#0084FF] transition-all cursor-pointer sticker">
-                <CardContent className="p-6 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-[#0084FF] p-3 rounded-2xl shadow-lg">
-                      <MessageCircle className="h-8 w-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-lg">Messenger/Facebook</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Chat với chúng mình ngay
-                      </p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" className="rounded-full">
-                    Mở Chat
-                  </Button>
-                </CardContent>
-              </Card>
-            </a>
-          )}
+              let bgClass = "bg-primary";
+              let Icon = MessageCircle;
 
-          <a
-            href={`https://zalo.me/${mainPhone.replace(/\s/g, "")}`}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Card className="hover:border-[#0068FF] transition-all cursor-pointer sticker">
-              <CardContent className="p-6 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="bg-[#0068FF] p-3 rounded-2xl shadow-lg">
-                    <span className="text-white font-black text-2xl h-8 w-8 flex items-center justify-center">
-                      Z
-                    </span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-lg">Zalo</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Admin: {mainPhone}
-                    </p>
-                  </div>
-                </div>
-                <Button variant="ghost" className="rounded-full">
-                  Chat trực tiếp
-                </Button>
-              </CardContent>
-            </Card>
-          </a>
+              if (isIG) {
+                bgClass =
+                  "bg-linear-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]";
+                Icon = Instagram;
+              } else if (isFB) {
+                bgClass = "bg-[#0084FF]";
+                Icon = MessageCircle;
+              } else if (isZalo) {
+                bgClass = "bg-[#0068FF]";
+              } else if (isTikTok) {
+                bgClass = "bg-black";
+              }
+
+              return (
+                <a
+                  key={idx}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Card className="hover:border-primary transition-all cursor-pointer group sticker">
+                    <CardContent className="p-6 flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`${bgClass} p-3 rounded-2xl shadow-lg flex items-center justify-center min-w-14 h-14`}
+                        >
+                          {isZalo ? (
+                            <span className="text-white font-black text-2xl">
+                              Z
+                            </span>
+                          ) : (
+                            <Icon className="h-8 w-8 text-white" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="font-bold text-lg">{platform}</h3>
+                          <p className="text-sm text-muted-foreground line-clamp-1">
+                            {link.label || "Liên hệ với chúng mình"}
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" className="rounded-full shrink-0">
+                        {isIG ? "Theo dõi" : isFB ? "Nhắn tin" : "Mở ngay"}
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </a>
+              );
+            })}
+
+          {/* Backup static links if none in DB (for safety) */}
+          {(!settings.support_links ||
+            settings.support_links.filter((l) => l.is_social).length === 0) && (
+            <div className="text-center p-8 border-2 border-dashed rounded-3xl opacity-50">
+              <p>Chưa có thông tin mạng xã hội được thiết lập.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

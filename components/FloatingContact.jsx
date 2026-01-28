@@ -3,34 +3,35 @@
 import { useState } from "react";
 import { MessageCircle, Instagram, X, MessageSquareText, Facebook, Phone } from "lucide-react";
 
-export function FloatingContact() {
+export function FloatingContact({ settings }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Derive options from settings
+  const dynamicSocials = settings?.support_links
+    ?.filter(l => l.is_social)
+    .map(link => ({
+      name: link.label || link.platform,
+      icon: link.platform === "Instagram" ? <Instagram className="w-6 h-6" /> : 
+            link.platform === "Facebook" ? <Facebook className="w-6 h-6" /> :
+            link.platform === "Zalo" ? <span className="font-bold text-xs font-mono">Zalo</span> :
+            <MessageSquareText className="w-6 h-6" />,
+      color: link.platform === "Instagram" ? "bg-linear-to-tr from-yellow-400 via-red-500 to-purple-500" :
+             link.platform === "Facebook" ? "bg-blue-600" :
+             link.platform === "Zalo" ? "bg-[#0068FF]" :
+             "bg-primary",
+      href: link.href
+    })) || [];
+
+  const mainPhone = settings?.contact_phones?.[0]?.replace(/\s/g, "");
+  
   const contactOptions = [
     {
       name: "Gọi Hotline",
       icon: <Phone className="w-5 h-5" />,
       color: "bg-secondary-foreground",
-      href: "tel:0398249856",
+      href: mainPhone ? `tel:${mainPhone}` : "tel:0398249856",
     },
-    {
-      name: "Instagram",
-      icon: <Instagram className="w-6 h-6" />,
-      color: "bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500",
-      href: "https://www.instagram.com/4cats.camera/",
-    },
-    {
-      name: "Facebook",
-      icon: <Facebook className="w-6 h-6" />,
-      color: "bg-gradient-to-tr from-blue-600 to-blue-700",
-      href: "https://www.facebook.com/profile.php?id=100093056073018",
-    },
-    {
-      name: "Zalo Chat",
-      icon: <span className="font-bold text-xs">Zalo</span>,
-      color: "bg-blue-600",
-      href: "https://zalo.me/0398249856",
-    },
+    ...dynamicSocials
   ];
 
   return (

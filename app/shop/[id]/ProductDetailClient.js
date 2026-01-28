@@ -32,7 +32,7 @@ import { Input } from "../../../components/ui/input";
 
 import { supabase } from "../../../lib/supabase";
 
-export default function ProductDetailClient({ camera }) {
+export default function ProductDetailClient({ camera, storeSettings }) {
   const formatPrice = (value) => {
     return new Intl.NumberFormat("vi-VN").format(value) + "đ";
   };
@@ -443,73 +443,83 @@ export default function ProductDetailClient({ camera }) {
                     </DialogHeader>
 
                     <div className="space-y-4 pt-6">
-                      {/* Instagram */}
-                      <Link
-                        href="https://www.instagram.com/4cats.camera/"
-                        target="_blank"
-                        className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 rounded-2xl bg-linear-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] flex items-center justify-center shadow-lg shadow-pink-500/20">
-                            <Instagram className="w-8 h-8 text-white" />
-                          </div>
-                          <div>
-                            <div className="font-bold text-lg">Instagram</div>
-                            <div className="text-muted-foreground text-sm">
-                              @4cats.camera
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors pr-2">
-                          Theo dõi
-                        </div>
-                      </Link>
+                      {storeSettings?.support_links
+                        ?.filter((l) => l.is_social)
+                        .map((link, idx) => {
+                          const platform = link.platform || "Other";
+                          const isIG = platform === "Instagram";
+                          const isFB = platform === "Facebook";
+                          const isZalo = platform === "Zalo";
+                          const isTikTok = platform === "TikTok";
 
-                      {/* Facebook */}
-                      <Link
-                        href="https://www.facebook.com/profile.php?id=100093056073018"
-                        target="_blank"
-                        className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 rounded-2xl bg-[#0084FF] flex items-center justify-center shadow-lg shadow-blue-500/20">
-                            <Facebook className="w-8 h-8 text-white" />
-                          </div>
-                          <div>
-                            <div className="font-bold text-lg">Facebook</div>
-                            <div className="text-muted-foreground text-sm">
-                              Fanpage 4cats.camera
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors pr-2">
-                          Nhắn tin
-                        </div>
-                      </Link>
+                          let bgClass = "bg-primary/20";
+                          let IconComp = MessageCircle;
+                          let iconWrapperClass =
+                            "bg-primary shadow-lg shadow-primary/20";
 
-                      {/* Zalo */}
-                      <Link
-                        href="https://zalo.me/0398249856"
-                        target="_blank"
-                        className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-14 h-14 rounded-2xl bg-[#0068FF] flex items-center justify-center shadow-lg shadow-blue-600/30">
-                            <span className="text-white text-3xl font-black italic">
-                              Z
-                            </span>
-                          </div>
-                          <div>
-                            <div className="font-bold text-lg">Zalo</div>
-                            <div className="text-muted-foreground text-sm">
-                              Admin: 039.824.9856
-                            </div>
-                          </div>
+                          if (isIG) {
+                            IconComp = Instagram;
+                            iconWrapperClass =
+                              "bg-linear-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] shadow-lg shadow-pink-500/20";
+                          } else if (isFB) {
+                            IconComp = Facebook;
+                            iconWrapperClass =
+                              "bg-[#0084FF] shadow-lg shadow-blue-500/20";
+                          } else if (isZalo) {
+                            iconWrapperClass =
+                              "bg-[#0068FF] shadow-lg shadow-blue-600/30";
+                          } else if (isTikTok) {
+                            iconWrapperClass =
+                              "bg-black shadow-lg shadow-black/20";
+                          }
+
+                          return (
+                            <Link
+                              key={idx}
+                              href={link.href}
+                              target="_blank"
+                              className="flex items-center justify-between p-4 bg-white rounded-2xl border border-black/5 shadow-sm hover:shadow-md hover:scale-[1.02] transition-all group"
+                            >
+                              <div className="flex items-center gap-4">
+                                <div
+                                  className={`w-14 h-14 rounded-2xl flex items-center justify-center ${iconWrapperClass}`}
+                                >
+                                  {isZalo ? (
+                                    <span className="text-white text-3xl font-black italic">
+                                      Z
+                                    </span>
+                                  ) : (
+                                    <IconComp className="w-8 h-8 text-white" />
+                                  )}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-lg">
+                                    {platform}
+                                  </div>
+                                  <div className="text-muted-foreground text-sm line-clamp-1">
+                                    {link.label}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors pr-2 shrink-0">
+                                {isIG
+                                  ? "Theo dõi"
+                                  : isFB
+                                    ? "Nhắn tin"
+                                    : "Liên hệ"}
+                              </div>
+                            </Link>
+                          );
+                        })}
+
+                      {/* Fallback if no social links */}
+                      {(!storeSettings?.support_links ||
+                        storeSettings.support_links.filter((l) => l.is_social)
+                          .length === 0) && (
+                        <div className="text-center p-8 border-2 border-dashed rounded-3xl opacity-50">
+                          <p>Chưa có thông tin liên hệ.</p>
                         </div>
-                        <div className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors pr-2">
-                          Chat trực tiếp
-                        </div>
-                      </Link>
+                      )}
                     </div>
                   </div>
                 )}

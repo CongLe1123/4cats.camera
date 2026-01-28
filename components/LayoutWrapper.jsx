@@ -8,26 +8,14 @@ export function LayoutWrapper({ children, storeSettings }) {
   const pathname = usePathname();
   const isAdminOrLogin = pathname?.startsWith("/admin") || pathname?.startsWith("/login");
 
-  // Fallback defaults if storeSettings is missing
+  // settings is already merged with defaults in getStoreSettings()
+  // but we add a final safety check here
   const settings = storeSettings || {
     brand_name: "4cats.camera 📸",
-    brand_description: "Chuyên cung cấp các dòng máy ảnh Compact, Mirrorless, DSLR đã qua sử dụng với chất lượng tốt nhất. Uy tín tạo nên thương hiệu.",
-    facebook_url: "https://www.facebook.com/profile.php?id=100093056073018",
-    instagram_url: "https://www.instagram.com/4cats.camera/",
-    locations: [
-      { name: "Cơ sở 1 - Cầu Giấy", address: "Số 6A2, ngõ 158 Nguyễn Khánh Toàn, Quan Hoa, Cầu Giấy, Hà Nội" },
-      { name: "Cơ sở 2 - Thanh Xuân", address: "Số 51 Nguyễn Trãi, Ngã tư Sở, Thanh Xuân, Hà Nội" }
-    ],
-    support_links: [
-      { label: "Chính sách bảo hành", href: "#" },
-      { label: "Chính sách đổi trả", href: "#" },
-      { label: "Hướng dẫn mua hàng", href: "#" },
-      { label: "Gửi yêu cầu bảo hành", href: "#" }
-    ],
-    contact_email: "fourcatscamera@gmail.com",
-    contact_phones: ["039 824 9856", "093 235 68 69"],
-    opening_hours: "Open: 9:00 - 21:00",
-    copyright_text: "© 2026 4cats.camera - Người bạn đồng hành cùng đam mê nhiếp ảnh 🐱📸"
+    brand_description: "Chuyên cung cấp máy ảnh chất lượng.",
+    locations: [],
+    support_links: [],
+    contact_phones: []
   };
 
   return (
@@ -117,16 +105,18 @@ export function LayoutWrapper({ children, storeSettings }) {
               <div className="space-y-4">
                 <h4 className="font-bold text-lg">Hỗ trợ khách hàng 🤝</h4>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  {settings.support_links?.map((link, idx) => (
-                    <li key={idx}>
-                      <a
-                        href={link.href || "#"}
-                        className="hover:text-primary transition-colors"
-                      >
-                        {link.label}
-                      </a>
-                    </li>
-                  ))}
+                  {settings.support_links
+                    ?.filter((link) => !link.is_social)
+                    .map((link, idx) => (
+                      <li key={idx}>
+                        <a
+                          href={link.href || "#"}
+                          className="hover:text-primary transition-colors"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
                 </ul>
               </div>
 
@@ -217,7 +207,7 @@ export function LayoutWrapper({ children, storeSettings }) {
           </div>
         </footer>
       )}
-      {!isAdminOrLogin && <FloatingContact />}
+      {!isAdminOrLogin && <FloatingContact settings={settings} />}
     </>
   );
 }

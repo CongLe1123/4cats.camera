@@ -2,6 +2,9 @@ import "./globals.css";
 import { LayoutWrapper } from "../components/LayoutWrapper";
 import { getStoreSettings } from "../lib/fetchCameras";
 
+export const revalidate = 0;
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "4cats.camera | Cửa hàng máy ảnh nhỏ xinh 🐱📸",
   description:
