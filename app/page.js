@@ -55,7 +55,7 @@ export default async function Home() {
 
       {/* CTA section */}
       <section className="container mx-auto px-4 py-20">
-        <div className="bg-primary text-primary-foreground rounded-[2rem] p-8 md:p-16 text-center shadow-2xl relative overflow-hidden">
+        <div className="bg-primary text-primary-foreground rounded-4xl p-8 md:p-16 text-center shadow-2xl relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="text-3xl md:text-5xl font-bold mb-6">
               Sẵn sàng ghi lại khoảnh khắc?

@@ -57,6 +57,7 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
       (c) => c.toLowerCase() === initialCategoryRaw?.toLowerCase(),
     ) || "All";
 
+  const initialQuery = searchParams.get("q") || "";
   const [filterBrand, setFilterBrand] = useState(initialBrand);
   const [filterSeries, setFilterSeries] = useState(initialSeries);
   const [filterCategory, setFilterCategory] = useState(initialCategory);
@@ -64,7 +65,7 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
   const [filterCondition, setFilterCondition] = useState("All");
   const [filterColor, setFilterColor] = useState("All");
   const [filterSpecialty, setFilterSpecialty] = useState("All");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [priceRange, setPriceRange] = useState([0, 50000000]);
 
   const formatPrice = (value) => {
@@ -157,7 +158,7 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
       </div>
 
       {/* Filters & Search */}
-      <div className="bg-white p-6 rounded-[2rem] shadow-sm border mb-12">
+      <div className="bg-white p-6 rounded-4xl shadow-sm border mb-12">
         <div className="flex flex-col gap-6">
           {/* Row 1: Search */}
           <div className="w-full space-y-2">
@@ -381,7 +382,7 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
               key={camera.id}
               className="overflow-hidden flex flex-col group h-full border-none shadow-lg hover:shadow-xl transition-all"
             >
-              <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+              <div className="aspect-4/3 relative overflow-hidden bg-muted">
                 <img
                   src={camera.image}
                   alt={camera.name}
@@ -428,7 +429,7 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
                     ))}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="px-5 pb-4 flex-grow flex items-end">
+              <CardContent className="px-5 pb-4 grow flex items-end">
                 <div className="w-full flex items-baseline justify-between">
                   <span className="text-sm font-medium text-muted-foreground italic">
                     Giá chỉ từ
