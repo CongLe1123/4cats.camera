@@ -391,21 +391,21 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
                 <div className="absolute top-4 left-4 flex flex-col gap-2">
                   <Badge
                     variant="secondary"
-                    className="glass border-none px-3 py-1 text-[10px] uppercase font-bold"
+                    className="border-none px-3 py-1 text-[10px] uppercase font-black bg-white text-[#FF3377] shadow-md"
                   >
                     {camera.brand}
                   </Badge>
                   {camera.series && (
                     <Badge
                       variant="secondary"
-                      className="glass border-none px-3 py-1 text-[10px] uppercase font-bold bg-primary/20 text-primary-foreground"
+                      className="border-none px-3 py-1 text-[10px] uppercase font-black bg-white text-[#FF00AA] shadow-md"
                     >
                       {camera.series}
                     </Badge>
                   )}
                   <Badge
                     variant="outline"
-                    className="bg-white/90 border-none px-3 py-1 text-[10px] uppercase font-bold text-primary"
+                    className="border-none px-3 py-1 text-[10px] uppercase font-black bg-white text-[#C10066] shadow-md"
                   >
                     {filterCondition !== "All"
                       ? filterCondition

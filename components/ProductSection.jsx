@@ -30,7 +30,7 @@ export function ProductSection({ title, brand, items }) {
             key={i}
             className="overflow-hidden flex flex-col group h-full border-none shadow-lg hover:shadow-xl transition-all"
           >
-            <div className="aspect-[4/3] relative overflow-hidden bg-muted">
+            <div className="aspect-4/3 relative overflow-hidden bg-muted">
               <Link href={item.link || `/shop/${item.id || '#'}`}>
                 <img
                   src={item.image}
@@ -41,14 +41,14 @@ export function ProductSection({ title, brand, items }) {
               <div className="absolute top-4 left-4 flex flex-col gap-2">
                 <Badge
                   variant="secondary"
-                  className="glass border-none px-3 py-1 text-[10px] uppercase font-bold"
+                  className="border-none px-3 py-1 text-[10px] uppercase font-black bg-white text-[#FF3377] shadow-md"
                 >
                   {item.brand || brand}
                 </Badge>
                 {item.condition && (
                   <Badge
                     variant="outline"
-                    className="bg-white/90 border-none px-3 py-1 text-[10px] uppercase font-bold text-primary"
+                    className="border-none px-3 py-1 text-[10px] uppercase font-black bg-white text-[#C10066] shadow-md"
                   >
                     {item.condition}
                   </Badge>
@@ -72,7 +72,7 @@ export function ProductSection({ title, brand, items }) {
                 ))}
               </CardDescription>
             </CardHeader>
-            <CardContent className="px-5 pb-4 flex-grow">
+            <CardContent className="px-5 pb-4 grow">
               <p className="text-muted-foreground leading-relaxed text-sm">
                 {item.desc}
               </p>
