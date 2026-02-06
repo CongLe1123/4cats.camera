@@ -61,7 +61,7 @@ export function Navbar() {
           <div className="group-hover:rotate-12 transition-transform overflow-hidden flex items-center justify-center w-14 h-14">
             <img src="/vercel.svg" alt="4cats" className="h-10 w-10 object-contain" />
           </div>
-          <span className="hidden sm:block font-black text-2xl tracking-tight text-primary font-genty">
+          <span className="hidden sm:block text-2xl tracking-tight text-primary font-genty">
             4CatsCamera
           </span>
         </Link>
