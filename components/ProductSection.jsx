@@ -18,7 +18,7 @@ export function ProductSection({ title, brand, items }) {
     <section className="container mx-auto px-4">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-3xl font-bold">{title}</h2>
-        <Button variant="outline" className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-white transition-all" asChild>
+        <Button variant="outline" className="rounded-full border-primary/50 text-primary hover:bg-primary hover:text-white transition-all font-bold" asChild>
           <Link href={`/shop?brand=${brand}`}>
             Xem thêm <ArrowRight className="w-4 h-4 ml-2" />
           </Link>
