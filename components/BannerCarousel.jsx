@@ -3,7 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import Link from 'next/link';
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { HomeSearch } from "./HomeSearch";
 
 export function BannerCarousel({ banners = [] }) {
   const [current, setCurrent] = useState(0);
@@ -74,10 +73,7 @@ export function BannerCarousel({ banners = [] }) {
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="space-y-6">
-      {/* Search Bar atop Carousel */}
-      <HomeSearch />
-
+    <div className="relative">
       <div 
         ref={containerRef}
         className="relative w-full rounded-4xl group shadow-2xl overflow-hidden bg-muted"

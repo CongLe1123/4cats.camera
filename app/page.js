@@ -3,6 +3,7 @@ import Link from "next/link";
 import { BannerCarousel } from "../components/BannerCarousel";
 import { BrandList } from "../components/BrandList";
 import { ProductSection } from "../components/ProductSection";
+import { HomeSearch } from "../components/HomeSearch";
 import {
   getFeaturedCameras,
   getBrandSections,
@@ -21,6 +22,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-col gap-12 pb-20">
+      <HomeSearch />
       {/* Banner Carousel Section - Replaces Hero */}
       <section className="container mx-auto px-4 py-8">
         <BannerCarousel banners={banners} />
