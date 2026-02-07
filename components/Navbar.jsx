@@ -22,7 +22,7 @@ export function Navbar() {
   // Close mobile menu when route changes or resizing to desktop
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
+      if (window.innerWidth >= 1280) {
         setIsMobileMenuOpen(false);
       }
     };
@@ -41,7 +41,6 @@ export function Navbar() {
 
   const navItems = [
     { name: "Hệ thống cửa hàng", href: "/he-thong-cua-hang" },
-    { name: "Hệ thống fanpage", href: "/contact" },
     { name: "Chính sách bảo hành", href: "/chinh-sach/bao-hanh" },
     { name: "Về 4cats.camera", href: "/about" },
   ];
@@ -55,7 +54,7 @@ export function Navbar() {
           : "bg-background/95 backdrop-blur-md border-primary/20 shadow-sm"
       )}
     >
-      <div className="container mx-auto px-4 h-20 flex items-center justify-between relative">
+      <div className="container mx-auto px-4 h-24 flex items-center justify-between relative">
         {/* Left Section: Logo */}
         <Link href="/" className="flex items-center gap-2 group z-50 relative">
           <div className="group-hover:rotate-12 transition-transform overflow-hidden flex items-center justify-center w-14 h-14">
@@ -67,22 +66,24 @@ export function Navbar() {
         </Link>
 
         {/* Center Section: Desktop Navigation (Absolute Centered) */}
-        <nav className="hidden lg:flex items-center gap-2 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-40">
+        <nav className="hidden xl:flex items-center gap-2 absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-40">
           {/* 1. Danh mục dịch vụ (Dropdown) */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className={cn(
-                "flex items-center gap-1 px-4 py-2.5 text-xs font-bold uppercase tracking-widest rounded-full transition-all duration-300 border border-transparent",
+                "flex items-center justify-center gap-1 w-36 px-1 py-2 text-xs font-bold uppercase tracking-widest rounded-xl transition-all duration-300 border border-transparent leading-tight text-center",
                 isDropdownOpen
                   ? "bg-primary text-primary-foreground shadow-md"
                   : "text-foreground/80 hover:text-primary hover:bg-primary/10 hover:border-primary/20"
               )}
             >
-              Danh mục dịch vụ
+              Danh mục
+              <br />
+              dịch vụ
               <ChevronDown
                 className={cn(
-                  "h-3 w-3 transition-transform duration-300",
+                  "h-3 w-3 transition-transform duration-300 ml-1",
                   isDropdownOpen && "rotate-180"
                 )}
               />
@@ -119,7 +120,7 @@ export function Navbar() {
               key={item.name}
               href={item.href}
               target={item.external ? "_blank" : undefined}
-              className="px-4 py-2.5 text-xs font-bold uppercase tracking-widest text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-full border border-transparent hover:border-primary/20 transition-all duration-300"
+              className="w-36 text-center flex items-center justify-center px-1 py-2 text-xs font-bold uppercase tracking-widest text-foreground/80 hover:text-primary hover:bg-primary/10 rounded-xl border border-transparent hover:border-primary/20 transition-all duration-300 leading-tight whitespace-normal"
             >
               {item.name}
             </Link>
@@ -127,7 +128,7 @@ export function Navbar() {
         </nav>
 
         {/* Mobile Menu Trigger - Right Side */}
-        <div className="lg:hidden z-50">
+        <div className="xl:hidden z-50">
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="p-2 -mr-2 text-foreground/80 hover:text-primary transition-colors"
@@ -144,7 +145,7 @@ export function Navbar() {
       {/* Mobile Menu Overlay */}
       <div
         className={cn(
-          "lg:hidden fixed inset-x-0 top-20 bottom-0 bg-background border-t border-primary/10 p-6 flex flex-col gap-6 overflow-y-auto transition-all duration-300 ease-in-out z-40",
+          "xl:hidden fixed inset-x-0 top-24 bottom-0 bg-background border-t border-primary/10 p-6 flex flex-col gap-6 overflow-y-auto transition-all duration-300 ease-in-out z-40",
           isMobileMenuOpen
             ? "translate-x-0 opacity-100"
             : "translate-x-full opacity-0 pointer-events-none"

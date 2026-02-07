@@ -82,11 +82,11 @@ export function BrandList() {
               className="group relative h-48 rounded-3xl overflow-hidden border border-white/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
             >
               {/* Background Image */}
-              <div className="absolute inset-0 z-0">
+              <div className="absolute inset-0 z-0 bg-black flex items-center justify-center">
                 <img 
                   src={brand.image} 
                   alt=""
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
                 />
                 {/* Subtle overlay for contrast */}
                 <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors" />

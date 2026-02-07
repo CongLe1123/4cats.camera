@@ -68,6 +68,33 @@ export default function SettingsClient({ initialSettings }) {
     });
   };
 
+  const addLocationLink = (locIndex) => {
+    const newLocations = [...settings.locations];
+    if (!newLocations[locIndex].social_links) {
+      newLocations[locIndex].social_links = [];
+    }
+    newLocations[locIndex].social_links.push({
+      platform: "Facebook",
+      url: "",
+      label: "",
+    });
+    setSettings({ ...settings, locations: newLocations });
+  };
+
+  const removeLocationLink = (locIndex, linkIndex) => {
+    const newLocations = [...settings.locations];
+    newLocations[locIndex].social_links = newLocations[
+      locIndex
+    ].social_links.filter((_, i) => i !== linkIndex);
+    setSettings({ ...settings, locations: newLocations });
+  };
+
+  const updateLocationLink = (locIndex, linkIndex, field, value) => {
+    const newLocations = [...settings.locations];
+    newLocations[locIndex].social_links[linkIndex][field] = value;
+    setSettings({ ...settings, locations: newLocations });
+  };
+
   const updateSupportLink = (index, field, value) => {
     const newLinks = [...settings.support_links];
     newLinks[index][field] = value;
@@ -348,6 +375,132 @@ export default function SettingsClient({ initialSettings }) {
                       }
                       className="rounded-xl border-green-200 focus-visible:ring-green-500"
                     />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="text-xs uppercase font-black text-green-600">
+                      Google Maps Embed URL
+                    </Label>
+                    <Input
+                      value={loc.iframe_url || ""}
+                      onChange={(e) =>
+                        updateLocation(idx, "iframe_url", e.target.value)
+                      }
+                      placeholder="https://www.google.com/maps/embed?..."
+                      className="rounded-xl border-green-200 focus-visible:ring-green-500 font-mono text-xs"
+                    />
+                    <p className="text-[10px] text-muted-foreground italic">
+                      Copy link trong thuộc tính src="..." của thẻ iframe Google
+                      Maps
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-green-100">
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase font-black text-green-600">
+                        Hotline riêng
+                      </Label>
+                      <Input
+                        value={loc.phone || ""}
+                        onChange={(e) =>
+                          updateLocation(idx, "phone", e.target.value)
+                        }
+                        className="rounded-xl border-green-200 text-xs"
+                        placeholder="09xx..."
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs uppercase font-black text-green-600">
+                        Email riêng
+                      </Label>
+                      <Input
+                        value={loc.email || ""}
+                        onChange={(e) =>
+                          updateLocation(idx, "email", e.target.value)
+                        }
+                        className="rounded-xl border-green-200 text-xs"
+                        placeholder="vidu@gmail.com"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t border-green-100">
+                    <div className="flex items-center justify-between mb-2">
+                      <Label className="text-xs uppercase font-black text-green-600">
+                        Liên kết Mạng xã hội & Khác
+                      </Label>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => addLocationLink(idx)}
+                        className="h-6 text-xs gap-1 text-green-600 hover:text-green-700 hover:bg-green-50"
+                      >
+                        <Plus className="w-3 h-3" /> Thêm
+                      </Button>
+                    </div>
+                    <div className="space-y-2">
+                      {loc.social_links?.map((link, linkIdx) => (
+                        <div key={linkIdx} className="flex gap-2 items-center">
+                          <select
+                            className="h-8 rounded-lg border border-green-200 text-xs bg-white px-2 focus:outline-none focus:ring-1 focus:ring-green-500 w-24 shrink-0"
+                            value={link.platform}
+                            onChange={(e) =>
+                              updateLocationLink(
+                                idx,
+                                linkIdx,
+                                "platform",
+                                e.target.value,
+                              )
+                            }
+                          >
+                            <option value="Facebook">Facebook</option>
+                            <option value="Zalo">Zalo</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Threads">Threads</option>
+                            <option value="Other">Khác</option>
+                          </select>
+                          <Input
+                            placeholder="Nhãn (VD: Fanpage)"
+                            value={link.label}
+                            onChange={(e) =>
+                              updateLocationLink(
+                                idx,
+                                linkIdx,
+                                "label",
+                                e.target.value,
+                              )
+                            }
+                            className="h-8 text-xs rounded-lg border-green-200 w-28 shrink-0"
+                          />
+                          <Input
+                            placeholder="URL..."
+                            value={link.url}
+                            onChange={(e) =>
+                              updateLocationLink(
+                                idx,
+                                linkIdx,
+                                "url",
+                                e.target.value,
+                              )
+                            }
+                            className="h-8 text-xs rounded-lg border-green-200 grow"
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-destructive hover:bg-red-50 rounded-full shrink-0"
+                            onClick={() => removeLocationLink(idx, linkIdx)}
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                      {(!loc.social_links || loc.social_links.length === 0) && (
+                        <p className="text-[10px] text-muted-foreground italic text-center py-2 bg-green-50/30 rounded-lg border border-dashed border-green-100">
+                          Chưa có liên kết nào. Nhấn "Thêm" để tạo mới.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
