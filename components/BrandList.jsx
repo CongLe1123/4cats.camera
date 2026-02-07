@@ -93,20 +93,12 @@ export function BrandList() {
               </div>
 
               {/* Content Overlay */}
-              <div className="absolute inset-0 p-6 flex flex-col justify-center z-10 bg-linear-to-r from-black/30 via-black/10 to-transparent">
-                <h3 
-                  className="text-4xl font-black italic uppercase tracking-tighter text-white font-genty"
-                  style={{ 
-                    WebkitTextStroke: "1.5px #ffb6c1",
-                    paintOrder: "stroke fill"
-                  }}
-                >
-                  {brand.name}
-                </h3>
+              {/* <div className="absolute inset-0 p-6 flex flex-col justify-center z-10 bg-linear-to-r from-black/30 via-black/10 to-transparent">
+
                 <p className="text-white font-black tracking-[0.2em] text-sm mt-1 drop-shadow-md">
                   DIGITAL
                 </p>
-              </div>
+              </div> */}
             </Link>
           );
         }
