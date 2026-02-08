@@ -40,7 +40,7 @@ export function Navbar() {
   ];
 
   const navItems = [
-    { name: "Hệ thống cửa hàng", href: "/he-thong-cua-hang" },
+    { name: "Hệ thống cửa hàng và Fanpage", href: "/he-thong-cua-hang" },
     { name: "Chính sách bảo hành", href: "/chinh-sach/bao-hanh" },
     { name: "Về 4cats.camera", href: "/about" },
   ];
