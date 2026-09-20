@@ -21,10 +21,10 @@ export default async function Home() {
   ]);
 
   return (
-    <div className="flex flex-col gap-12 pb-20">
+    <div className="flex flex-col gap-8 md:gap-10 pb-20 pt-7 sm:pt-8 md:pt-9">
       <HomeSearch />
       {/* Banner Carousel Section - Replaces Hero */}
-      <section className="container mx-auto px-4 py-8">
+      <section className="container mx-auto px-4 py-3 md:py-4">
         <BannerCarousel banners={banners} />
       </section>
 

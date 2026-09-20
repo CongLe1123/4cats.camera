@@ -26,7 +26,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { compressImage } from "../../../../lib/utils";
+import { compressImage, cn } from "../../../../lib/utils";
+import { toast } from "sonner";
+import { validateUploadFile, generateSafeFileName } from "../../../../lib/upload-utils";
 import {
   DndContext,
   closestCenter,
@@ -88,6 +90,9 @@ export default function EditCameraPage({ params }) {
   const [allSeries, setAllSeries] = useState([]); // Database source for series
   const [conditions, setConditions] = useState([]);
   const [colors, setColors] = useState([]);
+  const [specialtiesOptions, setSpecialtiesOptions] = useState([]);
+  const [selectedSpecialtyIds, setSelectedSpecialtyIds] = useState([]);
+  const [newSpecialtyName, setNewSpecialtyName] = useState("");
 
   // Form State for main camera
   const [formData, setFormData] = useState({
@@ -95,7 +100,6 @@ export default function EditCameraPage({ params }) {
     image: "",
     brand_id: "",
     category_id: "",
-    series_id: "",
     series_id: "",
     images: [],
     content: [],
@@ -114,13 +118,18 @@ export default function EditCameraPage({ params }) {
   const handleImageSelect = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      const validation = validateUploadFile(file, "image");
+      if (!validation.valid) {
+        toast.error(validation.error);
+        return;
+      }
       try {
         const compressed = await compressImage(file);
         setImageFile(compressed);
         setPreviewUrl(URL.createObjectURL(compressed));
       } catch (err) {
         console.error("Compression failed", err);
-        alert("Image compression failed");
+        toast.error("Không thể nén ảnh, vui lòng thử lại");
       }
     }
   };
@@ -128,9 +137,20 @@ export default function EditCameraPage({ params }) {
   const handleGallerySelect = async (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files);
-      setIsUploading(true); // Temporary lock
+      const validFiles = [];
+      for (const f of files) {
+        const validation = validateUploadFile(f, "image");
+        if (!validation.valid) {
+          toast.error(`${f.name}: ${validation.error}`);
+        } else {
+          validFiles.push(f);
+        }
+      }
+      if (validFiles.length === 0) return;
+
+      setIsUploading(true);
       try {
-        const compressedFiles = await Promise.all(files.map(compressImage));
+        const compressedFiles = await Promise.all(validFiles.map(compressImage));
 
         setGalleryFiles((prev) => [...prev, ...compressedFiles]);
 
@@ -140,7 +160,7 @@ export default function EditCameraPage({ params }) {
         setGalleryPreviews((prev) => [...prev, ...newPreviews]);
       } catch (err) {
         console.error("Gallery compression failed", err);
-        alert("Some images failed to compress");
+        toast.error("Không thể nén một số hình ảnh");
       } finally {
         setIsUploading(false);
       }
@@ -217,6 +237,12 @@ export default function EditCameraPage({ params }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const validation = validateUploadFile(file, type === "video" ? "video" : "image");
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
+
     try {
       let fileToStore = file;
       let preview = URL.createObjectURL(file);
@@ -242,7 +268,7 @@ export default function EditCameraPage({ params }) {
       });
     } catch (err) {
       console.error(err);
-      alert("Error processing file");
+      toast.error("Lỗi khi xử lý tập tin");
     }
   };
 
@@ -295,7 +321,7 @@ export default function EditCameraPage({ params }) {
       }));
     };
 
-    const [b, c, s, cond, col] = await Promise.all([
+    const [b, c, s, cond, col, spec] = await Promise.all([
       fetchData("brands"),
       fetchData("categories"),
       // Special fetch for series to include brand_id
@@ -312,6 +338,7 @@ export default function EditCameraPage({ params }) {
       })(),
       fetchData("conditions"),
       fetchData("colors"),
+      fetchData("specialties"),
     ]);
 
     setBrands(b);
@@ -319,6 +346,7 @@ export default function EditCameraPage({ params }) {
     setAllSeries(s);
     setConditions(cond);
     setColors(col);
+    setSpecialtiesOptions(spec);
   };
 
   const fetchCamera = async () => {
@@ -337,11 +365,6 @@ export default function EditCameraPage({ params }) {
       setFormData({
         name: camData.name,
         image: camData.image || "",
-        /*
-         * Note: Series select options are derived from allSeries + active Brand.
-         * The stored series_id works regardless of current filter, but for UX we might
-         * need to ensure the options are available if the brand logic changes.
-         */
         brand_id: camData.brand_id?.toString() || "",
         category_id: camData.category_id?.toString() || "",
         series_id: camData.series_id?.toString() || "",
@@ -352,6 +375,33 @@ export default function EditCameraPage({ params }) {
         })),
         rental: camData.rental || [],
       });
+
+      // 1.1 Fetch Assigned Specialties/Features
+      const { data: specData } = await supabase
+        .from("cameras_specialties")
+        .select("specialty_id")
+        .eq("camera_id", id);
+
+      let assignedSpecialtyIds = (specData || []).map((item) =>
+        item.specialty_id.toString(),
+      );
+
+      // Fallback matching from features array if junction table was empty
+      if (
+        camData.features &&
+        Array.isArray(camData.features) &&
+        assignedSpecialtyIds.length === 0
+      ) {
+        const { data: matchedSpecs } = await supabase
+          .from("specialties")
+          .select("id, name")
+          .in("name", camData.features);
+        if (matchedSpecs && matchedSpecs.length > 0) {
+          assignedSpecialtyIds = matchedSpecs.map((s) => s.id.toString());
+        }
+      }
+
+      setSelectedSpecialtyIds(assignedSpecialtyIds);
     }
 
     // 2. Fetch Variants
@@ -364,6 +414,62 @@ export default function EditCameraPage({ params }) {
     setLoading(false);
   };
 
+  // --- Specialty Handlers ---
+
+  const handleToggleSpecialty = (specialtyId) => {
+    setSelectedSpecialtyIds((prev) =>
+      prev.includes(specialtyId)
+        ? prev.filter((item) => item !== specialtyId)
+        : [...prev, specialtyId],
+    );
+  };
+
+  const handleCreateNewSpecialty = async () => {
+    const trimmed = newSpecialtyName.trim();
+    if (!trimmed) {
+      toast.warning("Vui lòng nhập tên tính năng mới");
+      return;
+    }
+
+    const existing = specialtiesOptions.find(
+      (opt) => opt.label.toLowerCase() === trimmed.toLowerCase(),
+    );
+    if (existing) {
+      if (!selectedSpecialtyIds.includes(existing.value)) {
+        setSelectedSpecialtyIds((prev) => [...prev, existing.value]);
+        toast.info(`Đã chọn tính năng "${existing.label}"`);
+      } else {
+        toast.info(`Tính năng "${existing.label}" đã được chọn trước đó`);
+      }
+      setNewSpecialtyName("");
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from("specialties")
+        .insert([{ name: trimmed }])
+        .select()
+        .single();
+
+      if (error) {
+        toast.error("Lỗi khi tạo tính năng: " + error.message);
+        return;
+      }
+
+      const newOption = { value: data.id.toString(), label: data.name };
+      setSpecialtiesOptions((prev) =>
+        [...prev, newOption].sort((a, b) => a.label.localeCompare(b.label)),
+      );
+      setSelectedSpecialtyIds((prev) => [...prev, newOption.value]);
+      setNewSpecialtyName("");
+      toast.success(`Đã thêm tính năng "${data.name}"! ✨`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Có lỗi xảy ra khi tạo tính năng");
+    }
+  };
+
   // --- Create Handlers ---
 
   const handleCreateOption = async (table, name, setter) => {
@@ -373,9 +479,10 @@ export default function EditCameraPage({ params }) {
       .select()
       .single();
     if (error) {
-      alert(`Error creating ${table}: ` + error.message);
+      toast.error(`Lỗi tạo ${table}: ` + error.message);
       return null;
     }
+    toast.success("Đã thêm lựa chọn thành công!");
     const newOption = { value: data.id.toString(), label: data.name };
     setter((prev) =>
       [...prev, newOption].sort((a, b) => a.label.localeCompare(b.label)),
@@ -402,20 +509,29 @@ export default function EditCameraPage({ params }) {
   // --- Main Save Handler ---
 
   const handleSaveCamera = async () => {
-    if (!formData.name) return alert("Name is required");
+    if (!formData.name?.trim()) {
+      toast.error("Vui lòng nhập tên máy ảnh");
+      return;
+    }
 
     setIsUploading(true);
     let finalImageUrl = formData.image;
 
     // 1. Handle Image Upload if new file selected
     if (imageFile) {
-      const fileName = `${Date.now()}-${imageFile.name.replace(/[^a-zA-Z0-9.-]/g, "")}`;
+      const validation = validateUploadFile(imageFile, "image");
+      if (!validation.valid) {
+        toast.error(validation.error);
+        setIsUploading(false);
+        return;
+      }
+      const fileName = generateSafeFileName(imageFile.name, "main");
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from("products")
         .upload(fileName, imageFile);
 
       if (uploadError) {
-        alert("Upload failed: " + uploadError.message);
+        toast.error("Tải ảnh chính thất bại: " + uploadError.message);
         setIsUploading(false);
         return;
       }
@@ -453,14 +569,19 @@ export default function EditCameraPage({ params }) {
     // Upload new gallery files
     if (galleryFiles.length > 0) {
       for (const file of galleryFiles) {
-        const fileName = `gallery-${Date.now()}-${Math.random().toString(36).substring(7)}-${file.name.replace(/[^a-zA-Z0-9.-]/g, "")}`;
+        const validation = validateUploadFile(file, "image");
+        if (!validation.valid) {
+          toast.error(`${file.name}: ${validation.error}`);
+          continue;
+        }
+        const fileName = generateSafeFileName(file.name, "gallery");
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("products")
           .upload(fileName, file);
 
         if (uploadError) {
           console.error("Gallery upload failed", uploadError);
-          alert(`Failed to upload ${file.name}: ${uploadError.message}`);
+          toast.error(`Tải ảnh ${file.name} thất bại: ${uploadError.message}`);
           continue;
         }
 
@@ -500,18 +621,21 @@ export default function EditCameraPage({ params }) {
     if (formData.content && formData.content.length > 0) {
       for (const block of formData.content) {
         if ((block.type === "image" || block.type === "video") && block.file) {
-          // Upload new content file
-          const fileExt = block.file.name.split(".").pop();
-          const fileName = `content-${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const expectedType = block.type === "video" ? "video" : "image";
+          const validation = validateUploadFile(block.file, expectedType);
+          if (!validation.valid) {
+            toast.error(validation.error);
+            finalContent.push({ ...block, file: undefined, value: "" });
+            continue;
+          }
+          const fileName = generateSafeFileName(block.file.name, `content-${block.type}`);
 
           const { error: uploadError } = await supabase.storage
             .from("products")
             .upload(fileName, block.file);
 
           if (uploadError) {
-            alert(
-              `Failed to upload content file (${block.type}). Keeping empty.`,
-            );
+            toast.error(`Tải tập tin nội dung thất bại (${block.type}).`);
             finalContent.push({ ...block, file: undefined, value: "" });
           } else {
             const {
@@ -529,26 +653,20 @@ export default function EditCameraPage({ params }) {
       }
     }
 
-    // --- NEW: Cleanup Removed Content Images/Videos ---
+    // --- Cleanup Removed Content Images/Videos ---
     // If we are editing an existing camera, check for content blocks that were removed or changed
     if (camera?.content && Array.isArray(camera.content)) {
-      // Get list of all URLs currently in the final content to act as a "keep list"
       const keptUrls = finalContent
         .filter((b) => (b.type === "image" || b.type === "video") && b.value)
         .map((b) => b.value);
 
-      // Find blocks in original content that are NOT in the keep list
       const removedContentBlocks = camera.content.filter(
         (oldBlock) =>
           (oldBlock.type === "image" || oldBlock.type === "video") &&
-          oldBlock.value && // It had a value
-          oldBlock.value.includes("products") && // It was hosted on our storage
-          !keptUrls.includes(oldBlock.value), // It is no longer present
+          oldBlock.value &&
+          oldBlock.value.includes("products") &&
+          !keptUrls.includes(oldBlock.value),
       );
-
-      // Verify duplication against main image or gallery (rare but good safety) to avoid over-deleting
-      // if for some reason the same URL was used in multiple places.
-      // However, usually content uploads are unique files.
 
       for (const removedBlock of removedContentBlocks) {
         try {
@@ -557,7 +675,6 @@ export default function EditCameraPage({ params }) {
           if (pathParts.length > 1) {
             let oldPath = decodeURIComponent(pathParts[1]);
             if (oldPath.startsWith("/")) oldPath = oldPath.substring(1);
-            // console.log("Deleting removed content file:", oldPath);
             await supabase.storage.from("products").remove([oldPath]);
           }
         } catch (e) {
@@ -565,6 +682,10 @@ export default function EditCameraPage({ params }) {
         }
       }
     }
+
+    const selectedFeatureNames = specialtiesOptions
+      .filter((opt) => selectedSpecialtyIds.includes(opt.value))
+      .map((opt) => opt.label);
 
     const payload = {
       name: formData.name,
@@ -575,18 +696,35 @@ export default function EditCameraPage({ params }) {
       series_id: formData.series_id || null,
       content: finalContent,
       rental: formData.rental || [],
+      features: selectedFeatureNames,
     };
 
     let error;
     let newId = id;
 
     if (id === "new") {
-      const randomId = Math.floor(Math.random() * 1000000);
-      const { error: insertError } = await supabase
+      const { data: insertedData, error: insertError } = await supabase
         .from("cameras")
-        .insert([{ ...payload, id: randomId }]);
-      error = insertError;
-      newId = randomId;
+        .insert([payload])
+        .select("id")
+        .single();
+
+      if (insertError) {
+        // Fallback: in case sequence default is not configured on column
+        const safeIntId = Date.now() * 1000 + Math.floor(Math.random() * 1000);
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from("cameras")
+          .insert([{ ...payload, id: safeIntId }])
+          .select("id")
+          .single();
+        if (fallbackError) {
+          error = fallbackError;
+        } else {
+          newId = fallbackData?.id || safeIntId;
+        }
+      } else {
+        newId = insertedData?.id;
+      }
     } else {
       const { error: updateError } = await supabase
         .from("cameras")
@@ -595,16 +733,41 @@ export default function EditCameraPage({ params }) {
       error = updateError;
     }
 
+    // Sync cameras_specialties junction table
+    if (!error && newId) {
+      try {
+        await supabase
+          .from("cameras_specialties")
+          .delete()
+          .eq("camera_id", newId);
+
+        if (selectedSpecialtyIds.length > 0) {
+          const specialtyRows = selectedSpecialtyIds.map((specId) => ({
+            camera_id: newId,
+            specialty_id: parseInt(specId, 10),
+          }));
+          const { error: specError } = await supabase
+            .from("cameras_specialties")
+            .insert(specialtyRows);
+          if (specError) {
+            console.error("Error inserting cameras_specialties:", specError);
+          }
+        }
+      } catch (specEx) {
+        console.error("Exception syncing cameras_specialties:", specEx);
+      }
+    }
+
     setIsUploading(false);
 
-    if (error) alert("Error saving: " + error.message);
-    else {
-      alert("Saved successfully!");
+    if (error) {
+      toast.error("Lỗi khi lưu: " + error.message);
+    } else {
+      toast.success("Lưu thông tin máy ảnh thành công! ✨");
       if (id === "new") {
         router.push(`/admin/cameras/${newId}`);
       } else {
         // Reset local state to prevent re-uploading the same file
-        setImageFile(null);
         setImageFile(null);
         setPreviewUrl("");
         setGalleryFiles([]);
@@ -618,12 +781,12 @@ export default function EditCameraPage({ params }) {
 
   const handleAddVariant = async () => {
     if (!newVariant.condition_id || !newVariant.color_id || !newVariant.price) {
-      alert("Please fill all fields");
+      toast.warning("Vui lòng điền đầy đủ thông tin biến thể");
       return;
     }
 
     if (id === "new") {
-      alert("Please save the camera first before adding variants.");
+      toast.warning("Vui lòng lưu máy ảnh trước khi thêm biến thể.");
       return;
     }
 
@@ -638,8 +801,9 @@ export default function EditCameraPage({ params }) {
     ]);
 
     if (error) {
-      alert("Error adding variant: " + error.message);
+      toast.error("Lỗi khi thêm biến thể: " + error.message);
     } else {
+      toast.success("Đã thêm biến thể mới!");
       setIsVariantOpen(false);
       setNewVariant({
         condition_id: "",
@@ -652,13 +816,17 @@ export default function EditCameraPage({ params }) {
   };
 
   const handleDeleteVariant = async (variantId) => {
-    if (!confirm("Delete this variant?")) return;
+    if (!confirm("Bạn có chắc chắn muốn xóa biến thể này?")) return;
     const { error } = await supabase
       .from("camera_variants")
       .delete()
       .eq("id", variantId);
-    if (error) alert("Error: " + error.message);
-    else fetchCamera();
+    if (error) {
+      toast.error("Lỗi khi xóa biến thể: " + error.message);
+    } else {
+      toast.success("Đã xóa biến thể!");
+      fetchCamera();
+    }
   };
 
   const handleToggleStock = async (variantId, currentStatus) => {
@@ -676,8 +844,10 @@ export default function EditCameraPage({ params }) {
 
     if (error) {
       console.error(error);
-      alert("Failed to update stock status");
+      toast.error("Cập nhật trạng thái tồn kho thất bại");
       fetchCamera(); // Revert
+    } else {
+      toast.success("Đã cập nhật trạng thái kho!");
     }
   };
 
@@ -871,7 +1041,7 @@ export default function EditCameraPage({ params }) {
               isDisabled={!formData.brand_id}
               onCreate={async (name) => {
                 if (!formData.brand_id) {
-                  alert("Please select a brand first!");
+                  toast.warning("Vui lòng chọn thương hiệu trước!");
                   return;
                 }
                 const { data, error } = await supabase
@@ -885,7 +1055,10 @@ export default function EditCameraPage({ params }) {
                   .select()
                   .single();
 
-                if (error) return alert(error.message);
+                if (error) {
+                  toast.error(error.message);
+                  return;
+                }
 
                 const newOption = {
                   value: data.id.toString(),
@@ -925,6 +1098,79 @@ export default function EditCameraPage({ params }) {
               placeholder="Select Category..."
               createLabel="Create Category"
             />
+          </div>
+        </div>
+
+        {/* Features / Specialties (Tính năng nổi bật) */}
+        <div className="space-y-3 p-5 rounded-2xl bg-secondary/30 border border-primary/20">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <Label className="text-base font-bold text-foreground flex items-center gap-1.5">
+                ✨ Tính năng nổi bật (Features / Specialties)
+              </Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Bấm để chọn tính năng cho máy ảnh. Khách hàng có thể lọc và xem thông số này trên website.
+              </p>
+            </div>
+            {selectedSpecialtyIds.length > 0 && (
+              <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-primary/15 text-primary self-start sm:self-auto">
+                Đã chọn: {selectedSpecialtyIds.length} tính năng
+              </span>
+            )}
+          </div>
+
+          {/* List of existing specialties to toggle */}
+          <div className="flex flex-wrap gap-2 pt-1 min-h-[36px]">
+            {specialtiesOptions.length === 0 ? (
+              <p className="text-xs text-muted-foreground italic">
+                Chưa có tính năng nào trong hệ thống. Hãy thêm tính năng mới bên dưới!
+              </p>
+            ) : (
+              specialtiesOptions.map((spec) => {
+                const isSelected = selectedSpecialtyIds.includes(spec.value);
+                return (
+                  <button
+                    key={spec.value}
+                    type="button"
+                    onClick={() => handleToggleSpecialty(spec.value)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 border cursor-pointer active:scale-95 select-none",
+                      isSelected
+                        ? "bg-primary text-primary-foreground border-primary shadow-xs"
+                        : "bg-white text-muted-foreground hover:text-foreground hover:bg-primary/10 border-primary/20",
+                    )}
+                  >
+                    <span>{isSelected ? "✓" : "+"}</span>
+                    <span>{spec.label}</span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+
+          {/* Quick add new specialty */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 pt-2 border-t border-primary/10">
+            <Input
+              placeholder="Nhập tính năng mới (ví dụ: WiFi, Bluetooth, Màn hình lật, Quay 4K...)"
+              value={newSpecialtyName}
+              onChange={(e) => setNewSpecialtyName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  handleCreateNewSpecialty();
+                }
+              }}
+              className="h-9 text-xs rounded-xl bg-white max-w-md"
+            />
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={handleCreateNewSpecialty}
+              className="h-9 px-4 text-xs rounded-xl border-primary/30 hover:bg-primary/10 text-primary font-bold shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5 mr-1" /> Thêm tính năng mới
+            </Button>
           </div>
         </div>
 

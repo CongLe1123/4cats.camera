@@ -21,34 +21,45 @@ export default function CamerasPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  const [refreshIndex, setRefreshIndex] = useState(0);
+
   useEffect(() => {
-    fetchCameras();
-  }, []);
+    let isCancelled = false;
+    async function loadCameras() {
+      const { data, error } = await supabase
+        .from("cameras")
+        .select(
+          `
+          id, name, image,
+          brand:brands(name),
+          category:categories(name)
+        `,
+        )
+        .order("created_at", { ascending: false });
 
-  const fetchCameras = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("cameras")
-      .select(
-        `
-        id, name, image,
-        brand:brands(name),
-        category:categories(name)
-      `,
-      )
-      .order("created_at", { ascending: false });
+      if (!isCancelled) {
+        if (error) console.error(error);
+        else setCameras(data || []);
+        setLoading(false);
+      }
+    }
 
-    if (error) console.error(error);
-    else setCameras(data || []);
-    setLoading(false);
-  };
+    loadCameras();
+    return () => {
+      isCancelled = true;
+    };
+  }, [refreshIndex]);
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure? This will delete the camera and all variants."))
+    if (typeof window !== "undefined" && !window.confirm("Bạn có chắc chắn muốn xóa máy ảnh này và các biến thể liên quan không?")) {
       return;
+    }
     const { error } = await supabase.from("cameras").delete().eq("id", id);
-    if (error) alert("Error deleting: " + error.message);
-    else fetchCameras();
+    if (error) {
+      console.error("Error deleting:", error);
+    } else {
+      setRefreshIndex((prev) => prev + 1);
+    }
   };
 
   const filtered = cameras.filter((c) =>

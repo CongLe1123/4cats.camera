@@ -41,21 +41,53 @@ export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [refreshIndex, setRefreshIndex] = useState(0);
+
   useEffect(() => {
-    fetchOrders();
+    let isCancelled = false;
+
+    async function loadOrders() {
+      const { data, error } = await supabase
+        .from("orders")
+        .select(
+          `
+          *,
+          camera:cameras(name, image)
+        `,
+        )
+        .order("created_at", { ascending: false });
+
+      if (!isCancelled) {
+        if (error) console.error(error);
+        else setOrders(data || []);
+        setLoading(false);
+      }
+    }
+
+    async function cleanupCancelledOrders() {
+      const oneDayAgo = new Date();
+      oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+
+      const { error } = await supabase
+        .from("orders")
+        .delete()
+        .eq("status", "CANCELLED")
+        .lt("created_at", oneDayAgo.toISOString());
+
+      if (error) console.error("Auto-cleanup failed:", error);
+    }
+
+    loadOrders();
     cleanupCancelledOrders();
 
     // Realtime subscription
-    // ... (rest of realtime logic)
     const channel = supabase
       .channel("public:orders")
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "orders" },
         async (payload) => {
-          console.log("Change received!", payload);
           if (payload.eventType === "INSERT") {
-            // Fetch the camera details for the new order
             const { data: cameraData } = await supabase
               .from("cameras")
               .select("name, image")
@@ -65,13 +97,10 @@ export default function OrdersPage() {
             const newOrder = { ...payload.new, camera: cameraData };
             setOrders((prev) => [newOrder, ...prev]);
           } else if (payload.eventType === "UPDATE") {
-            // For updates, we might lose the camera join if we just use payload.new
-            // So we need to merge it with existing camera data or fetch it again if needed.
-            // Simplest approach for now is to preserve existing camera data or fetch if missing.
             setOrders((prev) =>
               prev.map((o) => {
                 if (o.id === payload.new.id) {
-                  return { ...payload.new, camera: o.camera }; // Preserve existing camera info
+                  return { ...payload.new, camera: o.camera };
                 }
                 return o;
               }),
@@ -84,29 +113,12 @@ export default function OrdersPage() {
       .subscribe();
 
     return () => {
+      isCancelled = true;
       supabase.removeChannel(channel);
     };
-  }, []);
-
-  const fetchOrders = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("orders")
-      .select(
-        `
-        *,
-        camera:cameras(name, image)
-      `,
-      )
-      .order("created_at", { ascending: false });
-
-    if (error) console.error(error);
-    else setOrders(data || []);
-    setLoading(false);
-  };
+  }, [refreshIndex]);
 
   const updateStatus = async (id, newStatus) => {
-    // Optimistic update
     setOrders((prev) =>
       prev.map((o) => (o.id === id ? { ...o, status: newStatus } : o)),
     );
@@ -118,36 +130,23 @@ export default function OrdersPage() {
 
     if (error) {
       console.error("Failed to update status", error);
-      fetchOrders(); // Revert on error
+      setRefreshIndex((prev) => prev + 1);
     }
   };
 
   const getStatusColor = (status) => {
     switch (status) {
       case "NEW":
-        return "default"; // primary
+        return "default";
       case "CONTACTED":
         return "secondary";
       case "COMPLETED":
-        return "outline"; // or custom green if I had it
+        return "outline";
       case "CANCELLED":
         return "destructive";
       default:
         return "outline";
     }
-  };
-
-  const cleanupCancelledOrders = async () => {
-    const oneDayAgo = new Date();
-    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-
-    const { error } = await supabase
-      .from("orders")
-      .delete()
-      .eq("status", "CANCELLED")
-      .lt("created_at", oneDayAgo.toISOString());
-
-    if (error) console.error("Auto-cleanup failed:", error);
   };
 
   if (loading && orders.length === 0) {
@@ -366,7 +365,7 @@ export default function OrdersPage() {
                             !color &&
                             order.customer_message && (
                               <div className="text-sm bg-muted/30 p-3 rounded-lg border">
-                                Message: "{order.customer_message}"
+                                Message: &quot;{order.customer_message}&quot;
                               </div>
                             )}
                         </div>

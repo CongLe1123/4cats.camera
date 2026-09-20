@@ -56,31 +56,54 @@ export default function OrderCameraPage() {
     fetchBanners();
   }, []);
 
-  const handleSubmit = async () => {
-    if (!formData.fullname || !formData.contact || !formData.details) {
-      alert("Vui lòng điền đầy đủ thông tin: Tên, SĐT và Tên máy/Link");
+  const [formError, setFormError] = useState("");
+
+  const handleSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setFormError("");
+
+    if (!formData.fullname.trim()) {
+      setFormError("Vui lòng nhập họ và tên của bạn.");
+      return;
+    }
+    if (!formData.contact.trim()) {
+      setFormError("Vui lòng nhập số điện thoại hoặc Zalo để chúng mình liên hệ.");
+      return;
+    }
+    if (!formData.details.trim()) {
+      setFormError("Vui lòng nhập tên máy ảnh hoặc link sản phẩm bạn muốn tìm.");
       return;
     }
 
     setLoading(true);
 
-    const { error } = await supabase.from("orders").insert([
-      {
-        customer_name: formData.fullname,
-        customer_contact: formData.contact,
-        type: "BUY", // Default for direct order request
-        status: "NEW",
-        customer_message: `Yêu cầu tìm máy: ${formData.details}`,
-      },
-    ]);
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: formData.fullname.trim(),
+          customer_contact: formData.contact.trim(),
+          type: "BUY",
+          customer_message: `Yêu cầu tìm máy: ${formData.details.trim()}`,
+        }),
+      });
 
-    setLoading(false);
+      const result = await res.json();
+      setLoading(false);
 
-    if (error) {
-      alert("Lỗi gửi yêu cầu: " + error.message);
-    } else {
-      setShowSuccess(true);
-      setFormData({ fullname: "", contact: "", details: "" });
+      if (!res.ok) {
+        setFormError(result.error || "Gửi yêu cầu không thành công. Vui lòng thử lại.");
+        toast.error(result.error || "Gửi yêu cầu thất bại.");
+      } else {
+        setShowSuccess(true);
+        toast.success("Yêu cầu tìm máy đã được gửi thành công! 💖");
+        setFormData({ fullname: "", contact: "", details: "" });
+      }
+    } catch {
+      setLoading(false);
+      setFormError("Không thể kết nối với máy chủ. Vui lòng thử lại sau.");
+      toast.error("Lỗi kết nối.");
     }
   };
 
@@ -141,63 +164,85 @@ export default function OrderCameraPage() {
               <h2 className="text-3xl font-bold mb-6 italic text-primary">
                 Nhập thông tin
               </h2>
-              <Card className="shadow-xl border-primary/10 sticker-static bg-white">
+              <Card className="shadow-xl border-primary/10 sticker-static bg-white rounded-3xl overflow-hidden">
                 <CardContent className="space-y-6 pt-6">
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold">Họ và tên</label>
-                    <Input
-                      placeholder="Tên của bạn..."
-                      className="bg-secondary/20 border-primary/20"
-                      value={formData.fullname}
-                      onChange={(e) =>
-                        setFormData({ ...formData, fullname: e.target.value })
-                      }
-                    />
-                  </div>
+                  <form onSubmit={handleSubmit} className="space-y-5">
+                    <div className="space-y-2">
+                      <label htmlFor="fullname" className="text-sm font-bold block text-foreground">
+                        Họ và tên <span className="text-primary">*</span>
+                      </label>
+                      <Input
+                        id="fullname"
+                        name="fullname"
+                        required
+                        placeholder="Tên của bạn..."
+                        className="bg-secondary/20 border-primary/20 rounded-xl h-11"
+                        value={formData.fullname}
+                        onChange={(e) =>
+                          setFormData({ ...formData, fullname: e.target.value })
+                        }
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold">
-                      Số điện thoại / Zalo
-                    </label>
-                    <Input
-                      placeholder="Số điện thoại để liên hệ..."
-                      className="bg-secondary/20 border-primary/20"
-                      value={formData.contact}
-                      onChange={(e) =>
-                        setFormData({ ...formData, contact: e.target.value })
-                      }
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <label htmlFor="contact" className="text-sm font-bold block text-foreground">
+                        Số điện thoại / Zalo <span className="text-primary">*</span>
+                      </label>
+                      <Input
+                        id="contact"
+                        name="contact"
+                        type="tel"
+                        required
+                        placeholder="Ví dụ: 0398249856"
+                        className="bg-secondary/20 border-primary/20 rounded-xl h-11"
+                        value={formData.contact}
+                        onChange={(e) =>
+                          setFormData({ ...formData, contact: e.target.value })
+                        }
+                      />
+                    </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-bold">
-                      Tên Model hoặc Link sản phẩm
-                    </label>
-                    <Input
-                      placeholder="VD: Fujifilm X100V hoặc link eBay..."
-                      className="bg-secondary/20 border-primary/20"
-                      value={formData.details}
-                      onChange={(e) =>
-                        setFormData({ ...formData, details: e.target.value })
-                      }
-                    />
-                  </div>
+                    <div className="space-y-2">
+                      <label htmlFor="details" className="text-sm font-bold block text-foreground">
+                        Tên Model hoặc Link sản phẩm <span className="text-primary">*</span>
+                      </label>
+                      <Input
+                        id="details"
+                        name="details"
+                        required
+                        placeholder="VD: Fujifilm X100V, Ricoh GR III hoặc link sản phẩm..."
+                        className="bg-secondary/20 border-primary/20 rounded-xl h-11"
+                        value={formData.details}
+                        onChange={(e) =>
+                          setFormData({ ...formData, details: e.target.value })
+                        }
+                      />
+                    </div>
 
-                  <Button
-                    size="lg"
-                    className="w-full h-14 text-lg sticker mt-4"
-                    onClick={handleSubmit}
-                    disabled={loading}
-                  >
-                    {loading ? (
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                      <>
-                        Gửi yêu cầu đặt hàng
-                        <Send className="ml-2 h-5 w-5" />
-                      </>
+                    {formError && (
+                      <div className="text-xs font-bold text-destructive bg-destructive/10 border border-destructive/20 p-3 rounded-xl">
+                        {formError}
+                      </div>
                     )}
-                  </Button>
+
+                    <Button
+                      type="submit"
+                      size="lg"
+                      className="w-full h-14 text-base font-bold sticker mt-4 uppercase tracking-wider rounded-2xl shadow-lg shadow-primary/20"
+                      disabled={loading}
+                    >
+                      {loading ? (
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="h-5 w-5 animate-spin" /> Đang gửi yêu cầu...
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-2">
+                          Gửi yêu cầu đặt hàng
+                          <Send className="h-5 w-5" />
+                        </span>
+                      )}
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
             </section>

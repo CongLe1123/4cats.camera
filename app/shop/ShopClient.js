@@ -1,5 +1,5 @@
 "use client";
-import { useState, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "../../components/ui/button";
@@ -23,6 +23,8 @@ import {
 import { Label } from "../../components/ui/label";
 import { Search } from "lucide-react";
 import { Slider } from "../../components/ui/slider";
+import { CatCameraIcon } from "../../components/BrandLogo";
+import { MultiSelect } from "../../components/ui/multi-select";
 
 const defaultFilters = {
   brands: ["All"],
@@ -58,15 +60,113 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
     ) || "All";
 
   const initialQuery = searchParams.get("q") || "";
+
+  // Parse initial features from URL: ?features=Wi-Fi,Bluetooth or ?feature=... or legacy ?specialty=...
+  const initialFeatures = useMemo(() => {
+    const featuresParam = searchParams.get("features");
+    if (featuresParam) {
+      return featuresParam
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => s && s.toLowerCase() !== "all" && s.toLowerCase() !== "tất cả");
+    }
+    const featureList = searchParams.getAll("feature");
+    if (featureList && featureList.length > 0) {
+      return featureList
+        .map((s) => s.trim())
+        .filter((s) => s && s.toLowerCase() !== "all" && s.toLowerCase() !== "tất cả");
+    }
+    const legacySpecialty = searchParams.get("specialty");
+    if (
+      legacySpecialty &&
+      legacySpecialty.toLowerCase() !== "all" &&
+      legacySpecialty.toLowerCase() !== "tất cả"
+    ) {
+      return [legacySpecialty.trim()];
+    }
+    return [];
+  }, [searchParams]);
+
   const [filterBrand, setFilterBrand] = useState(initialBrand);
   const [filterSeries, setFilterSeries] = useState(initialSeries);
   const [filterCategory, setFilterCategory] = useState(initialCategory);
   const [sortOrder, setSortOrder] = useState("default");
   const [filterCondition, setFilterCondition] = useState("All");
   const [filterColor, setFilterColor] = useState("All");
-  const [filterSpecialty, setFilterSpecialty] = useState("All");
+  const [filterSpecialties, setFilterSpecialties] = useState(initialFeatures);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [priceRange, setPriceRange] = useState([0, 50000000]);
+
+  // Synchronize filterSpecialties to URL query state without full reloads
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const currentUrl = new URL(window.location.href);
+    const params = currentUrl.searchParams;
+
+    const oldFeatures = params.get("features") || "";
+    const newFeatures = filterSpecialties.join(",");
+
+    if (newFeatures !== oldFeatures) {
+      if (filterSpecialties.length > 0) {
+        params.set("features", newFeatures);
+        params.delete("specialty");
+        params.delete("feature");
+      } else {
+        params.delete("features");
+        params.delete("specialty");
+        params.delete("feature");
+      }
+      const newSearch = params.toString();
+      const newPath = `${window.location.pathname}${newSearch ? `?${newSearch}` : ""}`;
+      window.history.replaceState(null, "", newPath);
+    }
+  }, [filterSpecialties]);
+
+  // Support browser Back/Forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      const params = new URLSearchParams(window.location.search);
+      const fParam = params.get("features");
+      if (fParam) {
+        setFilterSpecialties(
+          fParam
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s && s.toLowerCase() !== "all" && s.toLowerCase() !== "tất cả")
+        );
+      } else {
+        const list = params.getAll("feature");
+        if (list.length > 0) {
+          setFilterSpecialties(
+            list
+              .map((s) => s.trim())
+              .filter((s) => s && s.toLowerCase() !== "all" && s.toLowerCase() !== "tất cả")
+          );
+        } else {
+          setFilterSpecialties([]);
+        }
+      }
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // Collect all available unique feature options from filters and camera items
+  const allAvailableSpecialties = useMemo(() => {
+    const set = new Set();
+    (specialtyOptions || []).forEach((s) => {
+      if (s && s !== "All" && s !== "Tất cả") set.add(s);
+    });
+    (cameras || []).forEach((c) => {
+      (c.specialties || []).forEach((s) => {
+        if (s && s !== "All" && s !== "Tất cả") set.add(s);
+      });
+      (c.features || []).forEach((s) => {
+        if (s && s !== "All" && s !== "Tất cả") set.add(s);
+      });
+    });
+    return Array.from(set);
+  }, [specialtyOptions, cameras]);
 
   const formatPrice = (value) => {
     return new Intl.NumberFormat("vi-VN").format(value) + "đ";
@@ -84,16 +184,25 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
   };
 
   const filteredCameras = cameras.filter((camera) => {
-    // 1. Basic Filters (Category, Brand, Series, Search, Specialty)
+    // 1. Basic Filters (Category, Brand, Series, Search, Specialties)
     if (filterCategory !== "All" && camera.category !== filterCategory)
       return false;
     if (filterBrand !== "All" && camera.brand !== filterBrand) return false;
     if (filterSeries !== "All" && camera.series !== filterSeries) return false;
-    if (
-      filterSpecialty !== "All" &&
-      (!camera.specialties || !camera.specialties.includes(filterSpecialty))
-    )
-      return false;
+
+    // Multi-feature filter: camera must satisfy ALL selected features (AND logic)
+    if (filterSpecialties.length > 0) {
+      const camFeatures = [
+        ...(camera.specialties || []),
+        ...(camera.features || []),
+      ].map((s) => (typeof s === "string" ? s.toLowerCase().trim() : ""));
+
+      const satisfiesAll = filterSpecialties.every((f) =>
+        camFeatures.includes(f.toLowerCase().trim())
+      );
+      if (!satisfiesAll) return false;
+    }
+
     if (
       searchQuery &&
       !camera.name.toLowerCase().includes(searchQuery.toLowerCase())
@@ -332,21 +441,16 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
             </div>
             <div className="space-y-2">
               <Label className="font-bold ml-1">Tính năng</Label>
-              <Select
-                value={filterSpecialty}
-                onValueChange={setFilterSpecialty}
-              >
-                <SelectTrigger className="rounded-xl border-primary/20">
-                  <SelectValue placeholder="Tính năng" />
-                </SelectTrigger>
-                <SelectContent>
-                  {specialtyOptions.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {s === "All" ? "Tất cả" : s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <MultiSelect
+                id="filter-specialties"
+                options={allAvailableSpecialties}
+                value={filterSpecialties}
+                onChange={setFilterSpecialties}
+                placeholder="Tất cả"
+                searchPlaceholder="Tìm tính năng..."
+                emptyText="Không tìm thấy tính năng"
+                allLabel="Tất cả / Xóa lựa chọn"
+              />
             </div>
           </div>
         </div>
@@ -457,36 +561,53 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
             </Card>
           ))
         ) : (
-          <div className="col-span-full text-center py-20">
-            <p className="text-xl text-muted-foreground">
+          <div className="col-span-full text-center py-20 bg-secondary/20 rounded-4xl border border-dashed border-primary/20 p-8 space-y-4">
+            <div className="mx-auto w-16 h-16 flex items-center justify-center bg-white rounded-3xl shadow-sm text-primary">
+              <CatCameraIcon className="w-10 h-10" />
+            </div>
+            <p className="text-xl font-bold text-foreground">
               Không tìm thấy sản phẩm nào phù hợp 😿
             </p>
-            <Button
-              variant="link"
-              onClick={() => {
-                setSortOrder("default");
-                setFilterCategory("All");
-                setFilterBrand("All");
-                setFilterSeries("All");
-                setFilterCondition("All");
-                setFilterColor("All");
-                setFilterSpecialty("All");
-                setSearchQuery("");
-                setPriceRange([0, 50000000]);
-              }}
-              className="text-primary font-bold"
-            >
-              Xóa bộ lọc
-            </Button>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Thử thay đổi bộ lọc giá hoặc danh mục để khám phá thêm nhiều dòng máy ảnh xinh xắn khác nhé!
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {filterSpecialties.length > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={() => setFilterSpecialties([])}
+                  className="rounded-full px-5 font-bold text-primary border-primary/30 hover:bg-primary/10 shadow-xs"
+                >
+                  Xóa bộ lọc tính năng ({filterSpecialties.length})
+                </Button>
+              )}
+              <Button
+                variant="default"
+                onClick={() => {
+                  setSortOrder("default");
+                  setFilterCategory("All");
+                  setFilterBrand("All");
+                  setFilterSeries("All");
+                  setFilterCondition("All");
+                  setFilterColor("All");
+                  setFilterSpecialties([]);
+                  setSearchQuery("");
+                  setPriceRange([0, 50000000]);
+                }}
+                className="rounded-full px-6 font-bold shadow-md shadow-primary/20"
+              >
+                Xóa tất cả bộ lọc
+              </Button>
+            </div>
           </div>
         )}
       </div>
 
       {/* Helper */}
-      <div className="text-center mb-12">
-        <p className="text-muted-foreground">
-          Giá sản phẩm có thể thay đổi tùy thời điểm. <br />
-          Vui lòng liên hệ trực tiếp để có giá chính xác nhất hôm nay.
+      <div className="text-center mb-12 bg-white/60 backdrop-blur-xs p-6 rounded-3xl border border-primary/10 max-w-xl mx-auto">
+        <p className="text-muted-foreground text-sm leading-relaxed">
+          Tình trạng và giá máy có thể thay đổi tùy từng đợt hàng về. <br />
+          Đừng ngại nhắn tin trực tiếp để được 4cats gửi video test máy chi tiết nhất hôm nay nhé! 💖
         </p>
       </div>
     </div>
@@ -495,7 +616,16 @@ function ShopContent({ cameras = [], filters = defaultFilters }) {
 
 export default function ShopClient({ cameras, filters }) {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="container mx-auto px-4 py-24 text-center space-y-4">
+          <div className="animate-spin w-12 h-12 border-4 border-primary border-t-transparent rounded-full mx-auto" />
+          <p className="text-base font-bold text-muted-foreground">
+            Đang tải danh sách máy ảnh 📸...
+          </p>
+        </div>
+      }
+    >
       <ShopContent cameras={cameras} filters={filters} />
     </Suspense>
   );

@@ -30,7 +30,7 @@ import {
 import { Label } from "../../../components/ui/label";
 import { Input } from "../../../components/ui/input";
 
-import { supabase } from "../../../lib/supabase";
+import { toast } from "sonner";
 
 export default function ProductDetailClient({ camera, storeSettings }) {
   const formatPrice = (value) => {
@@ -58,29 +58,47 @@ export default function ProductDetailClient({ camera, storeSettings }) {
     setIsSubmitting(true);
 
     const formData = new FormData(e.target);
-    const orderData = {
-      customer_name: formData.get("name") || "",
-      customer_contact: formData.get("phone") || "",
-      customer_address: formData.get("address") || "",
-      customer_message: `Purchase: ${camera.name} | Condition: ${selectedCondition} | Color: ${selectedColor}`,
-      camera_id: camera.id,
-      type: "BUY",
-      status: "NEW",
-    };
+    const name = (formData.get("name") || "").toString().trim();
+    const phone = (formData.get("phone") || "").toString().trim();
+    const address = (formData.get("address") || "").toString().trim();
 
-    const { error } = await supabase.from("orders").insert([orderData]);
-
-    if (error) {
-      console.error(error);
-      alert("Failed to submit order. Please try again.");
-    } else {
-      setIsSuccess(true);
-      setTimeout(() => {
-        setIsSuccess(false);
-        setIsOrderDialogOpen(false);
-      }, 3000);
+    if (!name || !phone) {
+      toast.error("Vui lòng nhập tên và số điện thoại.");
+      setIsSubmitting(false);
+      return;
     }
-    setIsSubmitting(false);
+
+    try {
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer_name: name,
+          customer_contact: phone,
+          customer_address: address,
+          customer_message: `Mua máy: ${camera.name} | Tình trạng: ${selectedCondition} | Màu sắc: ${selectedColor}`,
+          camera_id: camera.id,
+          type: "BUY",
+        }),
+      });
+
+      const result = await res.json();
+      setIsSubmitting(false);
+
+      if (!res.ok) {
+        toast.error(result.error || "Đặt hàng không thành công. Vui lòng thử lại.");
+      } else {
+        setIsSuccess(true);
+        toast.success("Đặt hàng thành công! 4cats sẽ liên hệ với bạn sớm nhé 💖");
+        setTimeout(() => {
+          setIsSuccess(false);
+          setIsOrderDialogOpen(false);
+        }, 2500);
+      }
+    } catch {
+      setIsSubmitting(false);
+      toast.error("Lỗi kết nối máy chủ. Vui lòng liên hệ trực tiếp hotline hoặc Zalo.");
+    }
   };
 
   // Combine main image with gallery images, filtering out duplicates if necessary

@@ -389,7 +389,7 @@ export default function SettingsClient({ initialSettings }) {
                       className="rounded-xl border-green-200 focus-visible:ring-green-500 font-mono text-xs"
                     />
                     <p className="text-[10px] text-muted-foreground italic">
-                      Copy link trong thuộc tính src="..." của thẻ iframe Google
+                      Copy link trong thuộc tính src=&quot;...&quot; của thẻ iframe Google
                       Maps
                     </p>
                   </div>
@@ -497,7 +497,7 @@ export default function SettingsClient({ initialSettings }) {
                       ))}
                       {(!loc.social_links || loc.social_links.length === 0) && (
                         <p className="text-[10px] text-muted-foreground italic text-center py-2 bg-green-50/30 rounded-lg border border-dashed border-green-100">
-                          Chưa có liên kết nào. Nhấn "Thêm" để tạo mới.
+                          Chưa có liên kết nào. Nhấn &quot;Thêm&quot; để tạo mới.
                         </p>
                       )}
                     </div>

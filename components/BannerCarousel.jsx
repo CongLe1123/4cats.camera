@@ -35,22 +35,14 @@ export function BannerCarousel({ banners = [] }) {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      if (width >= 1280) setItemsToShow(3);
-      else if (width >= 768) setItemsToShow(2);
-      else setItemsToShow(1);
+      const newItemsToShow = width >= 1280 ? 3 : width >= 768 ? 2 : 1;
+      setItemsToShow(newItemsToShow);
+      setCurrent((prev) => Math.min(prev, Math.max(0, banners.length - newItemsToShow)));
     };
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Ensure current index is valid when resizing
-  useEffect(() => {
-    const maxIdx = Math.max(0, banners.length - itemsToShow);
-    if (current > maxIdx) {
-      setCurrent(maxIdx);
-    }
-  }, [itemsToShow, banners.length]);
+  }, [banners.length]);
 
   const nextSlide = () => {
     setCurrent((prev) => (prev >= banners.length - itemsToShow ? 0 : prev + 1));

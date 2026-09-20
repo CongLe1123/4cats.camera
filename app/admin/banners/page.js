@@ -31,6 +31,8 @@ import {
   ImageIcon,
 } from "lucide-react";
 import { compressImage } from "../../../lib/utils";
+import { toast } from "sonner";
+import { validateUploadFile, generateSafeFileName } from "../../../lib/upload-utils";
 
 export default function BannersPage() {
   const [banners, setBanners] = useState([]);
@@ -71,6 +73,11 @@ export default function BannersPage() {
   const handleImageSelect = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      const validation = validateUploadFile(file, "image");
+      if (!validation.valid) {
+        toast.error(validation.error);
+        return;
+      }
       try {
         // Optimize: 1920px max width, 0.75 quality (good balance for banners)
         const compressed = await compressImage(file, {
@@ -116,13 +123,19 @@ export default function BannersPage() {
     try {
       // 1. Upload New Image if selected
       if (imageFile) {
-        const fileName = `banner-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+        const validation = validateUploadFile(imageFile, "image");
+        if (!validation.valid) {
+          toast.error(validation.error);
+          setIsUploading(false);
+          return;
+        }
+        const fileName = generateSafeFileName(imageFile.name, "banner");
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from("products")
           .upload(fileName, imageFile);
 
         if (uploadError)
-          throw new Error("Upload failed: " + uploadError.message);
+          throw new Error("Tải ảnh thất bại: " + uploadError.message);
 
         const {
           data: { publicUrl },
@@ -147,9 +160,11 @@ export default function BannersPage() {
           .update(payload)
           .eq("id", editingBanner.id);
         if (error) throw error;
+        toast.success("Cập nhật banner thành công! ✨");
       } else {
         const { error } = await supabase.from("banners").insert([payload]);
         if (error) throw error;
+        toast.success("Thêm banner mới thành công! ✨");
       }
 
       setOpen(false);
@@ -157,14 +172,14 @@ export default function BannersPage() {
       resetForm();
       fetchBanners();
     } catch (err) {
-      alert("Error saving banner: " + err.message);
+      toast.error("Lỗi khi lưu banner: " + err.message);
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleDelete = async (banner) => {
-    if (!confirm("Are you sure? This will delete the banner and its image."))
+    if (!confirm("Bạn có chắc muốn xóa banner này?"))
       return;
 
     // 1. Delete image from storage
@@ -177,8 +192,12 @@ export default function BannersPage() {
       .from("banners")
       .delete()
       .eq("id", banner.id);
-    if (error) alert("Error deleting: " + error.message);
-    else fetchBanners();
+    if (error) {
+      toast.error("Lỗi khi xóa: " + error.message);
+    } else {
+      toast.success("Đã xóa banner!");
+      fetchBanners();
+    }
   };
 
   const openEdit = (banner) => {

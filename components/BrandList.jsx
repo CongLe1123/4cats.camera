@@ -79,26 +79,16 @@ export function BrandList() {
             <Link
               key={brand.id || i}
               href={`/shop?brand=${brand.name}`}
-              className="group relative h-48 rounded-3xl overflow-hidden border border-white/40 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
+              className="group relative h-48 rounded-3xl overflow-hidden border border-primary/20 bg-white/80 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
             >
-              {/* Background Image */}
-              <div className="absolute inset-0 z-0 bg-black flex items-center justify-center">
+              {/* Image Container with pastel background */}
+              <div className="absolute inset-0 z-0 bg-linear-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center p-4">
                 <img 
                   src={brand.image} 
-                  alt=""
-                  className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-700"
+                  alt={brand.name || "Camera brand"}
+                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-xs"
                 />
-                {/* Subtle overlay for contrast */}
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/5 transition-colors" />
               </div>
-
-              {/* Content Overlay */}
-              {/* <div className="absolute inset-0 p-6 flex flex-col justify-center z-10 bg-linear-to-r from-black/30 via-black/10 to-transparent">
-
-                <p className="text-white font-black tracking-[0.2em] text-sm mt-1 drop-shadow-md">
-                  DIGITAL
-                </p>
-              </div> */}
             </Link>
           );
         }
