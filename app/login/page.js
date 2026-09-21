@@ -37,17 +37,17 @@ export default function LoginPage() {
       });
 
       if (error) {
-        if (error.message.includes("Invalid login credentials")) {
+        if (error.message?.includes("Invalid login credentials")) {
           setError("Email hoặc mật khẩu không chính xác. Vui lòng kiểm tra lại.");
         } else {
-          setError("Đăng nhập không thành công. Vui lòng thử lại.");
+          setError(error.message || "Đăng nhập không thành công. Vui lòng thử lại.");
         }
         setLoading(false);
       } else {
-        router.push("/admin");
+        window.location.href = "/admin";
       }
-    } catch {
-      setError("Đã xảy ra lỗi kết nối. Vui lòng thử lại.");
+    } catch (err) {
+      setError(err?.message || "Đã xảy ra lỗi kết nối. Vui lòng thử lại.");
       setLoading(false);
     }
   };

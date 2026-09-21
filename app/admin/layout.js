@@ -46,17 +46,29 @@ export default function AdminLayout({ children }) {
   }
 
   useEffect(() => {
+    let mounted = true;
+
     supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted) return;
       setSession(session);
-      if (!session) router.push("/login");
+      if (!session) {
+        window.location.href = "/login";
+      }
       setLoading(false);
+    }).catch(() => {
+      if (!mounted) return;
+      setLoading(false);
+      window.location.href = "/login";
     });
 
     const {
       data: { subscription: authListener },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!mounted) return;
       setSession(session);
-      if (!session) router.push("/login");
+      if (event === "SIGNED_OUT") {
+        window.location.href = "/login";
+      }
     });
 
     // Fetch initial new order count
@@ -113,7 +125,8 @@ export default function AdminLayout({ children }) {
       .subscribe();
 
     return () => {
-      authListener.unsubscribe();
+      mounted = false;
+      authListener?.unsubscribe();
       supabase.removeChannel(channel);
     };
   }, [router]);
