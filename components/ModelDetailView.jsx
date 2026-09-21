@@ -38,7 +38,7 @@ import {
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
-import { STORE_POLICIES } from "../lib/productData";
+import { STORE_POLICIES } from "../lib/constants";
 import CameraArticleRenderer from "./CameraArticleRenderer";
 
 export default function ModelDetailView({

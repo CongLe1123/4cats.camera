@@ -5,8 +5,7 @@ import { supabase } from "../../lib/supabase";
 import {
   adminGetProducts,
   adminGetOrders,
-  adminGetBanners,
-  adminSeedInitialCatalog
+  adminGetBanners
 } from "../../lib/adminApi";
 import {
   Card,
@@ -39,7 +38,6 @@ import { toast } from "sonner";
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
-  const [seeding, setSeeding] = useState(false);
   const [stats, setStats] = useState({
     ordersToday: 0,
     revenueToday: 0,
@@ -143,23 +141,6 @@ export default function DashboardPage() {
     loadDashboardData();
   }, []);
 
-  const handleSeedCatalog = async () => {
-    if (!confirm("Bạn có muốn nạp toàn bộ danh mục máy ảnh chính hãng (Canon, Sony, Fujifilm, Nikon) vào cơ sở dữ liệu Supabase không?")) {
-      return;
-    }
-    setSeeding(true);
-    try {
-      const res = await adminSeedInitialCatalog();
-      toast.success(`Đã nạp thành công ${res.count} dòng máy ảnh vào Database! ✨`);
-      await loadDashboardData();
-    } catch (e) {
-      console.error(e);
-      toast.error("Lỗi khi nạp dữ liệu: " + e.message);
-    } finally {
-      setSeeding(false);
-    }
-  };
-
   return (
     <div className="space-y-8 pb-16">
       {/* Header & Quick Action Buttons */}
@@ -183,17 +164,6 @@ export default function DashboardPage() {
           >
             <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
             Làm mới
-          </Button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={handleSeedCatalog}
-            disabled={seeding}
-            className="rounded-xl font-bold text-xs h-9 text-primary hover:bg-primary/15"
-          >
-            <Sparkles className="w-3.5 h-3.5 mr-1.5 text-primary" />
-            {seeding ? "Đang đồng bộ..." : "Đồng bộ Catalog mẫu"}
           </Button>
 
           <Link href="/admin/cameras/new">

@@ -48,33 +48,14 @@ export default function ReservationsPage() {
         .in("type", ["RESERVE", "HOLD", "GIU_MAY"])
         .order("created_at", { ascending: false });
 
-      if (!error && data && data.length > 0) {
+      if (!error && data) {
         setReservations(data);
       } else {
-        // Mock sample initial reservations
-        setReservations([
-          {
-            id: 101,
-            customer_name: "Nguyễn Minh Châu",
-            customer_contact: "0987 654 321",
-            customer_message: "Hẹn xem máy Canon EOS R50 màu trắng vào chiều thứ 7",
-            customer_address: "Cơ sở 1 - Cầu Giấy",
-            status: "PENDING",
-            created_at: new Date().toISOString()
-          },
-          {
-            id: 102,
-            customer_name: "Trần Hoàng Long",
-            customer_contact: "0912 345 678",
-            customer_message: "Giữ Sony ZV-E10 II body đen 24h",
-            customer_address: "Cơ sở 2 - Thanh Xuân",
-            status: "CONFIRMED",
-            created_at: new Date(Date.now() - 3600000 * 5).toISOString()
-          }
-        ]);
+        setReservations([]);
       }
     } catch (e) {
-      console.error(e);
+      console.error("loadReservations error:", e);
+      setReservations([]);
     } finally {
       setLoading(false);
     }

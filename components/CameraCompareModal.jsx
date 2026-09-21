@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Dialog,
@@ -11,19 +11,26 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Scale, Check, X, ArrowRight } from "lucide-react";
-import { getAllModels } from "../lib/productData";
+import { getCameras } from "../lib/fetchCameras";
 
-export function CameraCompareModal({ defaultModelSlug = null }) {
-  const allModels = getAllModels();
+export function CameraCompareModal({ defaultModelSlug = null, allCameras = [] }) {
+  const [fetchedCameras, setFetchedCameras] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  // Default selection: Canon R50 vs Fujifilm X-T30 II
+  useEffect(() => {
+    if ((!allCameras || allCameras.length === 0) && isOpen) {
+      getCameras().then((cams) => setFetchedCameras(cams || []));
+    }
+  }, [allCameras, isOpen]);
+
+  const allModels = (allCameras && allCameras.length > 0) ? allCameras : fetchedCameras;
+
   const [selectedSlugs, setSelectedSlugs] = useState(() => {
     if (defaultModelSlug) {
-      const other = allModels.find((m) => m.slug !== defaultModelSlug)?.slug || "fujifilm-x-t30-ii";
-      return [defaultModelSlug, other];
+      const other = allCameras.find((m) => m.slug !== defaultModelSlug)?.slug;
+      return other ? [defaultModelSlug, other] : [defaultModelSlug];
     }
-    return ["canon-eos-r50", "fujifilm-x-t30-ii"];
+    return allCameras.slice(0, 2).map((m) => m.slug);
   });
 
   const selectedModels = selectedSlugs

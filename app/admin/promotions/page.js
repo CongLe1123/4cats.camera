@@ -47,37 +47,14 @@ export default function PromotionsPage() {
       // Look for promotions stored in settings or fallback
       const { data: dbPromos, error } = await supabase.from("promotions").select("*").order("created_at", { ascending: false });
 
-      if (!error && dbPromos && dbPromos.length > 0) {
+      if (!error && dbPromos) {
         setPromotions(dbPromos);
       } else {
-        // Initial promotions
-        setPromotions([
-          {
-            id: 1,
-            code: "CANONR50",
-            title: "Ưu đãi mở bán Canon EOS R50",
-            customer_label: "Tặng thẻ nhớ 64GB + Giảm 1.500.000đ",
-            discount_type: "fixed_amount",
-            discount_value: 1500000,
-            start_at: "2026-09-01T00:00:00Z",
-            end_at: "2026-10-31T23:59:59Z",
-            is_active: true
-          },
-          {
-            id: 2,
-            code: "WELCOME4CATS",
-            title: "Chào bạn mới - Giảm ngay khi mua máy đầu tiên",
-            customer_label: "Giảm ngay 500.000đ cho đơn đầu tiên",
-            discount_type: "fixed_amount",
-            discount_value: 500000,
-            start_at: "2026-01-01T00:00:00Z",
-            end_at: "2026-12-31T23:59:59Z",
-            is_active: true
-          }
-        ]);
+        setPromotions([]);
       }
     } catch (e) {
-      console.error(e);
+      console.error("loadPromotions error:", e);
+      setPromotions([]);
     } finally {
       setLoading(false);
     }

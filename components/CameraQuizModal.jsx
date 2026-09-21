@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Dialog,
@@ -11,7 +11,7 @@ import {
 } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Sparkles, CheckCircle2, RotateCcw, ArrowRight, HelpCircle, Camera, ChevronRight } from "lucide-react";
-import { getAllModels } from "../lib/productData";
+import { getCameras } from "../lib/fetchCameras";
 
 const QUIZ_QUESTIONS = [
   {
@@ -69,13 +69,20 @@ const QUIZ_QUESTIONS = [
   }
 ];
 
-export function CameraQuizModal() {
+export function CameraQuizModal({ allCameras = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState({});
   const [results, setResults] = useState(null);
+  const [fetchedCameras, setFetchedCameras] = useState([]);
 
-  const models = getAllModels();
+  useEffect(() => {
+    if ((!allCameras || allCameras.length === 0) && isOpen) {
+      getCameras().then((cams) => setFetchedCameras(cams || []));
+    }
+  }, [allCameras, isOpen]);
+
+  const models = (allCameras && allCameras.length > 0) ? allCameras : fetchedCameras;
 
   const handleSelectOption = (questionId, value) => {
     const nextAnswers = { ...answers, [questionId]: value };

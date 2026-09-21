@@ -32,7 +32,7 @@ import {
   Check
 } from "lucide-react";
 import { CatCameraIcon } from "../../components/BrandLogo";
-import { removeVietnameseTones } from "../../lib/productData";
+import { removeVietnameseTones } from "../../lib/utils";
 
 const BUDGET_PRESETS = [
   { label: "Dưới 15 triệu", min: 0, max: 15000000 },
@@ -772,6 +772,23 @@ function ShopContent({ cameras = [] }) {
                   </Card>
                 );
               })}
+            </div>
+          ) : cameras.length === 0 ? (
+            <div className="text-center py-16 bg-white rounded-4xl border border-dashed border-primary/20 p-8 space-y-4">
+              <div className="mx-auto w-16 h-16 flex items-center justify-center bg-secondary/30 rounded-3xl shadow-xs text-primary">
+                <CatCameraIcon className="w-10 h-10" />
+              </div>
+              <p className="text-xl font-bold text-foreground">
+                Chưa có máy ảnh nào trong cửa hàng 🐾
+              </p>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto leading-relaxed">
+                4cats Camera đang cập nhật các dòng máy ảnh chính hãng mới nhất. Vui lòng quay lại sau hoặc liên hệ Hotline/Zalo để được hỗ trợ nhé!
+              </p>
+              <Link href="https://zalo.me/0398249856" target="_blank" rel="noopener noreferrer">
+                <Button className="rounded-full px-6 font-bold sticker text-xs">
+                  Tư vấn qua Zalo: 039 824 9856
+                </Button>
+              </Link>
             </div>
           ) : (
             <div className="text-center py-16 bg-white rounded-4xl border border-dashed border-primary/20 p-8 space-y-4">

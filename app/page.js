@@ -11,10 +11,6 @@ import {
   getCameras
 } from "../lib/fetchCameras";
 import {
-  getDiscountedProducts,
-  getNewArrivalProducts
-} from "../lib/productData";
-import {
   ShieldCheck,
   RotateCcw,
   Truck,
@@ -39,8 +35,12 @@ export default async function Home() {
     getCameras()
   ]);
 
-  const discountedCameras = getDiscountedProducts();
-  const newArrivals = getNewArrivalProducts();
+  const discountedCameras = allCameras.filter(
+    (c) => c.discountPercent > 0 || (c.compare_at_price && c.compare_at_price > c.minPrice)
+  );
+  const newArrivals = allCameras
+    .filter((c) => c.is_new || c.is_new_arrival || c.release_year >= 2023)
+    .slice(0, 4);
 
   // Compact Quick Shopping Shortcuts
   const quickShortcuts = [
@@ -103,6 +103,30 @@ export default async function Home() {
             items={featuredCameras}
             viewAllLink="/shop"
           />
+        </section>
+      )}
+
+      {/* Honest Empty State if zero cameras in Supabase database */}
+      {allCameras.length === 0 && (
+        <section className="container mx-auto px-4 max-w-4xl text-center py-6">
+          <div className="bg-white/90 rounded-3xl p-8 border border-primary/20 shadow-xs space-y-4">
+            <div className="w-14 h-14 mx-auto rounded-full bg-secondary/30 flex items-center justify-center text-2xl">
+              📸
+            </div>
+            <h3 className="text-xl font-bold text-foreground">
+              Hiện chưa có máy ảnh nào được đăng bán
+            </h3>
+            <p className="text-xs md:text-sm text-muted-foreground max-w-md mx-auto">
+              Cửa hàng đang cập nhật các dòng máy ảnh chính hãng mới nhất vào hệ thống. Quý khách vui lòng quay lại sau hoặc liên hệ Hotline/Zalo để được tư vấn nhé! 🐾
+            </p>
+            <div className="pt-2 flex justify-center gap-3">
+              <Link href="https://zalo.me/0398249856" target="_blank" rel="noopener noreferrer">
+                <Button className="rounded-full sticker text-xs font-bold shadow-xs">
+                  Tư vấn qua Zalo: 039 824 9856
+                </Button>
+              </Link>
+            </div>
+          </div>
         </section>
       )}
 
@@ -238,8 +262,8 @@ export default async function Home() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3 shrink-0 justify-center">
-            <CameraQuizModal />
-            <CameraCompareModal />
+            <CameraQuizModal allCameras={allCameras} />
+            <CameraCompareModal allCameras={allCameras} />
           </div>
         </div>
       </section>

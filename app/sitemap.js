@@ -1,8 +1,8 @@
-import { getAllModels } from "../lib/productData";
+import { getCameras } from "../lib/fetchCameras";
 
 export default async function sitemap() {
   const baseUrl = "https://4catscamera.com";
-  const models = getAllModels();
+  const models = await getCameras();
 
   const staticRoutes = [
     {
