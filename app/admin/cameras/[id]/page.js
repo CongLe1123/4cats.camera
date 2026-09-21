@@ -11,6 +11,7 @@ import {
 import { supabase } from "../../../../lib/supabase";
 import { compressImage } from "../../../../lib/utils";
 import { validateUploadFile, generateSafeFileName } from "../../../../lib/upload-utils";
+import RichContentEditor from "../../../../components/admin/RichContentEditor";
 import { Button } from "../../../../components/ui/button";
 import { Input } from "../../../../components/ui/input";
 import { Label } from "../../../../components/ui/label";
@@ -118,6 +119,7 @@ export default function EditCameraPage({ params }) {
     images: [],
     short_description: "",
     beginner_summary: "",
+    content: "",
     strengths: [],
     limitations: [],
     use_cases: ["Người mới", "Selfie"],
@@ -192,6 +194,7 @@ export default function EditCameraPage({ params }) {
           images: [],
           short_description: "",
           beginner_summary: "",
+          content: "",
           strengths: ["Lấy nét tự động cực nhanh nhận diện mắt", "Màn hình cảm ứng xoay lật 180° selfie dễ dàng", "Nhẹ gọn, mang theo cả ngày không mỏi"],
           limitations: ["Thân máy không có chống rung IBIS cơ học"],
           use_cases: ["Người mới", "Selfie", "Du lịch"],
@@ -580,6 +583,9 @@ export default function EditCameraPage({ params }) {
           <TabsTrigger value="basic" className="rounded-xl text-xs font-bold py-2 data-[state=active]:bg-primary data-[state=active]:text-white">
             1. Cơ bản
           </TabsTrigger>
+          <TabsTrigger value="article" className="rounded-xl text-xs font-bold py-2 data-[state=active]:bg-primary data-[state=active]:text-white">
+            📝 Bài viết chi tiết
+          </TabsTrigger>
           <TabsTrigger value="media" className="rounded-xl text-xs font-bold py-2 data-[state=active]:bg-primary data-[state=active]:text-white">
             2. Hình ảnh
           </TabsTrigger>
@@ -730,6 +736,54 @@ export default function EditCameraPage({ params }) {
                   className="text-xs rounded-xl"
                 />
               </div>
+
+              {/* Jump to Rich Article Editor Banner */}
+              <div className="p-4 bg-primary/5 rounded-2xl border border-primary/20 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4">
+                <div>
+                  <h4 className="text-xs font-black text-primary flex items-center gap-1.5">
+                    <FileText className="w-4 h-4" /> Soạn thảo bài viết đánh giá chi tiết (Google Docs Style)
+                  </h4>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">
+                    Chèn ảnh minh họa, video clip thực tế và video YouTube trực quan không cần biết code HTML
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="default"
+                  size="sm"
+                  onClick={() => setActiveTab("article")}
+                  className="rounded-xl text-xs font-bold shrink-0 shadow-xs"
+                >
+                  Mở trình soạn thảo bài viết ↗
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ------------------------------------------------------------- */}
+        {/* TAB: BÀI VIẾT CHI TIẾT (GOOGLE DOCS WYSIWYG) */}
+        {/* ------------------------------------------------------------- */}
+        <TabsContent value="article" className="mt-4 space-y-4">
+          <Card className="rounded-3xl border shadow-xs">
+            <CardHeader className="border-b bg-muted/10 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div>
+                <CardTitle className="text-base font-black flex items-center gap-2 text-foreground">
+                  <FileText className="w-4 h-4 text-primary" />
+                  Bài Viết & Đánh Giá Chi Tiết Máy Ảnh (Google Docs Style)
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Gõ văn bản tự nhiên, kéo thả ảnh, chèn video YouTube 16:9 sắc nét và clip thực tế mà không cần hiểu code
+                </CardDescription>
+              </div>
+            </CardHeader>
+            <CardContent className="p-3 sm:p-6">
+              <RichContentEditor
+                value={product.content || ""}
+                onChange={(newContent) => {
+                  updateProduct({ content: newContent });
+                }}
+              />
             </CardContent>
           </Card>
         </TabsContent>

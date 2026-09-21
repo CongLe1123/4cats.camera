@@ -31,6 +31,7 @@ import { Label } from "../../../components/ui/label";
 import { Input } from "../../../components/ui/input";
 
 import { toast } from "sonner";
+import CameraArticleRenderer from "../../../components/CameraArticleRenderer";
 
 export default function ProductDetailClient({ camera, storeSettings }) {
   const formatPrice = (value) => {
@@ -613,57 +614,10 @@ export default function ProductDetailClient({ camera, storeSettings }) {
             <div className="w-20 h-1.5 bg-primary/20 mx-auto rounded-full" />
           </div>
 
-          <div className="space-y-10">
-            {camera.content &&
-              camera.content.map((block, index) => {
-                if (block.type === "text") {
-                  return (
-                    <p
-                      key={index}
-                      className="text-muted-foreground leading-relaxed text-xl font-medium"
-                    >
-                      {block.value}
-                    </p>
-                  );
-                }
-                if (block.type === "image") {
-                  return (
-                    <div key={index} className="space-y-3">
-                      <div className="rounded-[3rem] overflow-hidden border-8 border-secondary/20 shadow-2xl">
-                        <img
-                          src={block.value}
-                          alt={block.caption}
-                          className="w-full h-auto object-cover hover:scale-105 transition-transform duration-700"
-                        />
-                      </div>
-                      {block.caption && (
-                        <p className="text-sm text-center font-bold tracking-wide uppercase text-muted-foreground/60">
-                          {block.caption}
-                        </p>
-                      )}
-                    </div>
-                  );
-                }
-                if (block.type === "video") {
-                  return (
-                    <div key={index} className="space-y-3">
-                      <div className="rounded-[3rem] overflow-hidden border-8 border-secondary/20 shadow-2xl aspect-video bg-black">
-                        <video
-                          src={block.value}
-                          controls
-                          className="w-full h-full"
-                        />
-                      </div>
-                      {block.caption && (
-                        <p className="text-sm text-center font-bold tracking-wide uppercase text-muted-foreground/60">
-                          {block.caption}
-                        </p>
-                      )}
-                    </div>
-                  );
-                }
-                return null;
-              })}
+          <div className="space-y-6">
+            {camera.content && (
+              <CameraArticleRenderer content={camera.content} />
+            )}
           </div>
         </div>
       </div>

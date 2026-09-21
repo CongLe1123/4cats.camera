@@ -39,6 +39,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { toast } from "sonner";
 import { STORE_POLICIES } from "../lib/productData";
+import CameraArticleRenderer from "./CameraArticleRenderer";
 
 export default function ModelDetailView({
   model,
@@ -782,6 +783,29 @@ export default function ModelDetailView({
             </div>
           </Card>
         </section>
+
+        {/* ==================================================================== */}
+        {/* SECTION: BÀI VIẾT ĐÁNH GIÁ CHI TIẾT (GOOGLE DOCS RICH CONTENT) */}
+        {/* ==================================================================== */}
+        {(model.content || model.desc) && (
+          <section className="bg-white rounded-4xl p-6 md:p-10 shadow-sm border border-primary/10 space-y-6">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <span className="text-xs font-black uppercase text-primary tracking-widest">
+                Trải nghiệm & Đánh giá thực tế
+              </span>
+              <h2 className="text-2xl md:text-3xl font-black text-foreground">
+                Chi Tiết Về {model.brand} {model.model_name} 📷
+              </h2>
+              <p className="text-xs md:text-sm text-muted-foreground">
+                Đánh giá chuyên sâu và hình ảnh/video thực tế từ đội ngũ 4cats Camera
+              </p>
+            </div>
+
+            <div className="pt-2 max-w-3xl mx-auto">
+              <CameraArticleRenderer content={model.content || model.desc} />
+            </div>
+          </section>
+        )}
 
         {/* ==================================================================== */}
         {/* SECTION 4: TECHNICAL SPECIFICATIONS */}

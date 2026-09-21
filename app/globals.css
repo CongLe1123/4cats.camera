@@ -141,3 +141,172 @@ h6 {
 .animate-phone-ring {
   animation: phone-ring 1.5s infinite;
 }
+
+/* ==========================================================================
+   Google Docs-like Editor & Camera Article Prose Typography
+   ========================================================================== */
+.tiptap,
+.camera-article-prose {
+  font-family: var(--font-lexend), "Lexend", -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--foreground);
+}
+
+.tiptap:focus {
+  outline: none;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+  color: #a0848a;
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  pointer-events: none;
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.tiptap h1,
+.camera-article-prose h1 {
+  font-size: 1.85rem;
+  line-height: 1.25;
+  font-weight: 900;
+  color: #2e1d20;
+  margin-top: 1.75rem;
+  margin-bottom: 0.85rem;
+  letter-spacing: -0.02em;
+}
+
+.tiptap h2,
+.camera-article-prose h2 {
+  font-size: 1.45rem;
+  line-height: 1.3;
+  font-weight: 800;
+  color: #3b2427;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1.5px solid rgba(255, 107, 136, 0.2);
+  letter-spacing: -0.015em;
+}
+
+.tiptap h3,
+.camera-article-prose h3 {
+  font-size: 1.2rem;
+  line-height: 1.35;
+  font-weight: 700;
+  color: #4a3438;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.tiptap p,
+.camera-article-prose p {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: #4a3438;
+}
+
+.tiptap ul,
+.camera-article-prose ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap ol,
+.camera-article-prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-top: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.tiptap li,
+.camera-article-prose li {
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+  line-height: 1.65;
+  font-size: 0.95rem;
+}
+
+.tiptap blockquote,
+.camera-article-prose blockquote {
+  border-left: 4px solid var(--primary);
+  background: rgba(255, 107, 136, 0.06);
+  padding: 0.85rem 1.25rem;
+  border-radius: 0 1rem 1rem 0;
+  margin-top: 1.25rem;
+  margin-bottom: 1.25rem;
+  font-style: italic;
+  color: #70555a;
+}
+
+.tiptap hr,
+.camera-article-prose hr {
+  border: none;
+  border-top: 1.5px dashed rgba(255, 107, 136, 0.3);
+  margin: 2rem 0;
+}
+
+.tiptap a,
+.camera-article-prose a {
+  color: var(--primary);
+  font-weight: 700;
+  text-decoration: underline;
+  transition: opacity 0.2s ease;
+}
+
+.tiptap a:hover,
+.camera-article-prose a:hover {
+  opacity: 0.8;
+}
+
+.tiptap figure,
+.camera-article-prose figure {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.tiptap figure img,
+.camera-article-prose figure img {
+  border-radius: 1.25rem;
+  max-width: 100%;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.tiptap figure figcaption,
+.camera-article-prose figure figcaption {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  margin-top: 0.5rem;
+  font-style: italic;
+  font-weight: 500;
+}
+
+.tiptap iframe,
+.camera-article-prose iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin: 1.5rem 0;
+  border: none;
+}
+
+.tiptap video,
+.camera-article-prose video {
+  width: 100%;
+  max-height: 520px;
+  border-radius: 1.25rem;
+  background-color: #000;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  margin: 1.5rem 0;
+}
+
