@@ -53,7 +53,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-secondary/40 via-background to-secondary/30 p-4 relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-linear-to-b from-secondary/40 via-background to-secondary/30 p-4 relative">
       {/* Back to site link */}
       <div className="absolute top-6 left-6">
         <Link

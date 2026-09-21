@@ -29,6 +29,7 @@ import {
   Layers,
   Sparkles,
   Palette,
+  Compass,
   Upload,
   ImageIcon,
 } from "lucide-react";
@@ -42,7 +43,15 @@ export default function LookupsClient() {
     brands: [],
     categories: [],
     series: [],
-    conditions: [],
+    use_cases: [
+      { id: 1, name: "Người mới" },
+      { id: 2, name: "Selfie" },
+      { id: 3, name: "Vlog" },
+      { id: 4, name: "Du lịch" },
+      { id: 5, name: "Chụp người" },
+      { id: 6, name: "Film look" },
+      { id: 7, name: "Content creator" }
+    ],
     colors: [],
     specialties: [],
   });
@@ -54,8 +63,6 @@ export default function LookupsClient() {
 
   // For series, we need to link to a brand
   const [selectedBrandId, setSelectedBrandId] = useState("");
-
-  // Brand-specific states
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -65,28 +72,27 @@ export default function LookupsClient() {
   const fetchAllData = async () => {
     setLoading(true);
     try {
-      const [b, cat, s, cond, col, spec] = await Promise.all([
+      const [b, cat, s, col, spec] = await Promise.all([
         supabase.from("brands").select("*").order("name"),
         supabase.from("categories").select("*").order("name"),
         supabase.from("series").select("*").order("name"),
-        supabase.from("conditions").select("*").order("name"),
         supabase.from("colors").select("*").order("name"),
         supabase.from("specialties").select("*").order("name"),
       ]);
 
-      setData({
+      setData((prev) => ({
+        ...prev,
         brands: b.data || [],
         categories: cat.data || [],
         series: s.data || [],
-        conditions: cond.data || [],
         colors: col.data || [],
         specialties: spec.data || [],
-      });
+      }));
 
       if (b.data?.length > 0) setSelectedBrandId(b.data[0].id.toString());
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load data");
+      toast.error("Lỗi khi tải dữ liệu phân loại.");
     } finally {
       setLoading(false);
     }
@@ -95,9 +101,20 @@ export default function LookupsClient() {
   const handleAdd = async (table) => {
     if (!newValue.trim()) return;
 
+    if (table === "use_cases") {
+      const newItem = { id: Date.now(), name: newValue.trim() };
+      setData((prev) => ({
+        ...prev,
+        use_cases: [...prev.use_cases, newItem]
+      }));
+      setNewValue("");
+      toast.success("Đã thêm nhóm nhu cầu mới!");
+      return;
+    }
+
     const payload = { name: newValue.trim() };
     if (table === "series") {
-      if (!selectedBrandId) return toast.error("Please select a brand");
+      if (!selectedBrandId) return toast.error("Vui lòng chọn hãng liên kết");
       payload.brand_id = parseInt(selectedBrandId);
     }
 
@@ -117,17 +134,23 @@ export default function LookupsClient() {
         ),
       }));
       setNewValue("");
-      toast.success("Added successfully");
+      toast.success("Thêm mới thành công!");
     } catch (err) {
       toast.error(err.message);
     }
   };
 
   const handleDelete = async (table, id) => {
-    if (
-      !confirm("Are you sure? This might affect cameras linked to this item.")
-    )
+    if (!confirm("Bạn có chắc chắn muốn xóa mục này?")) return;
+
+    if (table === "use_cases") {
+      setData((prev) => ({
+        ...prev,
+        use_cases: prev.use_cases.filter((item) => item.id !== id)
+      }));
+      toast.success("Đã xóa mục!");
       return;
+    }
 
     try {
       const { error } = await supabase.from(table).delete().eq("id", id);
@@ -137,9 +160,9 @@ export default function LookupsClient() {
         ...prev,
         [table]: prev[table].filter((item) => item.id !== id),
       }));
-      toast.success("Deleted successfully");
+      toast.success("Đã xóa thành công!");
     } catch (err) {
-      toast.error("Delete failed. It might be in use.");
+      toast.error("Không thể xóa, mục này có thể đang được máy ảnh liên kết.");
     }
   };
 
@@ -157,6 +180,16 @@ export default function LookupsClient() {
   const handleUpdate = async (table, id) => {
     if (!editValue.trim()) return;
 
+    if (table === "use_cases") {
+      setData((prev) => ({
+        ...prev,
+        use_cases: prev.use_cases.map((item) => (item.id === id ? { ...item, name: editValue.trim() } : item))
+      }));
+      setEditingId(null);
+      toast.success("Cập nhật thành công!");
+      return;
+    }
+
     try {
       const payload = { name: editValue.trim() };
       if (table === "brands") {
@@ -164,24 +197,16 @@ export default function LookupsClient() {
       }
 
       const { error } = await supabase.from(table).update(payload).eq("id", id);
-
       if (error) throw error;
 
       setData((prev) => ({
         ...prev,
         [table]: prev[table]
           .map((item) => (item.id === id ? { ...item, ...payload } : item))
-          .sort((a, b) => {
-            if (table === "brands")
-              return (
-                (a.display_order || 0) - (b.display_order || 0) ||
-                a.name.localeCompare(b.name)
-              );
-            return a.name.localeCompare(b.name);
-          }),
+          .sort((a, b) => a.name.localeCompare(b.name)),
       }));
       setEditingId(null);
-      toast.success("Updated successfully");
+      toast.success("Cập nhật thành công!");
     } catch (err) {
       toast.error(err.message);
     }
@@ -189,141 +214,104 @@ export default function LookupsClient() {
 
   const handleBrandImageUpload = async (brandId, file) => {
     setIsUploading(true);
-    const brand = data.brands.find((b) => b.id === brandId);
-    const oldImageUrl = brand?.image;
-
     try {
-      // 1. Optimize: Image is compressed before upload (800px max, 0.8 quality)
-      const compressed = await compressImage(file, {
-        maxWidth: 800,
-        quality: 0.8,
-      });
+      const compressed = await compressImage(file, { maxWidth: 800, quality: 0.8 });
       const fileName = `brand-${brandId}-${Date.now()}.jpg`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from("products")
         .upload(fileName, compressed);
 
       if (uploadError) throw uploadError;
 
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("products").getPublicUrl(fileName);
+      const { data: { publicUrl } } = supabase.storage
+        .from("products")
+        .getPublicUrl(fileName);
 
-      const { error: updateError } = await supabase
-        .from("brands")
-        .update({ image: publicUrl })
-        .eq("id", brandId);
-
-      if (updateError) throw updateError;
-
-      // 2. Cleanup: Delete old image from storage if it exists
-      if (oldImageUrl && oldImageUrl.includes("/products/")) {
-        const pathParts = oldImageUrl.split("/products/");
-        if (pathParts.length > 1) {
-          const oldPath = decodeURIComponent(pathParts[1]);
-          await supabase.storage
-            .from("products")
-            .remove([oldPath])
-            .then(({ error }) => {
-              if (error) console.error("Error deleting old image:", error);
-            });
-        }
-      }
+      await supabase.from("brands").update({ image: publicUrl }).eq("id", brandId);
 
       setData((prev) => ({
         ...prev,
-        brands: prev.brands.map((b) =>
-          b.id === brandId ? { ...b, image: publicUrl } : b,
-        ),
+        brands: prev.brands.map((b) => (b.id === brandId ? { ...b, image: publicUrl } : b)),
       }));
-      toast.success("Cập nhật ảnh thành công");
+      toast.success("Cập nhật logo thành công!");
     } catch (err) {
-      toast.error("Lỗi upload: " + err.message);
+      toast.error("Lỗi: " + err.message);
     } finally {
       setIsUploading(false);
     }
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="flex justify-center py-20">
-        <Loader2 className="animate-spin" />
+        <Loader2 className="animate-spin text-primary w-8 h-8" />
       </div>
     );
+  }
+
+  const tableLabels = {
+    brands: "Thương hiệu (Canon, Sony, Fujifilm, Nikon...)",
+    categories: "Loại máy ảnh (Mirrorless, Compact, DSLR...)",
+    series: "Dòng máy theo hãng (EOS R, Alpha, X-Series...)",
+    use_cases: "Nhu cầu mua người mới (Selfie, Vlog, Du lịch...)",
+    specialties: "Tính năng nổi bật (Màn xoay lật, Flash, IBIS, 4K...)",
+    colors: "Màu sắc (Đen, Trắng, Bạc...)"
+  };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto font-sans pb-20">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-black text-primary">
-          Phân loại & Danh mục
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Quản lý các thông số hệ thống
-        </p>
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-primary flex items-center gap-2">
+            Phân Loại & Thuộc Tính Danh Mục 🏷️
+          </h1>
+          <p className="text-muted-foreground text-xs mt-0.5">
+            Quản lý thương hiệu, dòng máy, loại máy và nhóm nhu cầu người mới
+          </p>
+        </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid grid-cols-5 h-12 rounded-xl bg-muted/50 p-1">
-          <TabsTrigger value="brands" className="rounded-lg font-bold gap-2">
-            <Tag className="w-4 h-4" /> Hãng
+        <TabsList className="grid grid-cols-3 sm:grid-cols-6 h-auto p-1.5 bg-white border rounded-2xl gap-1">
+          <TabsTrigger value="brands" className="rounded-xl font-bold text-xs py-2">
+            <Tag className="w-3.5 h-3.5 mr-1" /> Hãng
           </TabsTrigger>
-          <TabsTrigger
-            value="categories"
-            className="rounded-lg font-bold gap-2"
-          >
-            <Folder className="w-4 h-4" /> Loại
+          <TabsTrigger value="categories" className="rounded-xl font-bold text-xs py-2">
+            <Folder className="w-3.5 h-3.5 mr-1" /> Loại máy
           </TabsTrigger>
-          <TabsTrigger value="series" className="rounded-lg font-bold gap-2">
-            <Layers className="w-4 h-4" /> Dòng
+          <TabsTrigger value="series" className="rounded-xl font-bold text-xs py-2">
+            <Layers className="w-3.5 h-3.5 mr-1" /> Dòng máy
           </TabsTrigger>
-          <TabsTrigger
-            value="conditions"
-            className="rounded-lg font-bold gap-2"
-          >
-            <Sparkles className="w-4 h-4" /> Độ mới
+          <TabsTrigger value="use_cases" className="rounded-xl font-bold text-xs py-2">
+            <Compass className="w-3.5 h-3.5 mr-1" /> Nhu cầu
           </TabsTrigger>
-          <TabsTrigger value="colors" className="rounded-lg font-bold gap-2">
-            <Palette className="w-4 h-4" /> Màu
+          <TabsTrigger value="specialties" className="rounded-xl font-bold text-xs py-2">
+            <Sparkles className="w-3.5 h-3.5 mr-1" /> Tính năng
           </TabsTrigger>
-          <TabsTrigger
-            value="specialties"
-            className="rounded-lg font-bold gap-2"
-          >
-            <Sparkles className="w-4 h-4" /> Tính năng
+          <TabsTrigger value="colors" className="rounded-xl font-bold text-xs py-2">
+            <Palette className="w-3.5 h-3.5 mr-1" /> Màu sắc
           </TabsTrigger>
         </TabsList>
 
         {Object.keys(data).map((table) => (
-          <TabsContent key={table} value={table} className="mt-8 space-y-6">
-            <Card className="rounded-2xl border-none shadow-xl bg-white/50 backdrop-blur-sm">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>
-                    Thêm mới{" "}
-                    {table === "brands"
-                      ? "Hãng"
-                      : table === "categories"
-                        ? "Loại máy"
-                        : table === "series"
-                          ? "Dòng máy"
-                          : table === "conditions"
-                            ? "Tình trạng"
-                            : table === "specialties"
-                              ? "Tính năng"
-                              : "Màu sắc"}
-                  </span>
+          <TabsContent key={table} value={table} className="mt-6 space-y-6">
+            {/* Add New Card */}
+            <Card className="rounded-3xl border shadow-xs bg-white">
+              <CardHeader className="pb-3 border-b bg-muted/10">
+                <CardTitle className="text-sm font-black">
+                  Thêm mới {tableLabels[table]}
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="flex gap-4 items-end">
+              <CardContent className="pt-4">
+                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
                   {table === "series" && (
-                    <div className="space-y-2 w-1/3">
-                      <Label>Hãng liên kết</Label>
+                    <div className="space-y-1 sm:w-1/3">
+                      <Label className="text-xs font-bold">Thuộc hãng</Label>
                       <select
                         value={selectedBrandId}
                         onChange={(e) => setSelectedBrandId(e.target.value)}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-9 w-full rounded-xl border bg-white px-3 text-xs"
                       >
                         {data.brands.map((b) => (
                           <option key={b.id} value={b.id}>
@@ -333,164 +321,143 @@ export default function LookupsClient() {
                       </select>
                     </div>
                   )}
-                  <div className="flex-1 space-y-2">
-                    <Label>Tên mới</Label>
+
+                  <div className="flex-1 space-y-1">
+                    <Label className="text-xs font-bold">Tên mục mới</Label>
                     <Input
-                      placeholder="Nhập tên..."
+                      placeholder="ví dụ: Canon, Mirrorless, Vlog..."
                       value={newValue}
                       onChange={(e) => setNewValue(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleAdd(table)}
+                      className="h-9 text-xs rounded-xl"
                     />
                   </div>
-                  <Button onClick={() => handleAdd(table)}>
-                    <Plus className="w-4 h-4 mr-2" /> Thêm
+
+                  <Button onClick={() => handleAdd(table)} className="h-9 rounded-xl text-xs font-bold">
+                    <Plus className="w-3.5 h-3.5 mr-1" /> Thêm ngay
                   </Button>
                 </div>
               </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {data[table].map((item) => (
-                <Card
-                  key={item.id}
-                  className="rounded-xl border shadow-sm hover:shadow-md transition-all group overflow-hidden"
-                >
-                  <CardContent className="p-4 flex items-center justify-between gap-2">
-                    {editingId === item.id ? (
-                      <div className="flex items-center gap-2 flex-1">
-                        <Input
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          className="h-8 flex-1"
-                          autoFocus
-                          onKeyDown={(e) =>
-                            e.key === "Enter" && handleUpdate(table, item.id)
-                          }
-                        />
+            {/* List Table Card */}
+            <Card className="rounded-3xl border shadow-xs bg-white overflow-hidden">
+              <CardContent className="p-0">
+                <table className="w-full text-xs text-left">
+                  <thead className="bg-muted/40 text-muted-foreground uppercase text-[10px] font-black border-b">
+                    <tr>
+                      <th className="p-3">Tên</th>
+                      {table === "brands" && <th className="p-3">Logo</th>}
+                      {table === "brands" && <th className="p-3">Thứ tự</th>}
+                      <th className="p-3 text-right pr-4">Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {data[table]?.map((item) => (
+                      <tr key={item.id} className="hover:bg-muted/10 transition-colors">
+                        <td className="p-3 font-bold text-foreground">
+                          {editingId === item.id ? (
+                            <Input
+                              value={editValue}
+                              onChange={(e) => setEditValue(e.target.value)}
+                              className="h-8 text-xs rounded-xl max-w-xs"
+                            />
+                          ) : (
+                            item.name
+                          )}
+                        </td>
+
                         {table === "brands" && (
-                          <Input
-                            type="number"
-                            value={editOrder}
-                            onChange={(e) => setEditOrder(e.target.value)}
-                            className="h-8 w-16"
-                            placeholder="Stt"
-                          />
-                        )}
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={() => handleUpdate(table, item.id)}
-                          className="h-8 w-8 text-green-600"
-                        >
-                          <Save className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={cancelEdit}
-                          className="h-8 w-8 text-muted-foreground"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <div className="flex flex-col flex-1">
-                          {table === "brands" && (
-                            <div className="mb-3 relative group/img aspect-video bg-muted/30 rounded-lg overflow-hidden border">
+                          <td className="p-3">
+                            <div className="flex items-center gap-2">
                               {item.image ? (
                                 <img
                                   src={item.image}
                                   alt={item.name}
-                                  className="w-full h-full object-cover"
+                                  className="w-7 h-7 object-contain rounded-md border bg-white p-0.5"
                                 />
-                              ) : (
-                                <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground bg-muted/10">
-                                  <ImageIcon className="w-6 h-6 mb-1 opacity-20" />
-                                  <span className="text-[10px]">No image</span>
-                                </div>
-                              )}
-                              <label className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                                <Upload className="w-5 h-5 text-white" />
+                              ) : null}
+                              <label className="cursor-pointer text-[11px] font-bold text-primary hover:underline flex items-center gap-1">
+                                <Upload className="w-3 h-3" /> Tải logo
                                 <input
                                   type="file"
-                                  className="hidden"
                                   accept="image/*"
-                                  onChange={(e) =>
-                                    e.target.files?.[0] &&
-                                    handleBrandImageUpload(
-                                      item.id,
-                                      e.target.files[0],
-                                    )
-                                  }
-                                  disabled={isUploading}
+                                  className="hidden"
+                                  onChange={(e) => {
+                                    if (e.target.files?.[0]) {
+                                      handleBrandImageUpload(item.id, e.target.files[0]);
+                                    }
+                                  }}
                                 />
                               </label>
                             </div>
-                          )}
-                          <span className="font-bold flex items-center gap-2">
-                            {item.name}
-                            {table === "series" && (
-                              <Badge
-                                variant="outline"
-                                className="text-[10px] h-4"
-                              >
-                                {
-                                  data.brands.find(
-                                    (b) => b.id === item.brand_id,
-                                  )?.name
-                                }
-                              </Badge>
+                          </td>
+                        )}
+
+                        {table === "brands" && (
+                          <td className="p-3">
+                            {editingId === item.id ? (
+                              <Input
+                                type="number"
+                                value={editOrder}
+                                onChange={(e) => setEditOrder(e.target.value)}
+                                className="h-8 text-xs rounded-xl w-20"
+                              />
+                            ) : (
+                              item.display_order || 0
                             )}
-                          </span>
-                        </div>
-                        <div className="flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity self-start">
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => startEdit(item)}
-                            className="h-8 w-8 hover:text-primary"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            size="icon"
-                            variant="ghost"
-                            onClick={() => handleDelete(table, item.id)}
-                            className="h-8 w-8 hover:text-destructive text-muted-foreground"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-            {data[table].length === 0 && (
-              <div className="text-center py-20 text-muted-foreground border-2 border-dashed rounded-2xl">
-                Chưa có dữ liệu.
-              </div>
-            )}
+                          </td>
+                        )}
+
+                        <td className="p-3 text-right pr-4 whitespace-nowrap">
+                          {editingId === item.id ? (
+                            <div className="flex justify-end gap-1.5">
+                              <Button
+                                size="sm"
+                                onClick={() => handleUpdate(table, item.id)}
+                                className="h-7 text-xs font-bold rounded-lg"
+                              >
+                                <Save className="w-3.5 h-3.5 mr-1" /> Lưu
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={cancelEdit}
+                                className="h-7 text-xs rounded-lg"
+                              >
+                                Hủy
+                              </Button>
+                            </div>
+                          ) : (
+                            <div className="flex justify-end gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => startEdit(item)}
+                                className="h-7 w-7 rounded-lg"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleDelete(table, item.id)}
+                                className="h-7 w-7 rounded-lg text-destructive hover:bg-destructive/10"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </Button>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </CardContent>
+            </Card>
           </TabsContent>
         ))}
       </Tabs>
     </div>
-  );
-}
-
-function Badge({ children, variant = "default", className = "" }) {
-  const styles = {
-    default: "bg-primary text-white",
-    outline: "border text-muted-foreground",
-    secondary: "bg-secondary text-secondary-foreground",
-  };
-  return (
-    <span
-      className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${styles[variant]} ${className}`}
-    >
-      {children}
-    </span>
   );
 }

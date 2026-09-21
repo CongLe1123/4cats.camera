@@ -249,14 +249,14 @@ export default function ProductDetailClient({ camera, storeSettings }) {
 
           <Card className="bg-secondary/15 border-none rounded-4xl shadow-sm">
             <CardContent className="p-8 space-y-8">
-              {/* Condition Selector */}
-              <div className="space-y-4">
-                <span className="text-xs font-black text-foreground/80 uppercase tracking-[0.2em]">
-                  Chọn tình trạng máy (Condition)
-                </span>
-                <div className="flex flex-wrap gap-3">
-                  {camera.availableConditions &&
-                    camera.availableConditions.map((cond) => (
+              {/* Version Selector */}
+              {camera.availableConditions && camera.availableConditions.length > 0 && (
+                <div className="space-y-4">
+                  <span className="text-xs font-black text-foreground/80 uppercase tracking-[0.2em]">
+                    Phiên bản (Version)
+                  </span>
+                  <div className="flex flex-wrap gap-3">
+                    {camera.availableConditions.map((cond) => (
                       <button
                         key={cond}
                         onClick={() => setSelectedCondition(cond)}
@@ -269,8 +269,9 @@ export default function ProductDetailClient({ camera, storeSettings }) {
                         {cond}
                       </button>
                     ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Color Selector */}
               <div className="space-y-4">
@@ -304,7 +305,7 @@ export default function ProductDetailClient({ camera, storeSettings }) {
                   <span className="text-muted-foreground/80 text-xs font-bold uppercase tracking-widest">
                     Bảo hành
                   </span>
-                  <span className="font-black text-lg">6 Tháng</span>
+                  <span className="font-black text-lg">12 Tháng chính hãng</span>
                 </div>
               </div>
             </CardContent>
@@ -324,7 +325,7 @@ export default function ProductDetailClient({ camera, storeSettings }) {
                   {activeVariant?.inStock ? "Mua ngay" : "Liên hệ ngay"}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
+              <DialogContent className="sm:max-w-125 rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
                 {isSuccess ? (
                   <div className="py-16 px-8 flex flex-col items-center text-center">
                     <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-bounce shadow-inner">

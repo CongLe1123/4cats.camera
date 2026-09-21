@@ -319,7 +319,7 @@ export default function RentalDetailClient({ camera, storeSettings }) {
                   {isAvailable ? "Thuê ngay" : "Hiện tại không cho thuê"}
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px] rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
+              <DialogContent className="sm:max-w-125 rounded-[2.5rem] border-none shadow-2xl p-0 overflow-hidden">
                 {isSuccess ? (
                   <div className="py-16 px-8 flex flex-col items-center text-center">
                     <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 animate-bounce shadow-inner">

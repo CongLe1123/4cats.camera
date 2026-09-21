@@ -472,7 +472,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
               <div className="flex items-center gap-2">
                 <Label className="font-bold whitespace-nowrap">Sắp xếp:</Label>
                 <Select value={sortOrder} onValueChange={setSortOrder}>
-                  <SelectTrigger className="w-[180px] rounded-xl border-primary/20">
+                  <SelectTrigger className="w-45 rounded-xl border-primary/20">
                     <SelectValue placeholder="Sắp xếp" />
                   </SelectTrigger>
                   <SelectContent>
@@ -604,7 +604,7 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
         </div>
 
         {/* Right Column: Policy Sidebar */}
-        <div className="w-full lg:w-[450px] order-1 lg:order-2 space-y-8 shrink-0">
+        <div className="w-full lg:w-112.5 order-1 lg:order-2 space-y-8 shrink-0">
           <div className="lg:sticky lg:top-24 bg-white p-6 rounded-[2.5rem] shadow-xl border border-primary/10">
             <div className="text-center mb-6">
               <Badge

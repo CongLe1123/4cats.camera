@@ -62,13 +62,16 @@ export function Navbar() {
 
   const serviceItems = [
     { name: "Tất cả máy ảnh", href: "/shop" },
-    { name: "Máy ảnh Compact", href: "/shop?category=compact" },
-    { name: "Máy ảnh Mirrorless", href: "/shop?category=mirrorless" },
-    { name: "Thuê máy", href: "/rental" },
-    { name: "Order máy theo yêu cầu", href: "/order-camera" },
+    { name: "Máy cho người mới 🌱", href: "/shop?intent=Người+mới" },
+    { name: "Máy Selfie & Vlog 🤳", href: "/shop?intent=Selfie" },
+    { name: "Máy Mirrorless", href: "/shop?category=Mirrorless" },
+    { name: "Máy Compact nhỏ gọn", href: "/shop?category=Compact" },
+    { name: "Tông màu Film hoài cổ 🎞️", href: "/shop?intent=Film+look" },
+    { name: "Thuê máy ảnh", href: "/rental" },
   ];
 
   const navItems = [
+    { name: "Hướng dẫn", href: "/huong-dan/chon-may-anh-cho-nguoi-moi" },
     { name: "Cửa hàng", href: "/he-thong-cua-hang" },
     { name: "Bảo hành", href: "/chinh-sach/bao-hanh" },
     { name: "Chính sách", href: "/chinh-sach/mua-hang" },

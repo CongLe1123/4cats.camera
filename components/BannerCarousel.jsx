@@ -1,154 +1,183 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import Link from "next/link";
+import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
 export function BannerCarousel({ banners = [] }) {
   const [current, setCurrent] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [itemsToShow, setItemsToShow] = useState(1);
-  const containerRef = useRef(null);
-  const [containerWidth, setContainerWidth] = useState(0);
+  const touchStartX = useRef(0);
+  const touchEndX = useRef(0);
+  const timerRef = useRef(null);
 
+  const length = banners.length;
+
+  const nextSlide = useCallback(() => {
+    if (length <= 1) return;
+    setCurrent((prev) => (prev + 1) % length);
+  }, [length]);
+
+  const prevSlide = useCallback(() => {
+    if (length <= 1) return;
+    setCurrent((prev) => (prev === 0 ? length - 1 : prev - 1));
+  }, [length]);
+
+  // Autoplay with 5 seconds loop, respecting reduced motion and pause state
   useEffect(() => {
-    if (!containerRef.current) return;
-    
-    const updateSize = () => {
-      if (containerRef.current) {
-        setContainerWidth(containerRef.current.offsetWidth);
-      }
-    };
+    if (length <= 1 || isPaused) return;
 
-    updateSize();
-    window.addEventListener("resize", updateSize);
-    
-    const observer = new ResizeObserver(updateSize);
-    observer.observe(containerRef.current);
+    // Check prefers-reduced-motion
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (mediaQuery.matches) return;
+
+    timerRef.current = setInterval(() => {
+      nextSlide();
+    }, 5000);
 
     return () => {
-      window.removeEventListener("resize", updateSize);
-      observer.disconnect();
+      if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
+  }, [length, isPaused, nextSlide]);
 
-  useEffect(() => {
-    const handleResize = () => {
-      const width = window.innerWidth;
-      const newItemsToShow = width >= 1280 ? 3 : width >= 768 ? 2 : 1;
-      setItemsToShow(newItemsToShow);
-      setCurrent((prev) => Math.min(prev, Math.max(0, banners.length - newItemsToShow)));
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [banners.length]);
-
-  const nextSlide = () => {
-    setCurrent((prev) => (prev >= banners.length - itemsToShow ? 0 : prev + 1));
+  // Keyboard navigation
+  const handleKeyDown = (e) => {
+    if (e.key === "ArrowLeft") {
+      prevSlide();
+    } else if (e.key === "ArrowRight") {
+      nextSlide();
+    }
   };
 
-  const prevSlide = () => {
-    setCurrent((prev) => (prev === 0 ? Math.max(0, banners.length - itemsToShow) : prev - 1));
+  // Touch / Swipe handling for mobile
+  const handleTouchStart = (e) => {
+    setIsPaused(true);
+    touchStartX.current = e.touches[0].clientX;
   };
 
-  useEffect(() => {
-    if (!banners?.length || banners.length <= itemsToShow || isPaused) return;
-    
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev >= banners.length - itemsToShow ? 0 : prev + 1));
-    }, 2000); 
-    
-    return () => clearInterval(interval);
-  }, [banners.length, isPaused, itemsToShow, banners]);
+  const handleTouchMove = (e) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    setIsPaused(false);
+    const distance = touchStartX.current - touchEndX.current;
+    const minSwipeDistance = 50;
+
+    if (distance > minSwipeDistance) {
+      nextSlide();
+    } else if (distance < -minSwipeDistance) {
+      prevSlide();
+    }
+  };
 
   if (!banners || banners.length === 0) return null;
 
   return (
-    <div className="relative">
-      <div 
-        ref={containerRef}
-        className="relative w-full rounded-4xl group shadow-2xl overflow-hidden bg-muted"
-        style={{ height: containerWidth > 0 ? `${(containerWidth / itemsToShow) * 4 / 3}px` : 'auto' }}
-        onMouseEnter={() => setIsPaused(true)}
-        onMouseLeave={() => setIsPaused(false)}
+    <section
+      aria-label="Khuyến mãi nổi bật"
+      className="relative w-full outline-hidden"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+      onFocus={() => setIsPaused(true)}
+      onBlur={() => setIsPaused(false)}
+    >
+      <div
+        className="relative w-full rounded-3xl md:rounded-4xl overflow-hidden shadow-lg border border-primary/15 bg-neutral-900 aspect-16/9 sm:aspect-21/9 md:aspect-24/9 select-none"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
-        {/* Absolute wrapper for the sliding content */}
-        <div className="absolute inset-0">
-          <div 
-            className="flex h-full transition-transform duration-700 ease-out" 
-            style={{ 
-              transform: `translateX(-${current * (100 / itemsToShow)}%)` 
-            }}
-          >
-            {banners.map((banner) => (
-              <div 
-                key={banner.id} 
-                className="h-full shrink-0 px-1"
-                style={{ width: `${100 / itemsToShow}%` }}
-              >
-                <Link href={banner.link || '#'} className="relative block w-full h-full cursor-pointer group/slide overflow-hidden rounded-[2.5rem]">
-                    <img 
-                       src={banner.image} 
-                       alt={banner.title || "Banner"} 
-                       className="w-full h-full object-cover transition-transform duration-1000 group-hover/slide:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/95 via-black/10 to-transparent flex flex-col justify-end p-6 md:p-12 pb-16 md:pb-24">
-                      <div className="transform transition-all duration-700 max-w-2xl">
-                          {banner.title && (
-                            <h2 className="text-xl md:text-5xl font-black text-white mb-2 leading-tight drop-shadow-2xl line-clamp-2">
-                              {banner.title}
-                            </h2>
-                          )}
-                          {banner.description && (
-                            <p className="hidden md:block text-lg text-white/90 mb-6 font-medium line-clamp-2">
-                              {banner.description}
-                            </p>
-                          )}
-                          <span className="inline-flex items-center justify-center bg-white text-primary px-6 md:px-8 py-2 md:py-3 rounded-full font-black text-xs md:text-base hover:bg-primary hover:text-white transition-all shadow-xl active:scale-95">
-                            {banner.cta_text || "Xem ngay"}
-                          </span>
-                      </div>
-                    </div>
-                </Link>
+        {/* Slides Track */}
+        <div
+          className="flex h-full transition-transform duration-700 ease-in-out"
+          style={{ transform: `translateX(-${current * 100}%)` }}
+        >
+          {banners.map((banner, index) => (
+            <div
+              key={banner.id || index}
+              className="relative w-full h-full shrink-0"
+              aria-hidden={current !== index}
+            >
+              {/* Background Image */}
+              <img
+                src={banner.image}
+                alt={banner.title || "Khuyến mãi máy ảnh 4cats"}
+                loading={index === 0 ? "eager" : "lazy"}
+                className="w-full h-full object-cover object-center transform transition-transform duration-1000 scale-100 group-hover:scale-105"
+              />
+
+              {/* Gradient Overlay for text readability */}
+              <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/45 to-transparent flex items-center p-6 sm:p-10 md:p-14">
+                <div className="max-w-xl text-white space-y-2 md:space-y-3">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-[11px] font-black uppercase tracking-widest border border-white/25">
+                    <Sparkles className="w-3.5 h-3.5 text-secondary" /> Ưu đãi độc quyền
+                  </div>
+
+                  {banner.title && (
+                    <h2 className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-white tracking-tight leading-tight drop-shadow-md">
+                      {banner.title}
+                    </h2>
+                  )}
+
+                  {banner.description && (
+                    <p className="text-xs sm:text-sm md:text-base text-white/90 font-medium line-clamp-2 leading-relaxed drop-shadow-xs">
+                      {banner.description}
+                    </p>
+                  )}
+
+                  <div className="pt-2 md:pt-4">
+                    <Link
+                      href={banner.link || "/shop"}
+                      className="inline-flex items-center justify-center bg-primary hover:bg-primary/90 text-white px-6 md:px-8 py-2.5 md:py-3.5 rounded-full font-black text-xs md:text-sm sticker shadow-xl transition-all transform hover:scale-105 active:scale-95 cursor-pointer"
+                    >
+                      {banner.cta_text || "Xem ngay"}
+                    </Link>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
 
-        {/* Controls */}
-        {banners.length > itemsToShow && (
+        {/* Previous & Next Arrows */}
+        {length > 1 && (
           <>
-            <button 
+            <button
               onClick={prevSlide}
-              className="absolute left-6 top-1/2 -translate-y-1/2 z-30 bg-white/20 hover:bg-white/40 p-2 md:p-3 rounded-full backdrop-blur-xl transition-all opacity-0 group-hover:opacity-100 border border-white/20 text-white shadow-2xl scale-75 md:scale-100 invisible sm:visible"
+              aria-label="Slide trước"
+              className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/30 hover:bg-white text-white hover:text-primary flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 border border-white/20"
             >
-              <ChevronLeft className="w-6 h-6 md:w-8 md:h-8" />
+              <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
             </button>
-             <button 
+            <button
               onClick={nextSlide}
-              className="absolute right-6 top-1/2 -translate-y-1/2 z-30 bg-white/20 hover:bg-white/40 p-2 md:p-3 rounded-full backdrop-blur-xl transition-all opacity-0 group-hover:opacity-100 border border-white/20 text-white shadow-2xl scale-75 md:scale-100 invisible sm:visible"
+              aria-label="Slide kế tiếp"
+              className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/30 hover:bg-white text-white hover:text-primary flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 border border-white/20"
             >
-              <ChevronRight className="w-6 h-6 md:w-8 md:h-8" />
+              <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
             </button>
 
-            {/* Mobile-only subtle next button if you'd like, or just swipe/indicators */}
-
-            {/* Indicators */}
-            <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-30 flex gap-2 px-3 py-1.5 bg-black/30 backdrop-blur-md rounded-full border border-white/10">
+            {/* Pagination Indicators */}
+            <div className="absolute bottom-3 md:bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10">
               {banners.map((_, idx) => (
-                idx <= banners.length - itemsToShow ? (
-                  <button 
-                      key={idx}
-                      onClick={() => setCurrent(idx)}
-                      className={`h-1.5 md:h-2 rounded-full transition-all duration-500 ${current === idx ? "w-6 md:w-8 bg-white" : "w-1.5 md:w-2 bg-white/40 hover:bg-white/60"}`}
-                  />
-                ) : null
+                <button
+                  key={idx}
+                  onClick={() => setCurrent(idx)}
+                  aria-label={`Đi tới banner ${idx + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    current === idx
+                      ? "w-6 md:w-8 bg-primary shadow-xs"
+                      : "w-2 bg-white/50 hover:bg-white/80"
+                  }`}
+                />
               ))}
             </div>
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 }

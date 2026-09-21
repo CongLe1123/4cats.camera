@@ -119,7 +119,7 @@ export function MultiSelect({
             {selectedValues.length === 0 ? (
               <span className="text-foreground/90 truncate">{placeholder}</span>
             ) : selectedValues.length === 1 ? (
-              <span className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 text-xs font-semibold px-2 py-0.5 rounded-lg max-w-[140px] truncate shrink-0">
+              <span className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 text-xs font-semibold px-2 py-0.5 rounded-lg max-w-35 truncate shrink-0">
                 <span className="truncate">{selectedLabels[0]}</span>
                 <span
                   role="button"
@@ -138,7 +138,7 @@ export function MultiSelect({
               </span>
             ) : (
               <div className="flex items-center gap-1 overflow-hidden min-w-0">
-                <span className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 text-xs font-semibold px-2 py-0.5 rounded-lg max-w-[105px] truncate shrink-0">
+                <span className="inline-flex items-center gap-1 bg-primary/10 text-primary border border-primary/20 text-xs font-semibold px-2 py-0.5 rounded-lg max-w-26.25 truncate shrink-0">
                   <span className="truncate">{selectedLabels[0]}</span>
                   <span
                     role="button"
@@ -168,7 +168,7 @@ export function MultiSelect({
       <PopoverContent
         align="start"
         sideOffset={6}
-        className="w-[240px] sm:w-[260px] p-2 rounded-2xl border border-primary/20 bg-white/95 backdrop-blur-md shadow-xl z-[200]"
+        className="w-60 sm:w-65 p-2 rounded-2xl border border-primary/20 bg-white/95 backdrop-blur-md shadow-xl z-200"
       >
         {/* Search Bar if > 5 options */}
         {showSearch && (
@@ -241,7 +241,7 @@ export function MultiSelect({
                   aria-checked={isChecked}
                   onClick={() => handleToggle(opt.value)}
                   className={cn(
-                    "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm text-left transition-colors cursor-pointer select-none group min-h-[38px]",
+                    "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm text-left transition-colors cursor-pointer select-none group min-h-9.5",
                     isChecked
                       ? "bg-primary/10 text-primary font-semibold"
                       : "text-foreground hover:bg-primary/5"
@@ -256,7 +256,7 @@ export function MultiSelect({
                         : "border-muted-foreground/30 bg-white group-hover:border-primary/50"
                     )}
                   >
-                    {isChecked && <Check className="w-3 h-3 stroke-[3]" />}
+                    {isChecked && <Check className="w-3 h-3 stroke-3" />}
                   </span>
 
                   <span className="flex-1 truncate">{opt.label}</span>

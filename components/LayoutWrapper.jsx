@@ -24,7 +24,7 @@ export function LayoutWrapper({ children, storeSettings }) {
   const settings = storeSettings || {
     brand_name: "4cats.camera 📸",
     brand_description:
-      "Chuyên cung cấp các dòng máy ảnh Compact, Mirrorless, DSLR đã qua sử dụng với chất lượng tốt nhất.",
+      "Chuyên cung cấp các dòng máy ảnh Mirrorless, Compact chính hãng mới 100% dành cho người mới và creator.",
     locations: [],
     support_links: [],
     contact_phones: ["039 824 9856"],

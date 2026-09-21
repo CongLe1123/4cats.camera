@@ -2,6 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase";
+import {
+  adminGetBanners,
+  adminSaveBanner,
+  adminDeleteBanner
+} from "../../../lib/adminApi";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Label } from "../../../components/ui/label";
@@ -10,7 +15,7 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
-  CardFooter,
+  CardFooter
 } from "../../../components/ui/card";
 import {
   Dialog,
@@ -19,8 +24,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "../../../components/ui/dialog";
+import { Badge } from "../../../components/ui/badge";
+import { Switch } from "../../../components/ui/switch";
 import {
   Loader2,
   Plus,
@@ -29,29 +35,43 @@ import {
   Upload,
   X,
   ImageIcon,
+  Calendar,
+  Eye,
+  Smartphone,
+  Monitor,
+  ArrowUp,
+  ArrowDown
 } from "lucide-react";
 import { compressImage } from "../../../lib/utils";
-import { toast } from "sonner";
 import { validateUploadFile, generateSafeFileName } from "../../../lib/upload-utils";
+import { toast } from "sonner";
 
 export default function BannersPage() {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState(null);
+  const [previewMode, setPreviewMode] = useState("desktop"); // desktop | mobile
 
   // Form State
   const [formData, setFormData] = useState({
+    internal_name: "",
     image: "",
+    mobile_image: "",
     title: "",
     description: "",
-    cta_text: "",
-    link: "",
-    display_order: 0,
+    cta_text: "Xem ưu đãi ngay",
+    link: "/may-anh/canon-eos-r50",
+    start_at: "",
+    end_at: "",
+    display_order: 1,
+    is_active: true
   });
 
   const [imageFile, setImageFile] = useState(null);
+  const [mobileImageFile, setMobileImageFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
+  const [mobilePreviewUrl, setMobilePreviewUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
   useEffect(() => {
@@ -60,375 +80,473 @@ export default function BannersPage() {
 
   const fetchBanners = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("banners")
-      .select("*")
-      .order("display_order", { ascending: true });
-
-    if (error) console.error(error);
-    else setBanners(data || []);
-    setLoading(false);
-  };
-
-  const handleImageSelect = async (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const validation = validateUploadFile(file, "image");
-      if (!validation.valid) {
-        toast.error(validation.error);
-        return;
-      }
-      try {
-        // Optimize: 1920px max width, 0.75 quality (good balance for banners)
-        const compressed = await compressImage(file, {
-          maxWidth: 1920,
-          quality: 0.75,
-        });
-        setImageFile(compressed);
-        setPreviewUrl(URL.createObjectURL(compressed));
-      } catch (err) {
-        console.error("Compression failed", err);
-        // Fallback to original
-        setImageFile(file);
-        setPreviewUrl(URL.createObjectURL(file));
-      }
+    try {
+      const data = await adminGetBanners();
+      setBanners(data);
+    } catch (e) {
+      console.error(e);
+      toast.error("Lỗi khi tải danh sách banner.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRemoveImage = () => {
-    setImageFile(null);
-    setPreviewUrl("");
-    setFormData({ ...formData, image: "" });
-  };
+  const handleImageSelect = async (e, type = "desktop") => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const deleteImageFromStorage = async (url) => {
-    if (!url || !url.includes("products")) return;
+    const validation = validateUploadFile(file, "image");
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
+
     try {
-      const oldUrlObj = new URL(url);
-      const pathParts = oldUrlObj.pathname.split("/products/");
-      if (pathParts.length > 1) {
-        let oldPath = decodeURIComponent(pathParts[1]);
-        if (oldPath.startsWith("/")) oldPath = oldPath.substring(1);
-        await supabase.storage.from("products").remove([oldPath]);
+      const compressed = await compressImage(file, {
+        maxWidth: type === "desktop" ? 1920 : 900,
+        quality: 0.8,
+      });
+
+      if (type === "desktop") {
+        setImageFile(compressed);
+        setPreviewUrl(URL.createObjectURL(compressed));
+      } else {
+        setMobileImageFile(compressed);
+        setMobilePreviewUrl(URL.createObjectURL(compressed));
       }
-    } catch (e) {
-      console.error("Error deleting image from storage", e);
+    } catch (err) {
+      console.error(err);
+      toast.error("Không thể xử lý ảnh.");
     }
   };
 
   const handleSave = async () => {
+    if (!formData.title?.trim()) {
+      toast.warning("Vui lòng nhập tiêu đề banner.");
+      return;
+    }
+
     setIsUploading(true);
     let finalImageUrl = formData.image;
+    let finalMobileImageUrl = formData.mobile_image || formData.image;
 
     try {
-      // 1. Upload New Image if selected
+      // 1. Upload Desktop Image
       if (imageFile) {
-        const validation = validateUploadFile(imageFile, "image");
-        if (!validation.valid) {
-          toast.error(validation.error);
-          setIsUploading(false);
-          return;
-        }
-        const fileName = generateSafeFileName(imageFile.name, "banner");
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const fileName = generateSafeFileName(imageFile.name, "banner-desk");
+        const { error: uploadError } = await supabase.storage
           .from("products")
           .upload(fileName, imageFile);
+        if (uploadError) throw uploadError;
 
-        if (uploadError)
-          throw new Error("Tải ảnh thất bại: " + uploadError.message);
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from("products").getPublicUrl(fileName);
+        const { data: { publicUrl } } = supabase.storage
+          .from("products")
+          .getPublicUrl(fileName);
         finalImageUrl = publicUrl;
-
-        // 2. Cleanup Old Image if we are replacing it
-        if (
-          editingBanner &&
-          editingBanner.image &&
-          editingBanner.image !== finalImageUrl
-        ) {
-          await deleteImageFromStorage(editingBanner.image);
-        }
       }
 
-      const payload = { ...formData, image: finalImageUrl };
+      // 2. Upload Mobile Image
+      if (mobileImageFile) {
+        const fileName = generateSafeFileName(mobileImageFile.name, "banner-mobile");
+        const { error: uploadError } = await supabase.storage
+          .from("products")
+          .upload(fileName, mobileImageFile);
+        if (uploadError) throw uploadError;
 
-      if (editingBanner) {
-        const { error } = await supabase
-          .from("banners")
-          .update(payload)
-          .eq("id", editingBanner.id);
-        if (error) throw error;
-        toast.success("Cập nhật banner thành công! ✨");
-      } else {
-        const { error } = await supabase.from("banners").insert([payload]);
-        if (error) throw error;
-        toast.success("Thêm banner mới thành công! ✨");
+        const { data: { publicUrl } } = supabase.storage
+          .from("products")
+          .getPublicUrl(fileName);
+        finalMobileImageUrl = publicUrl;
       }
 
+      const payload = {
+        ...formData,
+        image: finalImageUrl,
+        mobile_image: finalMobileImageUrl || finalImageUrl,
+        id: editingBanner?.id
+      };
+
+      await adminSaveBanner(payload);
+      toast.success(editingBanner ? "Cập nhật banner thành công! ✨" : "Thêm banner mới thành công! ✨");
       setOpen(false);
       setEditingBanner(null);
-      resetForm();
-      fetchBanners();
+      await fetchBanners();
     } catch (err) {
-      toast.error("Lỗi khi lưu banner: " + err.message);
+      toast.error("Lỗi khi lưu: " + err.message);
     } finally {
       setIsUploading(false);
     }
   };
 
   const handleDelete = async (banner) => {
-    if (!confirm("Bạn có chắc muốn xóa banner này?"))
-      return;
-
-    // 1. Delete image from storage
-    if (banner.image) {
-      await deleteImageFromStorage(banner.image);
-    }
-
-    // 2. Delete record
-    const { error } = await supabase
-      .from("banners")
-      .delete()
-      .eq("id", banner.id);
-    if (error) {
-      toast.error("Lỗi khi xóa: " + error.message);
-    } else {
+    if (!confirm(`Bạn có chắc muốn xóa banner "${banner.title}"?`)) return;
+    try {
+      await adminDeleteBanner(banner.id);
       toast.success("Đã xóa banner!");
-      fetchBanners();
+      await fetchBanners();
+    } catch (e) {
+      toast.error("Lỗi khi xóa: " + e.message);
     }
   };
 
-  const openEdit = (banner) => {
-    setEditingBanner(banner);
+  const openEdit = (b) => {
+    setEditingBanner(b);
     setFormData({
-      image: banner.image,
-      title: banner.title || "",
-      description: banner.description || "",
-      cta_text: banner.cta_text || "",
-      link: banner.link || "",
-      display_order: banner.display_order || 0,
+      internal_name: b.internal_name || b.title,
+      image: b.image || "",
+      mobile_image: b.mobile_image || b.image || "",
+      title: b.title || "",
+      description: b.description || "",
+      cta_text: b.cta_text || "Xem ưu đãi ngay",
+      link: b.link || "/shop",
+      start_at: b.start_at ? b.start_at.slice(0, 16) : "",
+      end_at: b.end_at ? b.end_at.slice(0, 16) : "",
+      display_order: b.display_order || 1,
+      is_active: b.is_active !== false
     });
     setPreviewUrl("");
+    setMobilePreviewUrl("");
     setImageFile(null);
+    setMobileImageFile(null);
     setOpen(true);
   };
 
   const openNew = () => {
     setEditingBanner(null);
-    resetForm();
+    setFormData({
+      internal_name: "",
+      image: "",
+      mobile_image: "",
+      title: "",
+      description: "",
+      cta_text: "Xem ưu đãi ngay",
+      link: "/may-anh/canon-eos-r50",
+      start_at: "",
+      end_at: "",
+      display_order: banners.length + 1,
+      is_active: true
+    });
+    setPreviewUrl("");
+    setMobilePreviewUrl("");
+    setImageFile(null);
+    setMobileImageFile(null);
     setOpen(true);
   };
 
-  const resetForm = () => {
-    setFormData({
-      image: "",
-      title: "",
-      description: "",
-      cta_text: "",
-      link: "",
-      display_order: banners.length,
-    });
-    setImageFile(null);
-    setPreviewUrl("");
+  const getStatusBadge = (calculatedStatus) => {
+    switch (calculatedStatus) {
+      case "active":
+        return <Badge className="bg-emerald-600 text-white text-[10px] font-bold">Đang hiển thị</Badge>;
+      case "scheduled":
+        return <Badge className="bg-blue-600 text-white text-[10px] font-bold">Đã lên lịch</Badge>;
+      case "expired":
+        return <Badge variant="outline" className="text-muted-foreground text-[10px] font-bold">Hết hạn</Badge>;
+      default:
+        return <Badge variant="secondary" className="text-[10px] font-bold">Bản nháp</Badge>;
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-black text-primary">Carousel Banners</h1>
-        <Button onClick={openNew}>
-          <Plus className="w-4 h-4 mr-2" /> Add Banner
+    <div className="space-y-6 pb-20 font-sans max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-black text-primary flex items-center gap-2">
+            Promotion Carousel Banners 🎠
+          </h1>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Quản lý banner quảng cáo trang chủ với tính năng hẹn giờ tự động và ảnh riêng cho mobile
+          </p>
+        </div>
+
+        <Button onClick={openNew} className="rounded-xl text-xs font-bold h-9">
+          <Plus className="w-3.5 h-3.5 mr-1.5" /> Thêm banner mới
         </Button>
       </div>
 
+      {/* Banner Cards Grid */}
       {loading ? (
-        <Loader2 className="animate-spin" />
+        <div className="py-20 flex justify-center">
+          <Loader2 className="animate-spin text-primary w-8 h-8" />
+        </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {banners.map((banner) => (
-            <Card key={banner.id} className="overflow-hidden group">
-              <div className="aspect-video relative bg-muted">
-                {banner.image && (
-                  <img
-                    src={banner.image}
-                    alt={banner.title}
-                    className="w-full h-full object-cover"
-                  />
+          {banners.map((b) => (
+            <Card key={b.id} className="rounded-3xl border shadow-xs overflow-hidden group">
+              <div className="aspect-[16/9] relative bg-muted overflow-hidden">
+                {b.image && (
+                  <img src={b.image} alt={b.title} className="w-full h-full object-cover" />
                 )}
-                <div className="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute top-3 left-3">
+                  {getStatusBadge(b.calculatedStatus)}
+                </div>
+
+                <div className="absolute top-3 right-3 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
                   <Button
-                    size="icon"
+                    size="sm"
                     variant="secondary"
-                    onClick={() => openEdit(banner)}
+                    onClick={() => openEdit(b)}
+                    className="h-8 text-xs font-bold rounded-xl shadow-md bg-white/90 backdrop-blur-xs"
                   >
-                    <Pencil className="w-4 h-4" />
+                    <Pencil className="w-3.5 h-3.5 mr-1" /> Sửa
                   </Button>
                   <Button
                     size="icon"
                     variant="destructive"
-                    onClick={() => handleDelete(banner)}
+                    onClick={() => handleDelete(b)}
+                    className="h-8 w-8 rounded-xl shadow-md"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </div>
-              </div>
-              <CardContent className="p-4">
-                <h3 className="font-bold text-lg">{banner.title}</h3>
-                <p className="text-sm text-muted-foreground">
-                  {banner.description}
-                </p>
-                <div className="mt-2 text-xs flex gap-2">
-                  <span className="bg-primary/10 px-2 py-1 rounded text-primary font-mono">
-                    Order: {banner.display_order}
-                  </span>
-                  <span className="bg-secondary px-2 py-1 rounded font-mono">
-                    Link: {banner.link}
-                  </span>
+
+                {/* Simulated Caption Preview */}
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 text-white">
+                  <p className="text-xs font-bold text-primary-foreground tracking-wider uppercase">Thứ tự: #{b.display_order}</p>
+                  <h3 className="text-sm sm:text-base font-black leading-tight line-clamp-1">{b.title}</h3>
+                  <p className="text-[11px] text-white/80 line-clamp-1 mt-0.5">{b.description}</p>
                 </div>
+              </div>
+
+              <CardContent className="p-4 space-y-2 text-xs">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground">
+                  <span>Nút CTA: <strong className="text-foreground">{b.cta_text}</strong></span>
+                  <span>Link: <code className="text-primary">{b.link}</code></span>
+                </div>
+
+                {(b.start_at || b.end_at) && (
+                  <div className="flex items-center gap-1 text-[11px] text-muted-foreground pt-1 border-t">
+                    <Calendar className="w-3 h-3 text-primary" />
+                    <span>
+                      {b.start_at ? new Date(b.start_at).toLocaleDateString("vi-VN") : "Bắt đầu"} → {b.end_at ? new Date(b.end_at).toLocaleDateString("vi-VN") : "Vô thời hạn"}
+                    </span>
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}
         </div>
       )}
 
+      {/* Edit / Create Banner Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-4xl w-[90vw]">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl">
           <DialogHeader>
-            <DialogTitle>
-              {editingBanner ? "Edit Banner" : "New Banner"}
+            <DialogTitle className="text-base font-black flex items-center justify-between pr-6">
+              <span>{editingBanner ? "Chỉnh Sửa Banner" : "Thêm Banner Mới"}</span>
+              <div className="flex items-center gap-1 bg-muted/60 p-1 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("desktop")}
+                  className={`px-2.5 py-1 text-xs font-bold rounded-lg flex items-center gap-1 ${
+                    previewMode === "desktop" ? "bg-white text-foreground shadow-2xs" : "text-muted-foreground"
+                  }`}
+                >
+                  <Monitor className="w-3.5 h-3.5" /> Desktop
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewMode("mobile")}
+                  className={`px-2.5 py-1 text-xs font-bold rounded-lg flex items-center gap-1 ${
+                    previewMode === "mobile" ? "bg-white text-foreground shadow-2xs" : "text-muted-foreground"
+                  }`}
+                >
+                  <Smartphone className="w-3.5 h-3.5" /> Mobile
+                </button>
+              </div>
             </DialogTitle>
-            <DialogDescription>
-              Configure the banner details for the homepage carousel.
+            <DialogDescription className="text-xs">
+              Thiết lập nội dung và xem trước trực tiếp trên Desktop và Mobile trước khi lưu
             </DialogDescription>
           </DialogHeader>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
-            {/* Left Column: Image */}
-            <div className="space-y-2">
-              <Label className="font-bold text-lg">Banner Image</Label>
-              <div className="border-2 border-dashed border-border rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-muted/50 transition-colors relative min-h-[300px] h-full bg-muted/10">
-                {previewUrl || formData.image ? (
-                  <div className="relative w-full h-full rounded-lg overflow-hidden border bg-muted group flex items-center justify-center">
-                    <img
-                      src={previewUrl || formData.image}
-                      alt="Preview"
-                      className="w-full h-full object-contain max-h-[400px]"
-                    />
-                    <button
-                      onClick={handleRemoveImage}
-                      className="absolute top-2 right-2 p-1.5 bg-destructive text-white rounded-full shadow-md hover:bg-destructive/90 transition-all z-10"
-                      type="button"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                    {imageFile && (
-                      <div className="absolute bottom-2 right-2 px-2 py-1 bg-black/60 text-white text-xs rounded-md backdrop-blur-sm">
-                        New File
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="py-4 pointer-events-none flex flex-col items-center justify-center h-full">
-                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
-                      <ImageIcon className="w-8 h-8" />
-                    </div>
-                    <p className="text-base font-bold mb-2">
-                      Upload Banner Image
-                    </p>
-                    <p className="text-sm text-muted-foreground max-w-[200px]">
-                      Drag & drop or click to upload. Recommended size:
-                      1920x1080
-                    </p>
-                  </div>
-                )}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-2 text-xs">
+            {/* Left Column: Media & Live Preview */}
+            <div className="space-y-4">
+              <Label className="text-xs font-bold">Xem trước hiển thị ({previewMode.toUpperCase()})</Label>
 
-                {!previewUrl && !formData.image && (
-                  <input
+              {/* Simulated Live Preview Box */}
+              <div
+                className={`relative rounded-2xl overflow-hidden border bg-black/90 shadow-md mx-auto transition-all ${
+                  previewMode === "mobile" ? "w-64 aspect-[9/16]" : "w-full aspect-[16/9]"
+                }`}
+              >
+                <img
+                  src={
+                    previewMode === "mobile"
+                      ? mobilePreviewUrl || formData.mobile_image || previewUrl || formData.image || "/favicon.ico"
+                      : previewUrl || formData.image || "/favicon.ico"
+                  }
+                  alt="Preview"
+                  className="w-full h-full object-cover opacity-80"
+                />
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent flex flex-col justify-end p-4 text-white space-y-1">
+                  <span className="text-[10px] font-black uppercase text-primary tracking-widest">
+                    4cats Ưu Đãi
+                  </span>
+                  <h4 className="font-black text-sm sm:text-base leading-tight">
+                    {formData.title || "Tiêu đề banner"}
+                  </h4>
+                  <p className="text-[11px] text-white/80 line-clamp-2">
+                    {formData.description || "Mô tả ưu đãi..."}
+                  </p>
+                  <div className="pt-2">
+                    <span className="inline-block px-3 py-1 rounded-xl bg-primary text-white text-[11px] font-bold">
+                      {formData.cta_text || "Xem ngay"} →
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload controls */}
+              <div className="space-y-2 pt-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Ảnh Desktop (1920x1080 khuyến nghị)</Label>
+                  <Input
                     type="file"
                     accept="image/*"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleImageSelect}
-                    disabled={isUploading}
+                    onChange={(e) => handleImageSelect(e, "desktop")}
+                    className="h-9 text-xs rounded-xl"
                   />
-                )}
+                  <Input
+                    placeholder="Hoặc dán URL ảnh desktop..."
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    className="h-8 text-xs rounded-xl font-mono"
+                  />
+                </div>
+
+                <div className="space-y-1 pt-2">
+                  <Label className="text-xs font-bold">Ảnh Mobile (Tùy chọn, 800x1200 hoặc vuông)</Label>
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageSelect(e, "mobile")}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                  <Input
+                    placeholder="Hoặc dán URL ảnh mobile..."
+                    value={formData.mobile_image}
+                    onChange={(e) => setFormData({ ...formData, mobile_image: e.target.value })}
+                    className="h-8 text-xs rounded-xl font-mono"
+                  />
+                </div>
               </div>
             </div>
 
             {/* Right Column: Form Inputs */}
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <Label>Title</Label>
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">Tên nội bộ banner</Label>
                 <Input
-                  value={formData.title}
-                  onChange={(e) =>
-                    setFormData({ ...formData, title: e.target.value })
-                  }
-                  placeholder="Banner Title"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Input
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                  placeholder="Short description"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>CTA Text</Label>
-                  <Input
-                    value={formData.cta_text}
-                    onChange={(e) =>
-                      setFormData({ ...formData, cta_text: e.target.value })
-                    }
-                    placeholder="e.g. Shop Now"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Link URL</Label>
-                  <Input
-                    value={formData.link}
-                    onChange={(e) =>
-                      setFormData({ ...formData, link: e.target.value })
-                    }
-                    placeholder="/shop/..."
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label>Display Order</Label>
-                <Input
-                  type="number"
-                  value={formData.display_order}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      display_order: parseInt(e.target.value) || 0,
-                    })
-                  }
+                  placeholder="ví dụ: Canon R50 Khuyến Mãi Tháng 9"
+                  value={formData.internal_name}
+                  onChange={(e) => setFormData({ ...formData, internal_name: e.target.value })}
+                  className="h-9 text-xs rounded-xl"
                 />
               </div>
 
-              <div className="pt-4 flex justify-end">
-                <Button
-                  onClick={handleSave}
-                  disabled={isUploading}
-                  className="w-full md:w-auto min-w-[150px]"
-                >
-                  {isUploading && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Save Banner
-                </Button>
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">Tiêu đề lớn xuất hiện trên banner *</Label>
+                <Input
+                  placeholder="ví dụ: ƯU ĐÃI CANON EOS R50"
+                  value={formData.title}
+                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                  className="h-9 text-xs rounded-xl font-bold"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <Label className="text-xs font-bold">Mô tả ngắn</Label>
+                <Input
+                  placeholder="Giảm ngay 1.500.000đ kèm quà tặng thẻ nhớ 64GB..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="h-9 text-xs rounded-xl"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Nút kêu gọi (CTA Text)</Label>
+                  <Input
+                    placeholder="Xem ưu đãi ngay"
+                    value={formData.cta_text}
+                    onChange={(e) => setFormData({ ...formData, cta_text: e.target.value })}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Link điều hướng khi bấm</Label>
+                  <Input
+                    placeholder="/may-anh/canon-eos-r50"
+                    value={formData.link}
+                    onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                    className="h-9 text-xs rounded-xl font-mono"
+                  />
+                </div>
+              </div>
+
+              {/* Scheduling */}
+              <div className="grid grid-cols-2 gap-3 pt-2 border-t">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Bắt đầu hiển thị (Hẹn giờ)</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.start_at}
+                    onChange={(e) => setFormData({ ...formData, start_at: e.target.value })}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Kết thúc hiển thị</Label>
+                  <Input
+                    type="datetime-local"
+                    value={formData.end_at}
+                    onChange={(e) => setFormData({ ...formData, end_at: e.target.value })}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <div className="space-y-1">
+                  <Label className="text-xs font-bold">Thứ tự hiển thị (1, 2, 3...)</Label>
+                  <Input
+                    type="number"
+                    value={formData.display_order}
+                    onChange={(e) => setFormData({ ...formData, display_order: Number(e.target.value) || 1 })}
+                    className="h-9 text-xs rounded-xl"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between p-2 rounded-xl bg-muted/40 border self-end h-9">
+                  <Label className="text-xs font-bold">Bật hiển thị</Label>
+                  <Switch
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                  />
+                </div>
               </div>
             </div>
           </div>
-          {/* Removed DialogFooter since button is now in the grid flow or we can keep it inside content area */}
+
+          <DialogFooter className="gap-2 pt-3 border-t">
+            <Button variant="outline" size="sm" onClick={() => setOpen(false)} className="rounded-xl text-xs">
+              Hủy
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSave}
+              disabled={isUploading}
+              className="rounded-xl text-xs font-bold min-w-28"
+            >
+              {isUploading ? <Loader2 className="w-3.5 h-3.5 animate-spin mr-1" /> : null}
+              Lưu Banner
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>

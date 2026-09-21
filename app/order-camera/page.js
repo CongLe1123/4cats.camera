@@ -255,13 +255,13 @@ export default function OrderCameraPage() {
               <h2 className="text-3xl font-bold mb-6 italic text-primary text-right">
                 Góc ưu đãi
               </h2>
-              <div className="rounded-[2rem] overflow-hidden shadow-lg border border-primary/20">
+              <div className="rounded-4xl overflow-hidden shadow-lg border border-primary/20">
                 <BannerCarousel banners={banners} />
               </div>
             </section>
 
             {/* Giá cả */}
-            <Card className="bg-primary text-primary-foreground p-8 rounded-[2rem] border-none shadow-lg shadow-primary/20 sticker">
+            <Card className="bg-primary text-primary-foreground p-8 rounded-4xl border-none shadow-lg shadow-primary/20 sticker">
               <h3 className="text-2xl font-bold mb-4 italic flex items-center gap-2">
                 <CreditCard className="h-6 w-6" />
                 Lưu ý về giá
@@ -299,7 +299,7 @@ export default function OrderCameraPage() {
             </DialogDescription>
           </DialogHeader>
           <Button
-            className="mt-8 w-full max-w-[200px] rounded-full"
+            className="mt-8 w-full max-w-50 rounded-full"
             onClick={() => setShowSuccess(false)}
           >
             Đã hiểu
