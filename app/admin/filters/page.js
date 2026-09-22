@@ -110,14 +110,14 @@ export default function FiltersConfigPage() {
             {filters.map((f) => (
               <div key={f.id} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-muted/10 transition-colors">
                 <div className="space-y-0.5">
-                  <p className="font-bold text-xs text-foreground flex items-center gap-2">
+                  <div className="font-bold text-xs text-foreground flex items-center gap-2">
                     {f.label}
                     {f.tier === "primary" ? (
                       <Badge className="bg-primary text-white text-[10px] font-bold">Bộ lọc chính</Badge>
                     ) : (
                       <Badge variant="outline" className="text-[10px] font-medium text-muted-foreground">Nâng cao</Badge>
                     )}
-                  </p>
+                  </div>
                   <p className="text-[11px] text-muted-foreground font-mono">
                     ID: {f.id}
                   </p>

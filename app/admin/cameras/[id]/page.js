@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -64,9 +64,27 @@ import {
   Globe2,
   CheckCircle2,
   Copy,
-  Wand2
+  Wand2,
+  Pencil,
+  RotateCcw
 } from "lucide-react";
 import { toast } from "sonner";
+
+// Predefined series map according to brand
+const DEFAULT_BRAND_SERIES_MAP = {
+  Canon: ["EOS R", "EOS M", "EOS D / Rebel", "PowerShot", "IXUS"],
+  Sony: ["Alpha A7 (Full-Frame)", "Alpha A6000 (APS-C)", "ZV Series (Vlog)", "Cyber-shot / RX", "FX Cinema"],
+  Fujifilm: ["X-T Series", "X-S Series", "X-E Series", "X100 Series", "X-Pro Series", "GFX (Medium Format)", "FinePix"],
+  Nikon: ["Z Series (Mirrorless)", "D Series (DSLR)", "Coolpix", "Nikon 1"],
+  Panasonic: ["Lumix G (MFT)", "Lumix S (Full-Frame)", "Lumix LX / TZ", "Lumix GH"],
+  Ricoh: ["GR Series", "WG Series"],
+  Leica: ["Leica Q", "Leica M", "Leica SL", "Leica D-Lux"],
+  Olympus: ["OM-D Series", "PEN Series", "Tough Series"],
+  Kodak: ["Pixpro", "Printomatic"]
+};
+
+const DEFAULT_BRANDS = ["Canon", "Sony", "Fujifilm", "Nikon", "Panasonic", "Ricoh", "Leica", "Olympus", "Kodak"];
+const DEFAULT_CATEGORIES = ["Mirrorless", "Compact", "DSLR", "Film", "Lens", "Action Cam"];
 
 // Predefined beginner-friendly tags
 const BEGINNER_USE_CASES = [
@@ -165,6 +183,12 @@ export default function EditCameraPage({ params }) {
   const [newLimitation, setNewLimitation] = useState("");
   const [newAlias, setNewAlias] = useState("");
 
+  // Lookups data (Brands, Categories, Series from Supabase)
+  const [dbBrands, setDbBrands] = useState([]);
+  const [dbCategories, setDbCategories] = useState([]);
+  const [dbSeries, setDbSeries] = useState([]);
+  const [isCustomSeries, setIsCustomSeries] = useState(false);
+
   useEffect(() => {
     async function load() {
       setLoading(true);
@@ -229,6 +253,21 @@ export default function EditCameraPage({ params }) {
           seo_description: ""
         });
       }
+
+      // Load Lookup data from Supabase for brand/category/series dropdowns
+      try {
+        const [bRes, catRes, sRes] = await Promise.all([
+          supabase.from("brands").select("id, name").order("name"),
+          supabase.from("categories").select("id, name").order("name"),
+          supabase.from("series").select("id, name, brand_id").order("name")
+        ]);
+        if (bRes.data?.length) setDbBrands(bRes.data);
+        if (catRes.data?.length) setDbCategories(catRes.data);
+        if (sRes.data?.length) setDbSeries(sRes.data);
+      } catch (e) {
+        console.warn("Could not load lookup tables:", e);
+      }
+
       setLoading(false);
       setHasUnsavedChanges(false);
     }
@@ -246,6 +285,50 @@ export default function EditCameraPage({ params }) {
     window.addEventListener("beforeunload", handleBeforeUnload);
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasUnsavedChanges]);
+
+  // Derived options for dropdowns
+  const availableBrands = useMemo(() => {
+    const dbNames = (dbBrands || []).map((b) => b.name);
+    return Array.from(new Set([...DEFAULT_BRANDS, ...dbNames]));
+  }, [dbBrands]);
+
+  const availableCategories = useMemo(() => {
+    const dbNames = (dbCategories || []).map((c) => c.name);
+    return Array.from(new Set([...DEFAULT_CATEGORIES, ...dbNames]));
+  }, [dbCategories]);
+
+  const currentBrandSeries = useMemo(() => {
+    const brandName = product.brand || "Canon";
+    const defaultList = DEFAULT_BRAND_SERIES_MAP[brandName] || [];
+    const matchedBrand = dbBrands.find((b) => b.name?.toLowerCase() === brandName.toLowerCase());
+    const fromDb = dbSeries
+      .filter((s) => (matchedBrand ? s.brand_id === matchedBrand.id : true))
+      .map((s) => s.name);
+    return Array.from(new Set([...fromDb, ...defaultList]));
+  }, [product.brand, dbBrands, dbSeries]);
+
+  const seriesOptions = useMemo(() => {
+    const list = [...currentBrandSeries];
+    if (product.series && !list.includes(product.series)) {
+      list.unshift(product.series);
+    }
+    return list;
+  }, [currentBrandSeries, product.series]);
+
+  const handleBrandChange = (newBrand) => {
+    const matchedBrand = dbBrands.find((b) => b.name?.toLowerCase() === newBrand.toLowerCase());
+    const brandSeries = [
+      ...dbSeries.filter((s) => (matchedBrand ? s.brand_id === matchedBrand.id : false)).map((s) => s.name),
+      ...(DEFAULT_BRAND_SERIES_MAP[newBrand] || [])
+    ];
+    const defaultSeries = brandSeries.length > 0 ? brandSeries[0] : "";
+    updateProduct({
+      brand: newBrand,
+      brand_id: matchedBrand?.id || product.brand_id,
+      series: defaultSeries
+    });
+    setIsCustomSeries(false);
+  };
 
   // Update product helper
   const updateProduct = (fields) => {
@@ -647,17 +730,17 @@ export default function EditCameraPage({ params }) {
                   <Label className="text-xs font-bold">Thương hiệu *</Label>
                   <Select
                     value={product.brand}
-                    onValueChange={(val) => updateProduct({ brand: val })}
+                    onValueChange={handleBrandChange}
                   >
                     <SelectTrigger className="h-10 text-xs rounded-xl">
                       <SelectValue placeholder="Chọn thương hiệu" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Canon">Canon</SelectItem>
-                      <SelectItem value="Sony">Sony</SelectItem>
-                      <SelectItem value="Fujifilm">Fujifilm</SelectItem>
-                      <SelectItem value="Nikon">Nikon</SelectItem>
-                      <SelectItem value="Panasonic">Panasonic</SelectItem>
+                      {availableBrands.map((b) => (
+                        <SelectItem key={b} value={b}>
+                          {b}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -666,28 +749,84 @@ export default function EditCameraPage({ params }) {
                   <Label className="text-xs font-bold">Danh mục sản phẩm *</Label>
                   <Select
                     value={product.camera_type}
-                    onValueChange={(val) => updateProduct({ camera_type: val })}
+                    onValueChange={(val) => {
+                      const matchedCat = dbCategories.find(c => c.name?.toLowerCase() === val.toLowerCase());
+                      updateProduct({
+                        camera_type: val,
+                        category_id: matchedCat?.id || product.category_id
+                      });
+                    }}
                   >
                     <SelectTrigger className="h-10 text-xs rounded-xl">
                       <SelectValue placeholder="Chọn danh mục" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Mirrorless">Mirrorless</SelectItem>
-                      <SelectItem value="Compact">Compact</SelectItem>
-                      <SelectItem value="DSLR">DSLR</SelectItem>
-                      <SelectItem value="Lens">Ống kính</SelectItem>
+                      {availableCategories.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label className="text-xs font-bold">Dòng máy (Series)</Label>
-                  <Input
-                    placeholder="ví dụ: EOS R, Alpha, X-Series..."
-                    value={product.series}
-                    onChange={(e) => updateProduct({ series: e.target.value })}
-                    className="h-10 text-xs rounded-xl"
-                  />
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-bold">Dòng máy (Series)</Label>
+                    <button
+                      type="button"
+                      onClick={() => setIsCustomSeries(!isCustomSeries)}
+                      className="text-[11px] text-primary hover:underline font-bold flex items-center gap-1"
+                    >
+                      {isCustomSeries ? (
+                        <>
+                          <RotateCcw className="w-3 h-3" /> Chọn từ dropdown
+                        </>
+                      ) : (
+                        <>
+                          <Pencil className="w-3 h-3" /> Tự nhập dòng khác
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {isCustomSeries ? (
+                    <Input
+                      placeholder={`Nhập dòng máy của ${product.brand || "máy"}...`}
+                      value={product.series}
+                      onChange={(e) => updateProduct({ series: e.target.value })}
+                      className="h-10 text-xs rounded-xl"
+                    />
+                  ) : (
+                    <Select
+                      value={product.series || ""}
+                      onValueChange={(val) => {
+                        if (val === "__custom__") {
+                          setIsCustomSeries(true);
+                        } else {
+                          const matchedSeries = dbSeries.find(s => s.name?.toLowerCase() === val.toLowerCase());
+                          updateProduct({
+                            series: val,
+                            series_id: matchedSeries?.id || product.series_id
+                          });
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="h-10 text-xs rounded-xl">
+                        <SelectValue placeholder={`Chọn dòng máy ${product.brand}...`} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {seriesOptions.map((s) => (
+                          <SelectItem key={s} value={s}>
+                            {s}
+                          </SelectItem>
+                        ))}
+                        <SelectItem value="__custom__" className="text-primary font-bold">
+                          ✏️ + Nhập dòng máy khác...
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
 
                 {/* Slug Generator */}

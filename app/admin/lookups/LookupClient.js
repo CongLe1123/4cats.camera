@@ -115,7 +115,12 @@ export default function LookupsClient() {
     const payload = { name: newValue.trim() };
     if (table === "series") {
       if (!selectedBrandId) return toast.error("Vui lòng chọn hãng liên kết");
-      payload.brand_id = parseInt(selectedBrandId);
+      const bId = parseInt(selectedBrandId, 10);
+      const brandExists = data.brands.some((b) => b.id === bId);
+      if (!brandExists) {
+        return toast.error("Hãng đã chọn không tồn tại trong hệ thống. Vui lòng tạo hãng trước!");
+      }
+      payload.brand_id = bId;
     }
 
     try {
@@ -125,7 +130,12 @@ export default function LookupsClient() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.message?.includes("series_brand_id_fkey")) {
+          throw new Error("Không thể thêm dòng máy: Hãng máy liên kết không tồn tại trong cơ sở dữ liệu. Vui lòng kiểm tra lại tab Hãng máy!");
+        }
+        throw error;
+      }
 
       setData((prev) => ({
         ...prev,
@@ -304,39 +314,45 @@ export default function LookupsClient() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-4">
-                <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
-                  {table === "series" && (
-                    <div className="space-y-1 sm:w-1/3">
-                      <Label className="text-xs font-bold">Thuộc hãng</Label>
-                      <select
-                        value={selectedBrandId}
-                        onChange={(e) => setSelectedBrandId(e.target.value)}
-                        className="flex h-9 w-full rounded-xl border bg-white px-3 text-xs"
-                      >
-                        {data.brands.map((b) => (
-                          <option key={b.id} value={b.id}>
-                            {b.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-
-                  <div className="flex-1 space-y-1">
-                    <Label className="text-xs font-bold">Tên mục mới</Label>
-                    <Input
-                      placeholder="ví dụ: Canon, Mirrorless, Vlog..."
-                      value={newValue}
-                      onChange={(e) => setNewValue(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleAdd(table)}
-                      className="h-9 text-xs rounded-xl"
-                    />
+                {table === "series" && data.brands.length === 0 ? (
+                  <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-800 text-xs font-medium">
+                    ⚠️ Chưa có Hãng máy (Brand) nào. Vui lòng chuyển sang tab <b>Hãng máy</b> để tạo hãng trước khi tạo Dòng máy!
                   </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-end">
+                    {table === "series" && (
+                      <div className="space-y-1 sm:w-1/3">
+                        <Label className="text-xs font-bold">Thuộc hãng</Label>
+                        <select
+                          value={selectedBrandId}
+                          onChange={(e) => setSelectedBrandId(e.target.value)}
+                          className="flex h-9 w-full rounded-xl border bg-white px-3 text-xs"
+                        >
+                          {data.brands.map((b) => (
+                            <option key={b.id} value={b.id}>
+                              {b.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
 
-                  <Button onClick={() => handleAdd(table)} className="h-9 rounded-xl text-xs font-bold">
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Thêm ngay
-                  </Button>
-                </div>
+                    <div className="flex-1 space-y-1">
+                      <Label className="text-xs font-bold">Tên mục mới</Label>
+                      <Input
+                        placeholder="ví dụ: Canon, Mirrorless, Vlog..."
+                        value={newValue}
+                        onChange={(e) => setNewValue(e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && handleAdd(table)}
+                        className="h-9 text-xs rounded-xl"
+                      />
+                    </div>
+
+                    <Button onClick={() => handleAdd(table)} className="h-9 rounded-xl text-xs font-bold">
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Thêm ngay
+                    </Button>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -349,6 +365,7 @@ export default function LookupsClient() {
                       <th className="p-3">Tên</th>
                       {table === "brands" && <th className="p-3">Logo</th>}
                       {table === "brands" && <th className="p-3">Thứ tự</th>}
+                      {table === "series" && <th className="p-3">Hãng liên kết</th>}
                       <th className="p-3 text-right pr-4">Thao tác</th>
                     </tr>
                   </thead>
@@ -406,6 +423,14 @@ export default function LookupsClient() {
                             ) : (
                               item.display_order || 0
                             )}
+                          </td>
+                        )}
+
+                        {table === "series" && (
+                          <td className="p-3">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-pink-50 text-pink-700 border border-pink-200">
+                              {data.brands.find((b) => b.id === item.brand_id)?.name || "Chưa gán hãng"}
+                            </span>
                           </td>
                         )}
 

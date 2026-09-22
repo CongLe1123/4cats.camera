@@ -208,8 +208,19 @@ export default function InventoryPage() {
           <p className="text-xs text-muted-foreground">Đang tải danh sách tồn kho...</p>
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-white p-12 text-center rounded-3xl border text-muted-foreground text-xs">
-          Không tìm thấy SKU nào phù hợp với bộ lọc.
+        <div className="bg-white p-12 text-center rounded-3xl border text-muted-foreground text-xs space-y-3">
+          <p>
+            {items.length === 0
+              ? "Chưa có sản phẩm hoặc mã SKU nào trong hệ thống để quản lý tồn kho."
+              : "Không tìm thấy SKU nào phù hợp với bộ lọc."}
+          </p>
+          {items.length === 0 && (
+            <Button asChild size="sm" className="rounded-xl text-xs font-bold mt-2">
+              <Link href="/admin/cameras/new">
+                + Tạo máy ảnh & mã SKU mới
+              </Link>
+            </Button>
+          )}
         </div>
       ) : (
         <div className="bg-white rounded-3xl border shadow-xs overflow-hidden">
