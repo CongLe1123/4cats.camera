@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Dialog,
@@ -281,9 +282,11 @@ export function CameraQuizModal({ allCameras = [] }) {
                   className="p-4 rounded-3xl border border-primary/20 bg-white shadow-sm space-y-3"
                 >
                   <div className="flex items-center gap-3">
-                    <img
-                      src={model.main_image || model.image}
+                    <Image
+                      src={model.main_image || model.image || "/favicon.ico"}
                       alt={model.name}
+                      width={64}
+                      height={64}
                       className="w-16 h-16 object-cover rounded-2xl bg-muted border shrink-0"
                     />
                     <div className="flex-1">

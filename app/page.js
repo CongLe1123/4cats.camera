@@ -1,4 +1,5 @@
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Button } from "../components/ui/button";
 import { BannerCarousel } from "../components/BannerCarousel";
 import { BrandList } from "../components/BrandList";
@@ -8,7 +9,8 @@ import {
   getFeaturedCameras,
   getBrandSections,
   getBanners,
-  getCameras
+  getCameras,
+  getBrands
 } from "../lib/fetchCameras";
 import {
   ShieldCheck,
@@ -22,17 +24,39 @@ import {
   Camera,
   Heart
 } from "lucide-react";
-import { CameraQuizModal } from "../components/CameraQuizModal";
-import { CameraCompareModal } from "../components/CameraCompareModal";
+
+// Lazy load modals to keep critical initial page JS bundle slim
+const CameraQuizModal = dynamic(
+  () => import("../components/CameraQuizModal").then((mod) => mod.CameraQuizModal),
+  {
+    loading: () => (
+      <Button variant="outline" className="rounded-full sticker font-bold text-xs h-11 px-5 shadow-xs cursor-pointer">
+        Trắc nghiệm tìm máy 🐾
+      </Button>
+    ),
+  }
+);
+
+const CameraCompareModal = dynamic(
+  () => import("../components/CameraCompareModal").then((mod) => mod.CameraCompareModal),
+  {
+    loading: () => (
+      <Button variant="outline" className="rounded-full border-primary/30 text-primary font-bold text-xs h-11 px-5 cursor-pointer">
+        So sánh các dòng máy ⚖️
+      </Button>
+    ),
+  }
+);
 
 export const revalidate = 60;
 
 export default async function Home() {
-  const [featuredCameras, brandSections, banners, allCameras] = await Promise.all([
+  const [featuredCameras, brandSections, banners, allCameras, brands] = await Promise.all([
     getFeaturedCameras(),
     getBrandSections(),
     getBanners(),
-    getCameras()
+    getCameras(),
+    getBrands()
   ]);
 
   const discountedCameras = allCameras.filter(
@@ -234,7 +258,7 @@ export default async function Home() {
             Khám phá kho máy <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
-        <BrandList />
+        <BrandList initialBrands={brands} />
       </section>
 
       {/* 9. DYNAMIC BRAND SECTIONS */}

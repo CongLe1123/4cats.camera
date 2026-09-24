@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo, Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "../../components/ui/button";
@@ -494,9 +495,11 @@ function RentalContent({ cameras = [], filters = defaultFilters }) {
                   className="overflow-hidden flex flex-col group h-full border-none shadow-lg hover:shadow-xl transition-all"
                 >
                   <div className="aspect-4/3 relative overflow-hidden bg-muted">
-                    <img
-                      src={camera.image}
+                    <Image
+                      src={camera.image || "/favicon.ico"}
                       alt={camera.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
                       className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
                     />
                     <div className="absolute top-4 left-4 flex flex-col gap-2">

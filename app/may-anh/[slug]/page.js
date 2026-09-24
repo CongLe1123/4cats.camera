@@ -1,8 +1,19 @@
-import { getProductModel, getStoreSettings } from "../../../lib/fetchCameras";
+import { getProductModel, getStoreSettings, getCameras } from "../../../lib/fetchCameras";
 import ModelDetailView from "../../../components/ModelDetailView";
 import { notFound } from "next/navigation";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  try {
+    const cameras = await getCameras();
+    return cameras.filter((c) => c.slug).map((c) => ({
+      slug: c.slug,
+    }));
+  } catch {
+    return [];
+  }
+}
 
 export async function generateMetadata({ params }) {
   const resolvedParams = await params;

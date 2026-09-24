@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import {
   ShieldCheck,
@@ -272,11 +273,14 @@ export default function ModelDetailView({
             {/* Left Column: Official Images Gallery (6 cols) */}
             <div className="lg:col-span-6 space-y-4">
               <div className="relative aspect-4/3 rounded-3xl overflow-hidden bg-secondary/15 border border-primary/10 group shadow-xs">
-                {/* Main Active Image */}
-                <img
+                {/* Main Active Image (LCP priority) */}
+                <Image
                   src={galleryImages[activeImageIndex]}
                   alt={`${model.brand} ${model.model_name} mới chính hãng`}
-                  className="w-full h-full object-cover select-none cursor-pointer transition-transform duration-500 hover:scale-105"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
+                  className="object-cover select-none cursor-pointer transition-transform duration-500 hover:scale-105"
                   onClick={() => setIsFullscreenGallery(true)}
                 />
 
@@ -286,14 +290,14 @@ export default function ModelDetailView({
                     <button
                       onClick={prevImage}
                       aria-label="Ảnh trước"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-primary flex items-center justify-center shadow-md backdrop-blur-xs transition-opacity opacity-0 group-hover:opacity-100"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-primary flex items-center justify-center shadow-md backdrop-blur-xs transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       onClick={nextImage}
                       aria-label="Ảnh kế tiếp"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-primary flex items-center justify-center shadow-md backdrop-blur-xs transition-opacity opacity-0 group-hover:opacity-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 hover:bg-white text-primary flex items-center justify-center shadow-md backdrop-blur-xs transition-opacity opacity-0 group-hover:opacity-100 cursor-pointer focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
@@ -301,7 +305,7 @@ export default function ModelDetailView({
                 )}
 
                 {/* Badges on main image */}
-                <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10">
+                <div className="absolute top-4 left-4 flex flex-col gap-1.5 z-10 pointer-events-none">
                   <span className="bg-emerald-600 text-white text-[11px] font-black px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
                     <CheckCircle2 className="w-3.5 h-3.5" /> Mới 100% Chính Hãng
                   </span>
@@ -313,7 +317,8 @@ export default function ModelDetailView({
                 {/* Zoom button */}
                 <button
                   onClick={() => setIsFullscreenGallery(true)}
-                  className="absolute bottom-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full shadow-sm text-foreground/80 hover:text-primary transition-colors"
+                  aria-label="Phóng to ảnh"
+                  className="absolute bottom-4 right-4 bg-white/90 hover:bg-white p-2 rounded-full shadow-sm text-foreground/80 hover:text-primary transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-primary"
                   title="Phóng to ảnh"
                 >
                   <ZoomIn className="w-4 h-4" />
@@ -327,16 +332,19 @@ export default function ModelDetailView({
                     <button
                       key={idx}
                       onClick={() => setActiveImageIndex(idx)}
-                      className={`relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 transition-all ${
+                      aria-label={`Xem ảnh thu nhỏ ${idx + 1}`}
+                      className={`relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 border-2 transition-all cursor-pointer focus-visible:ring-2 focus-visible:ring-primary ${
                         activeImageIndex === idx
                           ? "border-primary ring-2 ring-primary/20 scale-105"
                           : "border-gray-200 opacity-70 hover:opacity-100"
                       }`}
                     >
-                      <img
+                      <Image
                         src={img}
                         alt={`Ảnh thu nhỏ ${idx + 1}`}
-                        className="w-full h-full object-cover"
+                        fill
+                        sizes="64px"
+                        className="object-cover"
                       />
                     </button>
                   ))}
@@ -838,15 +846,20 @@ export default function ModelDetailView({
         >
           <button
             onClick={() => setIsFullscreenGallery(false)}
-            className="absolute top-6 right-6 text-white hover:text-primary p-2"
+            aria-label="Đóng xem ảnh phóng to"
+            className="absolute top-6 right-6 text-white hover:text-primary p-2 cursor-pointer focus-visible:ring-2 focus-visible:ring-white rounded-full z-10"
           >
             <X className="w-8 h-8" />
           </button>
-          <img
-            src={galleryImages[activeImageIndex]}
-            alt="Phóng to"
-            className="max-w-full max-h-[90vh] object-contain rounded-2xl"
-          />
+          <div className="relative w-full max-w-5xl h-[85vh]">
+            <Image
+              src={galleryImages[activeImageIndex]}
+              alt={`${model.brand} ${model.model_name} phóng to`}
+              fill
+              sizes="100vw"
+              className="object-contain rounded-2xl"
+            />
+          </div>
         </div>
       )}
     </div>

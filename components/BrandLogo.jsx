@@ -1,12 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 
 export function CatCameraIcon({ className = "w-10 h-10" }) {
   return (
-    <img
+    <Image
       src="/vercel.svg"
       alt="4CatsCamera Logo"
+      width={40}
+      height={40}
       className={`${className} object-contain`}
     />
   );
@@ -18,6 +21,12 @@ export function BrandLogo({
   showText = true,
   className = "",
 }) {
+  const pixelSizes = {
+    sm: 32,
+    md: 48,
+    lg: 64,
+  };
+
   const iconSizes = {
     sm: "w-8 h-8",
     md: "w-12 h-12",
@@ -30,14 +39,19 @@ export function BrandLogo({
     lg: "text-3xl",
   };
 
+  const px = pixelSizes[size] || 48;
+
   const content = (
     <div
       className={`inline-flex items-center gap-2.5 group transition-transform duration-300 hover:scale-[1.02] ${className}`}
     >
       <div className="relative transform transition-transform duration-500 group-hover:rotate-12 group-hover:scale-105 flex items-center justify-center">
-        <img
+        <Image
           src="/vercel.svg"
           alt="4CatsCamera Logo"
+          width={px}
+          height={px}
+          priority
           className={`${iconSizes[size] || iconSizes.md} object-contain`}
         />
       </div>

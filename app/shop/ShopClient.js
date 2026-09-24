@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, Suspense } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "../../components/ui/button";
@@ -667,11 +668,12 @@ function ShopContent({ cameras = [] }) {
                   >
                     {/* Image & Badges */}
                     <div className="aspect-4/3 relative overflow-hidden bg-secondary/15">
-                      <Link href={targetLink} className="block w-full h-full">
-                        <img
-                          src={camera.image || camera.main_image}
+                      <Link href={targetLink} className="block w-full h-full relative">
+                        <Image
+                          src={camera.image || camera.main_image || "/favicon.ico"}
                           alt={camera.name}
-                          loading="lazy"
+                          fill
+                          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 33vw"
                           className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105 cursor-pointer"
                         />
                       </Link>

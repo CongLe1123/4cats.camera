@@ -39,7 +39,9 @@ export function FloatingContact({ settings }) {
       {/* Combined Hotline & Menu Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="relative w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 group focus:outline-none"
+        aria-label={isOpen ? "Đóng menu liên hệ" : "Mở menu liên hệ và gọi hotline 4cats"}
+        aria-expanded={isOpen}
+        className="relative w-14 h-14 rounded-full flex items-center justify-center text-white transition-all duration-300 transform hover:scale-110 active:scale-95 group focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
       >
          {/* Sound waves (Ping animation) */}
         {!isOpen && <span className="absolute inline-flex h-full w-full rounded-full bg-secondary-foreground opacity-30 animate-ping"></span>}

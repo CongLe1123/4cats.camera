@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { getBrands } from "../lib/fetchCameras";
 
@@ -37,11 +38,12 @@ const FALLBACK_STYLES = [
   { gradient: "from-cyan-100 to-blue-200", text: "text-cyan-600" },
 ];
 
-export function BrandList() {
-  const [brands, setBrands] = useState([]);
-  const [loading, setLoading] = useState(true);
+export function BrandList({ initialBrands = null }) {
+  const [brands, setBrands] = useState(initialBrands || []);
+  const [loading, setLoading] = useState(!initialBrands || initialBrands.length === 0);
 
   useEffect(() => {
+    if (initialBrands && initialBrands.length > 0) return;
     async function fetchBrands() {
       try {
         const data = await getBrands();
@@ -53,7 +55,7 @@ export function BrandList() {
       }
     }
     fetchBrands();
-  }, []);
+  }, [initialBrands]);
 
   if (loading) {
     return (
@@ -78,15 +80,17 @@ export function BrandList() {
           return (
             <Link
               key={brand.id || i}
-              href={`/shop?brand=${brand.name}`}
+              href={`/shop?brand=${encodeURIComponent(brand.name)}`}
               className="group relative h-48 rounded-3xl overflow-hidden border border-primary/20 bg-white/80 shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
             >
               {/* Image Container with pastel background */}
-              <div className="absolute inset-0 z-0 bg-linear-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center p-4">
-                <img 
+              <div className="absolute inset-0 z-0 bg-linear-to-br from-pink-50 via-white to-rose-50 flex items-center justify-center p-4 relative">
+                <Image 
                   src={brand.image} 
                   alt={brand.name || "Camera brand"}
-                  className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700 drop-shadow-xs"
+                  fill
+                  sizes="(max-width: 640px) 50vw, 33vw"
+                  className="object-contain p-4 group-hover:scale-105 transition-transform duration-700 drop-shadow-xs"
                 />
               </div>
             </Link>

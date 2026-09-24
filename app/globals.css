@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -36,7 +35,7 @@
   --secondary: #fdf2f4;
   --secondary-foreground: #d81b60;
   --muted: #fef2f4;
-  --muted-foreground: #a0848a;
+  --muted-foreground: #6e5258;
   --accent: #fff0f3;
   --accent-foreground: #d81b60;
   --destructive: #ff4d4d;

@@ -60,6 +60,18 @@ export function Navbar() {
     };
   }, []);
 
+  // Prevent background scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
   const serviceItems = [
     { name: "Tất cả máy ảnh", href: "/shop" },
     { name: "Máy cho người mới 🌱", href: "/shop?intent=Người+mới" },

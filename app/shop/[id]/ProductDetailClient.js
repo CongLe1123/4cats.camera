@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "../../../components/ui/button";
 import { Badge } from "../../../components/ui/badge";
@@ -150,11 +151,14 @@ export default function ProductDetailClient({ camera, storeSettings }) {
               style={{ transform: `translateX(-${activeImage * 100}%)` }}
             >
               {displayImages.map((img, idx) => (
-                <div key={idx} className="w-full h-full shrink-0">
-                  <img
-                    src={img}
+                <div key={idx} className="w-full h-full shrink-0 relative">
+                  <Image
+                    src={img || "/favicon.ico"}
                     alt={`${camera.name} - View ${idx + 1}`}
-                    className="w-full h-full object-cover"
+                    fill
+                    priority={idx === 0}
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                    className="object-cover"
                   />
                 </div>
               ))}
@@ -165,13 +169,15 @@ export default function ProductDetailClient({ camera, storeSettings }) {
               <>
                 <button
                   onClick={prevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-10"
+                  aria-label="Ảnh trước"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-10 cursor-pointer focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <ChevronLeft className="h-6 w-6 text-primary" />
                 </button>
                 <button
                   onClick={nextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-10"
+                  aria-label="Ảnh kế tiếp"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm border flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white z-10 cursor-pointer focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary"
                 >
                   <ChevronRight className="h-6 w-6 text-primary" />
                 </button>
@@ -186,17 +192,20 @@ export default function ProductDetailClient({ camera, storeSettings }) {
                 <button
                   key={idx}
                   onClick={() => setActiveImage(idx)}
-                  className={`relative w-14 h-14 rounded-full overflow-hidden border-2 transition-all p-0.5 hover:scale-110 active:scale-95 ${
+                  className={`relative w-14 h-14 rounded-full overflow-hidden border-2 transition-all p-0.5 hover:scale-110 active:scale-95 cursor-pointer focus-visible:ring-2 focus-visible:ring-primary ${
                     activeImage === idx
                       ? "border-primary bg-primary/20 ring-4 ring-primary/10"
                       : "border-transparent bg-white/50 shadow-sm"
                   }`}
                   title={`View Angle ${idx + 1}`}
+                  aria-label={`Xem góc chụp ${idx + 1}`}
                 >
-                  <img
-                    src={img}
+                  <Image
+                    src={img || "/favicon.ico"}
                     alt={`Angle ${idx + 1}`}
-                    className="w-full h-full object-cover rounded-full"
+                    fill
+                    sizes="56px"
+                    className="object-cover rounded-full"
                   />
                 </button>
               ))}

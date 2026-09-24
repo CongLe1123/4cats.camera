@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
 
@@ -102,12 +103,16 @@ export function BannerCarousel({ banners = [] }) {
               aria-hidden={current !== index}
             >
               {/* Background Image */}
-              <img
-                src={banner.image}
-                alt={banner.title || "Khuyến mãi máy ảnh 4cats"}
-                loading={index === 0 ? "eager" : "lazy"}
-                className="w-full h-full object-cover object-center transform transition-transform duration-1000 scale-100 group-hover:scale-105"
-              />
+              <div className="relative w-full h-full">
+                <Image
+                  src={banner.image}
+                  alt={banner.title || "Khuyến mãi máy ảnh 4cats"}
+                  fill
+                  priority={index === 0}
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  className="object-cover object-center transform transition-transform duration-1000 scale-100 group-hover:scale-105"
+                />
+              </div>
 
               {/* Gradient Overlay for text readability */}
               <div className="absolute inset-0 bg-linear-to-r from-black/85 via-black/45 to-transparent flex items-center p-6 sm:p-10 md:p-14">
@@ -148,14 +153,14 @@ export function BannerCarousel({ banners = [] }) {
             <button
               onClick={prevSlide}
               aria-label="Slide trước"
-              className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/30 hover:bg-white text-white hover:text-primary flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 border border-white/20"
+              className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/30 hover:bg-white text-white hover:text-primary flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 border border-white/20 focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
             >
               <ChevronLeft className="w-5 h-5 md:w-6 md:h-6" />
             </button>
             <button
               onClick={nextSlide}
               aria-label="Slide kế tiếp"
-              className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/30 hover:bg-white text-white hover:text-primary flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 border border-white/20"
+              className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 md:w-12 md:h-12 rounded-full bg-white/30 hover:bg-white text-white hover:text-primary flex items-center justify-center backdrop-blur-md transition-all shadow-md active:scale-90 border border-white/20 focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
             >
               <ChevronRight className="w-5 h-5 md:w-6 md:h-6" />
             </button>
@@ -167,7 +172,8 @@ export function BannerCarousel({ banners = [] }) {
                   key={idx}
                   onClick={() => setCurrent(idx)}
                   aria-label={`Đi tới banner ${idx + 1}`}
-                  className={`h-2 rounded-full transition-all duration-300 ${
+                  aria-current={current === idx ? "true" : undefined}
+                  className={`h-2 rounded-full transition-all duration-300 focus-visible:ring-2 focus-visible:ring-primary cursor-pointer ${
                     current === idx
                       ? "w-6 md:w-8 bg-primary shadow-xs"
                       : "w-2 bg-white/50 hover:bg-white/80"

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   Card,
@@ -57,11 +58,12 @@ export function ProductSection({ title, brand = "All", items = [], viewAllLink =
             >
               {/* Image & Badges */}
               <div className="aspect-4/3 relative overflow-hidden bg-secondary/15">
-                <Link href={targetLink} className="block w-full h-full">
-                  <img
-                    src={item.image || item.main_image}
+                <Link href={targetLink} className="block w-full h-full relative">
+                  <Image
+                    src={item.image || item.main_image || "/favicon.ico"}
                     alt={item.name}
-                    loading="lazy"
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                     className="object-cover w-full h-full transition-transform duration-700 group-hover:scale-105 cursor-pointer"
                   />
                 </Link>
